@@ -31,9 +31,15 @@ public class ComptabiliteController {
     @GetMapping("/ecritures")
     @PreAuthorize("hasAnyRole('ADMIN','GERANT','COMPTABLE')")
     public ResponseEntity<List<EcritureComptable>> lister(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate debut,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
-        return ResponseEntity.ok(comptabiliteService.listerParPeriode(debut, fin));
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate debut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
+        if (debut != null && fin != null) {
+            return ResponseEntity.ok(comptabiliteService.listerParPeriode(debut, fin));
+        }
+        // Default to last 30 days if no dates provided
+        LocalDate today = LocalDate.now();
+        LocalDate monthAgo = today.minusDays(30);
+        return ResponseEntity.ok(comptabiliteService.listerParPeriode(monthAgo, today));
     }
 
     @GetMapping("/ecritures/{id}")

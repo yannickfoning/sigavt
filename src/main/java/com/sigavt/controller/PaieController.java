@@ -53,4 +53,16 @@ public class PaieController {
         paieService.supprimer(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/stats")
+    @PreAuthorize("hasAnyRole('ADMIN','GERANT','COMPTABLE')")
+    public ResponseEntity<List<BulletinPaie>> stats(
+            @RequestParam(required = false) Integer mois,
+            @RequestParam(required = false) Integer annee) {
+        if (mois != null && annee != null) {
+            String periode = String.format("%02d-%d", mois, annee);
+            return ResponseEntity.ok(paieService.listerParPeriode(periode));
+        }
+        return ResponseEntity.ok(paieService.listerParPeriode(""));
+    }
 }

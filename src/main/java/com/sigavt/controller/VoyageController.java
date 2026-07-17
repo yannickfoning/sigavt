@@ -6,6 +6,7 @@ import com.sigavt.entity.Voyage;
 import com.sigavt.repository.SiegeRepository;
 import com.sigavt.service.VoyageService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,6 +33,7 @@ public class VoyageController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','GERANT','BILLETTERIE','CONVOYEUR','COMPTABLE','RESP_FLOTTE')")
+    @Transactional(readOnly = true)
     public ResponseEntity<?> lister(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(defaultValue = "0") int page,
@@ -52,7 +54,7 @@ public class VoyageController {
     @GetMapping("/{id}/sieges")
     @PreAuthorize("hasAnyRole('ADMIN','GERANT','BILLETTERIE','CONVOYEUR','RESP_FLOTTE')")
     public ResponseEntity<List<Siege>> obtenirSieges(@PathVariable Long id) {
-        return ResponseEntity.ok(siegeRepository.findByVoyageId(id));
+        return ResponseEntity.ok(siegeRepository.findByVoyage_Id(id));
     }
 
     @PutMapping("/{id}")

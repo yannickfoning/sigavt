@@ -1,5 +1,6 @@
 package com.sigavt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sigavt.enums.StatutLigne;
 import javax.persistence.*;
 import lombok.*;
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "lignes")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Ligne {
 
     @Id

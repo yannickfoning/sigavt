@@ -1,6 +1,6 @@
 # score_final.ps1 — Script de test SIGAVT
 $BASE = "http://localhost:8080"
-$resultats = @()
+$resultats = New-Object System.Collections.Generic.List[object]
 
 function http($url, $method="GET", $data=$null, $token=$null) {
     $headers = @{"Content-Type"="application/json"}
@@ -22,7 +22,7 @@ function http($url, $method="GET", $data=$null, $token=$null) {
 }
 
 function t($categorie, $nom, $ok, $detail="") {
-    $global:resultats += @{categorie=$categorie; nom=$nom; ok=$ok; detail=$detail}
+    $global:resultats += [PSCustomObject]@{categorie=$categorie; nom=$nom; ok=$ok; detail=$detail}
     $icone = if ($ok) { "OK" } else { "FAIL" }
     $suffix = if (-not $ok -and $detail) { "  [$detail]" } else { "" }
     Write-Host "  [$icone] $nom$suffix"

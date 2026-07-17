@@ -33,10 +33,10 @@ public class Colis {
     @Column(name = "destinataire_tel", length = 30)
     private String destinataireTel;
 
-    @Column(name = "ville_depart", nullable = false, length = 100)
+    @Column(name = "ville_depart", length = 100)
     private String villeDepart;
 
-    @Column(name = "ville_arrivee", nullable = false, length = 100)
+    @Column(name = "ville_arrivee", length = 100)
     private String villeArrivee;
 
     @Column(name = "poids_kg", precision = 5, scale = 2)

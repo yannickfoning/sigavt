@@ -16,8 +16,8 @@ public class ColisRequest {
     @NotBlank private String destinataireNom;
     @Pattern(regexp = "\\+237[0-9]{9}", message = "Le téléphone doit être au format camerounais: +237XXXXXXXXX")
     private String destinataireTelephone;
-    @NotBlank private String villeDepart;
-    @NotBlank private String villeArrivee;
+    private String villeDepart;
+    private String villeArrivee;
     @NotNull @Positive private BigDecimal poidsKg;
     private String typeColis;
     private String description;

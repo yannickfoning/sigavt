@@ -13,13 +13,32 @@ def test_all_buttons():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         
-        # Configuration initiale pour éviter la redirection login
-        page.add_init_script("""
-            localStorage.setItem('token', 'test-token');
-            localStorage.setItem('user', JSON.stringify({id: 1, email: 'admin@sigavt.cm', role: 'ADMIN'}));
-        """)
-        
         print("=== DÉBUT DES TESTS DES BOUTONS SIGAVT ===\n")
+        
+        # Étape 0: Authentification réelle
+        print("0. Authentification réelle via API")
+        try:
+            response = page.request.post("http://localhost:8080/api/auth/login", data={
+                "email": "admin@sigavt.cm",
+                "motDePasse": "admin123"
+            })
+            auth_data = response.json()
+            token = auth_data.get("token") or auth_data.get("accessToken")
+            if token:
+                print(f"   ✓ Authentification réussie, token obtenu")
+                # Stocker le vrai token dans localStorage
+                page.add_init_script(f"""
+                    localStorage.setItem('token', '{token}');
+                    localStorage.setItem('user', JSON.stringify({{id: 1, email: 'admin@sigavt.cm', role: 'ADMIN'}}));
+                """)
+            else:
+                print(f"   ✗ Erreur d'authentification: {auth_data}")
+                browser.close()
+                return
+        except Exception as e:
+            print(f"   ✗ Erreur lors de l'authentification: {e}")
+            browser.close()
+            return
         
         # Naviguer vers la page principale
         print("1. Navigation vers http://localhost:8080/sigavt.html")

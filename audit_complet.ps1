@@ -173,11 +173,21 @@ Write-Host "Succès: $SuccessCount" -ForegroundColor Green
 Write-Host "Échecs: $FailCount" -ForegroundColor Red
 Write-Host "Erreurs: $ErrorCount" -ForegroundColor Yellow
 
+Write-Host "Total tests: $TotalCount" -ForegroundColor White
+Write-Host "Succès: $SuccessCount" -ForegroundColor Green
+Write-Host "Échecs: $FailCount" -ForegroundColor Red
+Write-Host "Erreurs: $ErrorCount" -ForegroundColor Yellow
+
 Write-Host ""
 Write-Host "Détails des échecs et erreurs:" -ForegroundColor Yellow
 $Results | Where-Object { $_.Status -ne "SUCCESS" } | Format-Table -AutoSize
 
 # Export results
-$Results | Export-Csv -Path "D:\sigavt\audit_results.csv" -NoTypeInformation
-Write-Host ""
-Write-Host "Résultats exportés dans: D:\sigavt\audit_results.csv" -ForegroundColor Cyan
+if ($Results.Count -gt 0) {
+    $Results | Export-Csv -Path "D:\sigavt\audit_results.csv" -NoTypeInformation
+    Write-Host ""
+    Write-Host "Résultats exportés dans: D:\sigavt\audit_results.csv" -ForegroundColor Cyan
+} else {
+    Write-Host ""
+    Write-Host "Aucun résultat à exporter" -ForegroundColor Yellow
+}
