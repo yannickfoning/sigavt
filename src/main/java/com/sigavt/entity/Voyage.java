@@ -24,12 +24,10 @@ public class Voyage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bus_id")
-    @JsonIgnore
     private Bus bus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chauffeur_id")
-    @JsonIgnore
     private Personnel chauffeur;
 
     @Column(name = "date_voyage", nullable = false)

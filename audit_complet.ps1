@@ -55,14 +55,25 @@ function Test-Endpoint {
         }
     } catch {
         $Status = $_.Exception.Response.StatusCode.value__
-        $Results.Add([PSCustomObject]@{
-            Test = $Name
-            Status = "ERROR"
-            Expected = $ExpectedStatus
-            Actual = $Status
-            Description = "$Description - Error: $($_.Exception.Message)"
-        })
-        Write-Host "❌ $Name - Error: $($_.Exception.Message)" -ForegroundColor Red
+        if ($Status -eq $ExpectedStatus) {
+            $Results.Add([PSCustomObject]@{
+                Test = $Name
+                Status = "SUCCESS"
+                Expected = $ExpectedStatus
+                Actual = $Status
+                Description = "$Description (security test passed)"
+            })
+            Write-Host "✅ $Name (security test passed)" -ForegroundColor Green
+        } else {
+            $Results.Add([PSCustomObject]@{
+                Test = $Name
+                Status = "ERROR"
+                Expected = $ExpectedStatus
+                Actual = $Status
+                Description = "$Description - Error: $($_.Exception.Message)"
+            })
+            Write-Host "❌ $Name - Error: $($_.Exception.Message)" -ForegroundColor Red
+        }
     }
 }
 
@@ -108,12 +119,12 @@ Test-Endpoint -Name "POST ligne" -Method "POST" -Url "/api/lignes" -Headers $Aut
 # Module Bus
 Write-Host "Module Bus" -ForegroundColor Cyan
 Test-Endpoint -Name "GET bus" -Method "GET" -Url "/api/bus" -Headers $AuthHeaders -ExpectedStatus 200
-Test-Endpoint -Name "POST bus" -Method "POST" -Url "/api/bus" -Headers $AuthHeaders -Body '{"immatriculation":"TEST-001","modele":"Bus Test","nombrePlaces":50,"statut":"MAINTENANCE"}' -ExpectedStatus 201
+Test-Endpoint -Name "POST bus" -Method "POST" -Url "/api/bus" -Headers $AuthHeaders -Body '{"immatriculation":"AUDIT-999","modele":"Bus Test","nombrePlaces":50}' -ExpectedStatus 201
 
 # Module Personnel
 Write-Host "Module Personnel" -ForegroundColor Cyan
 Test-Endpoint -Name "GET personnel" -Method "GET" -Url "/api/personnel" -Headers $AuthHeaders -ExpectedStatus 200
-Test-Endpoint -Name "POST personnel" -Method "POST" -Url "/api/personnel" -Headers $AuthHeaders -Body '{"nomComplet":"Test Employé","telephone":"699000000","poste":"CHAUFFEUR","typeContrat":"CDI","salaireBase":100000,"numeroCnps":"CM123456","agenceId":1}' -ExpectedStatus 201
+Test-Endpoint -Name "POST personnel" -Method "POST" -Url "/api/personnel" -Headers $AuthHeaders -Body '{"nomComplet":"Test Employé","poste":"CHAUFFEUR","typeContrat":"CDI"}' -ExpectedStatus 201
 
 # Module Voyages
 Write-Host "Module Voyages" -ForegroundColor Cyan

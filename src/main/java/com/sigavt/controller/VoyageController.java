@@ -1,6 +1,7 @@
 package com.sigavt.controller;
 
 import com.sigavt.dto.request.VoyageRequest;
+import com.sigavt.dto.response.VoyageResponse;
 import com.sigavt.entity.Siege;
 import com.sigavt.entity.Voyage;
 import com.sigavt.repository.SiegeRepository;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/voyages")
@@ -39,10 +41,13 @@ public class VoyageController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         if (date != null) {
-            return ResponseEntity.ok(voyageService.listerParDate(date));
+            List<VoyageResponse> responses = voyageService.listerParDate(date).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+            return ResponseEntity.ok(responses);
         }
         size = Math.min(size, 100);
-        return ResponseEntity.ok(voyageService.listerTous(page, size));
+        return ResponseEntity.ok(voyageService.listerTous(page, size).map(this::toResponse));
     }
 
     @GetMapping("/{id}")
@@ -68,5 +73,19 @@ public class VoyageController {
     public ResponseEntity<Void> supprimer(@PathVariable Long id) {
         voyageService.supprimer(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private VoyageResponse toResponse(Voyage voyage) {
+        return VoyageResponse.builder()
+                .id(voyage.getId())
+                .villeDepart(voyage.getLigne() != null ? voyage.getLigne().getVilleDepart() : null)
+                .villeArrivee(voyage.getLigne() != null ? voyage.getLigne().getVilleArrivee() : null)
+                .dateVoyage(voyage.getDateVoyage())
+                .heureDepart(voyage.getHeureDepart())
+                .placesDisponibles(voyage.getPlacesDisponibles())
+                .statut(voyage.getStatut())
+                .busImmatriculation(voyage.getBus() != null ? voyage.getBus().getImmatriculation() : null)
+                .chauffeurNom(voyage.getChauffeur() != null ? voyage.getChauffeur().getNomComplet() : null)
+                .build();
     }
 }
