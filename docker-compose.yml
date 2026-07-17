@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+
+  # ── MySQL 8 ──
+  mysql:
+    image: mysql:8.0
+    container_name: sigavt-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_secret_2025}
+      MYSQL_DATABASE: ${DB_NAME:-sigavt}
+      MYSQL_USER: ${DB_USER:-sigavt_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-sigavt_pass_2025}
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-time-zone=Africa/Douala
+      --innodb-buffer-pool-size=256M
+      --max-connections=100
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/slow.log
+      --long-query-time=2
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost",
+             "-u", "${DB_USER:-sigavt_user}", "-p${DB_PASSWORD:-sigavt_pass_2025}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - sigavt-net
+
+  # ── Application Spring Boot ──
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sigavt-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-sigavt}
+      DB_USER: ${DB_USER:-sigavt_user}
+      DB_PASSWORD: ${DB_PASSWORD:-sigavt_pass_2025}
+      JWT_SECRET: ${JWT_SECRET:-CHANGER_CE_SECRET_EN_PROD_32_CHARS_MIN}
+      TZ: Africa/Douala
+      JAVA_OPTS: >-
+        -Xms256m -Xmx512m
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=200
+        -Dfile.encoding=UTF-8
+        -Duser.timezone=Africa/Douala
+    ports:
+      - "8080:8080"
+    volumes:
+      - app_logs:/var/log/sigavt
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - sigavt-net
+
+volumes:
+  mysql_data:
+    driver: local
+  app_logs:
+    driver: local
+
+networks:
+  sigavt-net:
+    driver: bridge
+

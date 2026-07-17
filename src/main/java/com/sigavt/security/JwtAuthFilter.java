@@ -1,0 +1,105 @@
+package com.sigavt.security;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private final JwtUtil jwtUtil;
+    private final UtilisateurDetailsService utilisateurDetailsService;
+
+    // Routes qui ne nécessitent PAS de token JWT
+    private static final List<String> PUBLIC_PATHS = List.of(
+        "/",
+        "/index.html",
+        "/login",
+        "/login.html",
+        "/dashboard",
+        "/dashboard.html",
+        "/accueil",
+        "/error",
+        "/favicon.ico",
+        "/actuator/health",
+        "/actuator/info"
+    );
+
+    private static final List<String> PUBLIC_PREFIXES = List.of(
+        "/static/",
+        "/assets/",
+        "/css/",
+        "/js/",
+        "/images/",
+        "/img/",
+        "/fonts/",
+        "/webjars/",
+        "/api/auth/",
+        "/api/colis/tracking/",
+        "/swagger-ui/",
+        "/api-docs/",
+        "/h2-console/"
+    );
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        // Ignorer les chemins publics exacts
+        if (PUBLIC_PATHS.contains(path)) return true;
+        // Ignorer les préfixes publics
+        return PUBLIC_PREFIXES.stream().anyMatch(path::startsWith);
+    }
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                     @NonNull HttpServletResponse response,
+                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        final String authHeader = request.getHeader("Authorization");
+
+        // Pas de header Authorization → laisser Spring Security gérer (→ 401)
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String jwt = authHeader.substring(7);
+
+        try {
+            final String email = jwtUtil.extraireEmail(jwt);
+
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = utilisateurDetailsService.loadUserByUsername(email);
+
+                if (jwtUtil.estValide(jwt, email)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+        } catch (Exception e) {
+            log.debug("JWT invalide sur {} : {}", request.getServletPath(), e.getMessage());
+            // Ne pas propager l'exception → laisser Spring Security retourner 401
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}

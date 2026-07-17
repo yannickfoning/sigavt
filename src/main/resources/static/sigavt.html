@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGAVT — Système de Gestion d'Agence de Voyage Terrestre</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #243158;
+    --navy-dark: #111b33;
+    --gold: #f5a623;
+    --gold-dark: #d4891a;
+    --orange: #e85d04;
+    --orange-light: #f27a35;
+    --blue-accent: #3b82f6;
+    --blue-light: #60a5fa;
+    --green: #10b981;
+    --green-light: #34d399;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --purple: #8b5cf6;
+    --teal: #14b8a6;
+    --bg: #f0f4f8;
+    --bg-card: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-light: #94a3b8;
+    --border: #e2e8f0;
+    --sidebar-w: 220px;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    font-size: 14px;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 18px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-logo h1 {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sidebar-logo span {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    display: block;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+    font-size: 13.5px;
+    text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.active {
+    background: rgba(245,166,35,0.15);
+    color: var(--gold);
+    border-left-color: var(--gold);
+    font-weight: 600;
+  }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--orange);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 10px;
+    padding: 1px 6px;
+    font-weight: 700;
+  }
+
+  .sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+    flex-shrink: 0;
+  }
+  .avatar-orange { background: var(--orange); color: #fff; }
+  .avatar-blue { background: var(--blue-accent); color: #fff; }
+  .avatar-green { background: var(--green); color: #fff; }
+  .avatar-purple { background: var(--purple); color: #fff; }
+  .avatar-teal { background: var(--teal); color: #fff; }
+  .avatar-red { background: var(--red); color: #fff; }
+  .user-info .name { color: #fff; font-size: 13px; font-weight: 600; }
+  .user-info .role { color: rgba(255,255,255,0.45); font-size: 11px; }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .topbar-title { font-size: 17px; font-weight: 700; color: var(--navy); }
+  .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 7px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--orange); color: #fff; }
+  .btn-primary:hover { background: var(--orange-light); }
+  .btn-outline { background: transparent; color: var(--navy); border: 1.5px solid var(--border); }
+  .btn-outline:hover { border-color: var(--navy); }
+  .btn-ghost { background: transparent; color: var(--text-muted); padding: 7px 10px; }
+  .btn-ghost:hover { background: var(--bg); color: var(--text); }
+  .btn-blue { background: var(--blue-accent); color: #fff; }
+  .btn-blue:hover { background: #2563eb; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: #059669; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-icon { padding: 7px; position: relative; }
+
+  .notif-dot {
+    position: absolute; top: 4px; right: 4px;
+    width: 8px; height: 8px; background: var(--orange); border-radius: 50%;
+    border: 2px solid #fff;
+  }
+
+  /* ── PAGE CONTENT ── */
+  .page { display: none; padding: 24px; }
+  .page.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-header h3 { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .card-body { padding: 18px; }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .stat-value { font-size: 26px; font-weight: 800; color: var(--navy); margin: 6px 0 4px; line-height: 1; }
+  .stat-value .unit { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-left: 2px; }
+  .stat-meta { font-size: 11px; color: var(--text-light); }
+  .badge-change {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 8px;
+  }
+  .badge-up { background: #dcfce7; color: #166534; }
+  .badge-down { background: #fee2e2; color: #991b1b; }
+  .badge-neutral { background: #fef3c7; color: #92400e; }
+
+  /* ── GRID LAYOUTS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    background: #f8fafc;
+  }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  .td-bold { font-weight: 700; }
+
+  /* ── BADGES / STATUS ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-orange { background: #ffedd5; color: #c2410c; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-purple { background: #ede9fe; color: #6d28d9; }
+  .badge-gray { background: #f1f5f9; color: #475569; }
+
+  /* ── PROGRESS BAR ── */
+  .progress { background: #e2e8f0; border-radius: 4px; height: 6px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .progress-blue { background: var(--blue-accent); }
+  .progress-orange { background: var(--orange); }
+  .progress-green { background: var(--green); }
+  .progress-red { background: var(--red); }
+
+  /* ── SEAT MAP ── */
+  .seat-map {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .seat-map-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--text-muted); text-transform: uppercase;
+    padding: 6px 30px; border: 1px solid var(--border);
+    border-radius: 6px; margin: 4px 0;
+    background: white; width: 100%; text-align: center;
+  }
+  .seat-row { display: flex; gap: 6px; align-items: center; }
+  .seat-aisle { width: 20px; }
+  .seat {
+    width: 32px; height: 28px; border-radius: 5px;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 1.5px solid transparent;
+    transition: all 0.15s;
+  }
+  .seat-free { background: #f0f9ff; border-color: #bae6fd; color: var(--blue-accent); }
+  .seat-free:hover { background: var(--blue-accent); color: #fff; border-color: var(--blue-accent); }
+  .seat-taken { background: #fee2e2; border-color: #fca5a5; color: var(--red); cursor: not-allowed; }
+  .seat-selected { background: var(--blue-accent); color: #fff; border-color: #1d4ed8; }
+  .seat-legend { display: flex; gap: 14px; margin-top: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* ── FORMS ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  label .req { color: var(--red); }
+  input, select, textarea {
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 13.5px;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--blue-accent); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* ── STEP INDICATOR ── */
+  .steps {
+    display: flex; align-items: center; gap: 0;
+  }
+  .step-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-light);
+    padding: 0 10px;
+    position: relative;
+  }
+  .step-item:first-child { padding-left: 0; }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--border); color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+  }
+  .step-item.done .step-num { background: var(--navy); color: #fff; }
+  .step-item.active .step-num { background: var(--blue-accent); color: #fff; }
+  .step-item.active { color: var(--navy); }
+  .step-sep {
+    flex: 1; height: 1.5px; background: var(--border); min-width: 20px;
+  }
+  .step-sep.done { background: var(--navy); }
+
+  /* ── TIMELINE ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item {
+    display: flex; gap: 14px; padding-bottom: 18px;
+    position: relative;
+  }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .tl-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px; color: #fff;
+    flex-shrink: 0; position: relative; z-index: 1;
+  }
+  .tl-dot-blue { background: var(--blue-accent); }
+  .tl-dot-green { background: var(--green); }
+  .tl-dot-gray { background: var(--text-light); }
+  .timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 13px; top: 28px; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .tl-content { flex: 1; padding-top: 2px; }
+  .tl-title { font-weight: 700; font-size: 13.5px; }
+  .tl-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .tl-time { font-size: 11px; color: var(--text-light); margin-left: auto; white-space: nowrap; }
+  .tl-header { display: flex; align-items: flex-start; justify-content: space-between; }
+  .tl-active { background: #eff6ff; border-radius: 8px; padding: 10px 12px; }
+
+  /* ── GPS MAP PLACEHOLDER ── */
+  .gps-map {
+    background: linear-gradient(135deg, #e0f2fe 0%, #e8f5e9 100%);
+    border-radius: var(--radius);
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .gps-map svg { width: 100%; height: 100%; }
+  .map-label {
+    position: absolute; bottom: 10px; right: 10px;
+    background: rgba(255,255,255,0.9); padding: 4px 8px;
+    border-radius: 5px; font-size: 10px; font-weight: 600; color: var(--text-muted);
+  }
+
+  /* ── PAYMENT BUTTONS ── */
+  .payment-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pay-btn {
+    padding: 8px 14px; border-radius: 7px; border: 2px solid var(--border);
+    font-size: 12px; font-weight: 700; cursor: pointer; background: #fff;
+    transition: all 0.15s; color: var(--text);
+  }
+  .pay-btn.active { border-color: var(--navy); background: var(--navy); color: #fff; }
+  .pay-btn:hover:not(.active) { border-color: var(--text-muted); }
+
+  /* ── ALERTS ── */
+  .alert {
+    border-left: 4px solid;
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 10px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .alert-red { border-color: var(--red); }
+  .alert-orange { border-color: var(--orange); }
+  .alert-blue { border-color: var(--blue-accent); }
+  .alert-title { font-weight: 700; font-size: 13px; color: var(--text); }
+  .alert-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ── BULLETIN DE PAIE ── */
+  .pay-slip {
+    background: var(--navy);
+    border-radius: var(--radius);
+    color: #fff;
+    padding: 18px;
+  }
+  .pay-slip h4 { font-size: 13px; margin-bottom: 12px; opacity: 0.85; }
+  .pay-row {
+    display: flex; justify-content: space-between;
+    font-size: 12.5px; padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .pay-row:last-child { border-bottom: none; }
+  .pay-row.total {
+    font-weight: 800; font-size: 15px;
+    background: rgba(255,255,255,0.1); border-radius: 6px;
+    padding: 8px 10px; margin-top: 8px;
+    border-bottom: none;
+  }
+  .pay-row .deduct { color: #fca5a5; }
+  .pay-row .label { opacity: 0.8; }
+  .pay-row .highlight { color: var(--gold); }
+  .pay-section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; margin: 10px 0 4px; }
+
+  /* ── EMPLOYEE CARD ── */
+  .emp-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; background: #fff;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 10px; transition: box-shadow 0.15s;
+  }
+  .emp-card:hover { box-shadow: var(--shadow); }
+  .emp-info { flex: 1; }
+  .emp-name { font-weight: 700; font-size: 13.5px; color: var(--navy); }
+  .emp-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .emp-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+  .emp-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+  /* ── CHART BARS ── */
+  .bar-chart {
+    display: flex; align-items: flex-end; gap: 8px;
+    height: 120px; padding: 0 4px;
+  }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar {
+    width: 100%; border-radius: 4px 4px 0 0;
+    background: var(--blue-accent);
+    position: relative; min-height: 4px;
+    transition: background 0.15s;
+  }
+  .bar:hover { background: var(--navy); }
+  .bar.highlight { background: var(--orange); }
+  .bar-val { font-size: 9px; font-weight: 700; color: var(--text-muted); }
+  .bar-label { font-size: 10px; color: var(--text-light); }
+
+  /* ── DONUT CHART ── */
+  .donut-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+  .donut-center {
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+  }
+  .donut-center .num { font-size: 20px; font-weight: 800; color: var(--navy); }
+  .donut-center .sub { font-size: 10px; color: var(--text-muted); }
+
+  /* ── TOP LINES ── */
+  .top-line {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .top-line:last-child { border-bottom: none; }
+  .top-line-header { display: flex; justify-content: space-between; font-size: 13px; }
+  .top-line-name { font-weight: 600; color: var(--text); }
+  .top-line-pct { font-weight: 700; color: var(--text-muted); }
+
+  /* ── MOBILE HAMBURGER ── */
+  .hamburger {
+    display: none; background: none; border: none; cursor: pointer;
+    padding: 4px; color: var(--navy); font-size: 20px;
+  }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99;
+  }
+
+  /* ── MODAL ── */
+  .modal-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 200; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; max-width: 560px; width: 100%;
+    max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg);
+  }
+  .modal-header {
+    padding: 18px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-header h3 { font-size: 16px; font-weight: 700; color: var(--navy); }
+  .modal-body { padding: 20px; }
+  .modal-footer {
+    padding: 14px 20px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); padding: 2px; }
+
+  /* ── TRACKING NUMBER ── */
+  .tracking-num {
+    background: #f0fdf4; border: 1.5px solid #86efac;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: #166534; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ── TARIF CALC ── */
+  .tarif-box {
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .tarif-title { font-size: 12px; font-weight: 700; color: var(--blue-accent); margin-bottom: 8px; }
+  .tarif-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+  .tarif-total { font-weight: 800; font-size: 15px; color: var(--navy); border-top: 1.5px solid #bfdbfe; padding-top: 6px; margin-top: 4px; }
+
+  /* ── HORAIRES ── */
+  .horaire-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .horaire-btn {
+    border: 2px solid var(--border); border-radius: 8px; padding: 10px 14px;
+    text-align: center; cursor: pointer; background: #fff; min-width: 90px;
+    transition: all 0.15s;
+  }
+  .horaire-btn:hover { border-color: var(--blue-accent); }
+  .horaire-btn.active { border-color: var(--blue-accent); background: #eff6ff; }
+  .horaire-time { font-weight: 800; font-size: 15px; color: var(--navy); }
+  .horaire-places { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .horaire-price { font-size: 11px; color: var(--orange); font-weight: 700; margin-top: 1px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { transform: translateX(-220px); width: 220px; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
+    .hamburger { display: flex; }
+    .main { margin-left: 0; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .page { padding: 16px; }
+    .topbar { padding: 0 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .steps { display: none; }
+    .seat-map { padding: 12px; }
+    .seat { width: 26px; height: 24px; font-size: 9px; }
+  }
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .stat-value { font-size: 22px; }
+    .topbar-title { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h1>🚌 SIGAVT</h1>
+    <span>Agence Voyage CM</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Principal</div>
+    <a class="nav-item active" onclick="navigate('dashboard')">
+      <span class="icon">📊</span> Tableau de bord
+    </a>
+    <div class="nav-section">Opérations</div>
+    <a class="nav-item" onclick="navigate('billets')">
+      <span class="icon">🎫</span> Billets
+    </a>
+    <a class="nav-item" onclick="navigate('colis')">
+      <span class="icon">📦</span> Colis
+    </a>
+    <a class="nav-item" onclick="navigate('courriers')">
+      <span class="icon">✉️</span> Courriers <span class="nav-badge">3</span>
+    </a>
+    <div class="nav-section">Gestion</div>
+    <a class="nav-item" onclick="navigate('flotte')">
+      <span class="icon">🚌</span> Flotte Bus
+    </a>
+    <a class="nav-item" onclick="navigate('personnel')">
+      <span class="icon">👤</span> Personnel
+    </a>
+    <a class="nav-item" onclick="navigate('paie')">
+      <span class="icon">💰</span> Paie
+    </a>
+    <div class="nav-section">Finance</div>
+    <a class="nav-item" onclick="navigate('comptabilite')">
+      <span class="icon">📋</span> Comptabilité
+    </a>
+    <a class="nav-item" onclick="navigate('lignes')">
+      <span class="icon">🗺️</span> Lignes
+    </a>
+    <a class="nav-item" onclick="navigate('parametres')">
+      <span class="icon">⚙️</span> Paramètres
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="avatar avatar-orange">A</div>
+      <div>
+        <div class="name">Admin Système</div>
+        <div class="role">Super Admin</div>
+      </div>
+    </div>
+    <button class="nav-item" onclick="logout()" style="margin-top: 12px; padding: 8px 16px;">
+      <span class="icon">🚪</span> Déconnexion
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="hamburger" onclick="openSidebar()">☰</button>
+      <div>
+        <div class="topbar-title" id="page-title">Tableau de bord</div>
+        <div class="topbar-sub" id="page-sub">Mardi 6 Mai 2025 • Agence de Yaoundé</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-icon btn-ghost" style="position:relative" onclick="showNotifs()">
+        🔔<span class="notif-dot"></span>
+      </button>
+      <button class="btn btn-icon btn-ghost">👤</button>
+      <button class="btn btn-primary" id="topbar-cta" onclick="handleCTA()">+ Nouveau</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PAGE: DASHBOARD                         -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="page active" id="page-dashboard">
+    <!-- Date du jour -->
+    <div style="margin-bottom:20px;padding:16px;background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:12px;color:white;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">📅 Date du jour</div>
+        <div id="today-date" style="font-size:24px;font-weight:700"></div>
+      </div>
+      <div id="next-trip" style="text-align:right">
+        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">🚀 Prochain voyage</div>
+        <div id="next-trip-info" style="font-size:18px;font-weight:600">Chargement...</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Recettes du jour</div>
+        <div class="stat-value"><span class="loading">...</span><span class="unit">FCFA</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <span class="stat-meta">aujourd'hui</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Billets vendus</div>
+        <div class="stat-value"><span class="loading">...</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <span class="stat-meta">aujourd'hui</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Colis en transit</div>
+        <div class="stat-value"><span class="loading">...</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <span class="stat-meta">en cours</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Bus en service</div>
+        <div class="stat-value"><span class="loading">...</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <span class="stat-meta">opérationnels</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Départs du jour -->
+      <div class="card">
+        <div class="card-header">
+          <h3>🕐 Départs du jour</h3>
+          <button class="btn btn-sm btn-primary" onclick="navigate('billets')">Voir tout</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Ligne</th><th>Départ</th><th>Places</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Chargement...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:20px">
+
+        <!-- Recettes / semaine -->
+        <div class="card">
+          <div class="card-header"><h3>📈 Recettes / semaine</h3></div>
+          <div class="card-body">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">FCFA (×1000)</div>
+            <div class="bar-chart">
+              <div class="bar-wrap">
+                <div class="bar" style="height:55%" title="850k"></div>
+                <div class="bar-val">850k</div>
+                <div class="bar-label">Lun</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height:80%" title="1.1M"></div>
+                <div class="bar-val">1.1M</div>
+                <div class="bar-label">Mar</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height:90%" title="1.2M"></div>
+                <div class="bar-val">1.2M</div>
+                <div class="bar-label">Mer</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height:65%" title="900k"></div>
+                <div class="bar-val">900k</div>
+                <div class="bar-label">Jeu</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar highlight" style="height:48%" title="700k"></div>
+                <div class="bar-val">700k</div>
+                <div class="bar-label">Ven</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertes -->
+        <div class="card">
+          <div class="card-header">
+            <h3>⚠️ Alertes</h3>
+            <span class="badge badge-red">3</span>
+          </div>
+          <div class="card-body" style="padding-top:10px">
+            <div class="alert alert-red">
+              <div class="alert-title">Visite technique</div>
+              <div class="alert-sub">Bus LT-1892 — expire dans 8j</div>
+            </div>
+            <div class="alert alert-blue">
+              <div class="alert-title">Colis non réclamé</div>
+              <div class="alert-sub">3 colis > 7 jours à Douala</div>
+            </div>
+            <div class="alert alert-orange">
+              <div class="alert-title">Assurance expirée</div>
+              <div class="alert-sub">Bus LT-0044 — à renouveler</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px">
+      <!-- Top lignes -->
+      <div class="card">
+        <div class="card-header"><h3>🏆 Top lignes</h3></div>
+        <div class="card-body">
+          <div class="top-line">
+            <div class="top-line-header"><span class="top-line-name">Yaoundé → Douala</span><span class="top-line-pct">93%</span></div>
+            <div class="progress"><div class="progress-bar progress-blue" style="width:93%"></div></div>
+          </div>
+          <div class="top-line">
+            <div class="top-line-header"><span class="top-line-name">Yaoundé → Bafoussam</span><span class="top-line-pct">70%</span></div>
+            <div class="progress"><div class="progress-bar progress-blue" style="width:70%"></div></div>
+          </div>
+          <div class="top-line">
+            <div class="top-line-header"><span class="top-line-name">Yaoundé → Bamenda</span><span class="top-line-pct">60%</span></div>
+            <div class="progress"><div class="progress-bar progress-orange" style="width:60%"></div></div>
+          </div>
+          <div class="top-line">
+            <div class="top-line-header"><span class="top-line-name">Douala → Kribi</span><span class="top-line-pct">45%</span></div>
+            <div class="progress"><div class="progress-bar progress-orange" style="width:45%"></div></div>
+          </div>
+          <div class="top-line">
+            <div class="top-line-header"><span class="top-line-name">Ngaoundéré → Ydé</span><span class="top-line-pct">33%</span></div>
+            <div class="progress"><div class="progress-bar progress-red" style="width:33%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- État flotte -->
+      <div class="card">
+        <div class="card-header"><h3>🚌 État de la flotte</h3></div>
+        <div class="card-body" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+          <div class="donut-wrap">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#e2e8f0" stroke-width="16"/>
+              <!-- Opérationnel: 11/14 = 78.5% → 236.4 of 301.6 -->
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#3b82f6" stroke-width="16"
+                stroke-dasharray="236 66" stroke-dashoffset="75" stroke-linecap="round"/>
+              <!-- Maintenance: 2/14 = 14.3% → 43 of 301.6 -->
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#f59e0b" stroke-width="16"
+                stroke-dasharray="43 259" stroke-dashoffset="-161" stroke-linecap="round"/>
+              <!-- Hors service: 1/14 = 7.2% → 22 of 301.6 -->
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#ef4444" stroke-width="16"
+                stroke-dasharray="22 280" stroke-dashoffset="-204" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-center">
+              <div class="num">14</div>
+              <div class="sub">bus total</div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:120px">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:12px;height:12px;border-radius:3px;background:var(--blue-accent)"></div>
+                <div>
+                  <div style="font-weight:700;font-size:13px">11 bus</div>
+                  <div style="font-size:11px;color:var(--text-muted)">Opérationnel</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:12px;height:12px;border-radius:3px;background:var(--yellow)"></div>
+                <div>
+                  <div style="font-weight:700;font-size:13px">2 bus</div>
+                  <div style="font-size:11px;color:var(--text-muted)">Maintenance</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:12px;height:12px;border-radius:3px;background:var(--red)"></div>
+                <div>
+                  <div style="font-weight:700;font-size:13px">1 bus</div>
+                  <div style="font-size:11px;color:var(--text-muted)">Hors service</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PAGE: BILLETS                           -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="page" id="page-billets">
+    <!-- Date selector for today's trips -->
+    <div class="card" style="padding:16px 20px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy)">🎫 Vente de Billet</div>
+          <div style="font-size:12px;color:var(--text-muted)">Sélectionnez un voyage pour aujourd'hui</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:13px;font-weight:600">Date du voyage:</label>
+          <input type="date" id="billet-date" style="padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Voyages disponibles -->
+      <div class="card">
+        <div class="card-header"><h3>🕐 Voyages du jour</h3></div>
+        <div class="card-body">
+          <div id="voyages-list" style="display:flex;flex-direction:column;gap:10px">
+            <div style="text-align:center;color:var(--text-muted);padding:20px">Chargement des voyages...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détails et plan du bus -->
+      <div class="card" id="voyage-details" style="display:none">
+        <div class="card-header"><h3>🪑 Plan du bus — Sélection du siège</h3></div>
+        <div class="card-body">
+          <div id="voyage-info" style="margin-bottom:12px;padding:10px;background:#eff6ff;border-radius:8px;font-size:13px"></div>
+          
+          <div class="seat-legend" style="margin-bottom:12px">
+            <div class="legend-item"><div class="legend-dot" style="background:#bae6fd;border:1px solid #7dd3fc"></div> Libre</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue-accent)"></div> Sélectionné</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fee2e2;border:1px solid #fca5a5"></div> Occupé</div>
+          </div>
+          <div class="seat-map" id="seat-map">
+            <div class="seat-map-label">AVANT</div>
+            <div style="text-align:center;margin:4px 0"><span style="font-size:18px">⚙️</span></div>
+            <div class="seat-row">
+              <div class="seat seat-free" title="1A">1A</div>
+              <div class="seat seat-selected" title="1B">1B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-free" title="1C">1C</div>
+              <div class="seat seat-free" title="1D">1D</div>
+            </div>
+            <div class="seat-row">
+              <div class="seat seat-free">2A</div>
+              <div class="seat seat-free">2B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-taken">2C</div>
+              <div class="seat seat-free">2D</div>
+            </div>
+            <div class="seat-row">
+              <div class="seat seat-free">3A</div>
+              <div class="seat seat-free">3B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-taken">3C</div>
+              <div class="seat seat-taken">3D</div>
+            </div>
+            <div class="seat-row">
+              <div class="seat seat-free">4A</div>
+              <div class="seat seat-taken">4B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-taken">4C</div>
+              <div class="seat seat-free">4D</div>
+            </div>
+            <div class="seat-row">
+              <div class="seat seat-free">5A</div>
+              <div class="seat seat-free">5B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-free">5C</div>
+              <div class="seat seat-taken">5D</div>
+            </div>
+            <div style="border-top:2px dashed var(--border);width:100%;margin:6px 0"></div>
+            <div class="seat-row">
+              <div class="seat seat-free">7A</div>
+              <div class="seat seat-free">7B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-free">7C</div>
+              <div class="seat seat-free">7D</div>
+            </div>
+            <div class="seat-row">
+              <div class="seat seat-free">8A</div>
+              <div class="seat seat-free">8B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-taken">8C</div>
+              <div class="seat seat-free">8D</div>
+            </div>
+            <div style="border-top:2px dashed var(--border);width:100%;margin:6px 0"></div>
+            <div class="seat-row">
+              <div class="seat seat-free">10A</div>
+              <div class="seat seat-free">10B</div>
+              <div class="seat-aisle"></div>
+              <div class="seat seat-free">10C</div>
+              <div class="seat seat-taken">10D</div>
+            </div>
+            <div class="seat-map-label">ARRIÈRE</div>
+          </div>
+          <div id="seat-recap" style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-top:12px;text-align:center">
+            <strong>Siège sélectionné : -</strong> | Tarif : <strong style="color:var(--orange)">- FCFA</strong>
+          </div>
+          
+          <!-- Passenger info form -->
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Nom du passager <span class="req">*</span></label>
+              <input type="text" id="passager-nom" placeholder="Nom complet" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Téléphone <span class="req">*</span></label>
+              <input type="tel" id="passager-tel" placeholder="+237 ..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label>Type de tarif</label>
+              <select id="type-tarif" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+                <option value="PLEIN">Plein tarif adulte</option>
+                <option value="ENFANT">Demi-tarif enfant</option>
+                <option value="GROUPE">Tarif groupe (15%)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btn-confirmer-billet" style="width:100%;justify-content:center;padding:11px" disabled>Confirmer la réservation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billets vendus aujourd'hui -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-header"><h3>🎫 Billets vendus aujourd'hui</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>N° Billet</th><th>Passager</th><th>Voyage</th><th>Siège</th><th>Prix</th><th>Statut</th></tr>
+          </thead>
+          <tbody id="billets-today-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PAGE: COLIS                             -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="page" id="page-colis">
+    <div class="grid-2">
+      <!-- Enregistrement colis -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📦 Enregistrement d'un Colis</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Expéditeur <span class="req">*</span></label>
+              <input type="text" id="colis-expediteur" placeholder="Nom expéditeur" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            </div>
+            <div class="form-group">
+              <label>Téléphone expéditeur <span class="req">*</span></label>
+              <input type="tel" id="colis-expediteur-tel" placeholder="+237 ..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            </div>
+            <div class="form-group">
+              <label>Destinataire <span class="req">*</span></label>
+              <input type="text" id="colis-destinataire" placeholder="Nom destinataire" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            </div>
+            <div class="form-group">
+              <label>Téléphone destinataire <span class="req">*</span></label>
+              <input type="tel" id="colis-destinataire-tel" placeholder="+237 ..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            </div>
+            <div class="form-group">
+              <label>Ville de départ <span class="req">*</span></label>
+              <select id="colis-ville-depart" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+                <option value="">Sélectionner...</option>
+                <option value="Yaoundé">Yaoundé</option>
+                <option value="Douala">Douala</option>
+                <option value="Bafoussam">Bafoussam</option>
+                <option value="Bamenda">Bamenda</option>
+                <option value="Ngaoundéré">Ngaoundéré</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Ville d'arrivée <span class="req">*</span></label>
+              <select id="colis-ville-arrivee" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+                <option value="">Sélectionner...</option>
+                <option value="Yaoundé">Yaoundé</option>
+                <option value="Douala">Douala</option>
+                <option value="Bafoussam">Bafoussam</option>
+                <option value="Bamenda">Bamenda</option>
+                <option value="Kribi">Kribi</option>
+                <option value="Limbé">Limbé</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Poids (kg) <span class="req">*</span></label>
+              <input type="number" id="colis-poids" min="0" step="0.1" placeholder="0.0" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            </div>
+            <div class="form-group">
+              <label>Type de colis</label>
+              <select id="colis-type" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+                <option value="STANDARD">Standard</option>
+                <option value="DOCUMENT">Document</option>
+                <option value="ELECTRONIQUE">Électronique</option>
+                <option value="ALIMENTAIRE">Alimentaire</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label>Description du contenu</label>
+              <textarea id="colis-description" placeholder="Description du contenu..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;min-height:80px"></textarea>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label style="display:block;margin-bottom:8px">Options</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);cursor:pointer">
+                <input type="checkbox" id="colis-fragile" style="width:14px;height:14px"> Fragile
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);cursor:pointer">
+                <input type="checkbox" id="colis-urgent" style="width:14px;height:14px"> Urgent
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);cursor:pointer">
+                <input type="checkbox" id="colis-assure" style="width:14px;height:14px"> Assuré
+              </label>
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <label style="display:block;margin-bottom:8px">Mode de paiement</label>
+            <select id="colis-paiement" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+              <option value="ESPECES">Espèces</option>
+              <option value="ORANGE_MONEY">Orange Money</option>
+              <option value="MTN_MOMO">MTN MoMo</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" id="btn-enregistrer-colis" style="width:100%;margin-top:16px;justify-content:center;padding:11px">
+            📄 Enregistrer le colis
+          </button>
+          <div id="colis-tracking-result" style="margin-top:12px;display:none">
+            <span>🏷️</span> Tracking : <strong id="colis-tracking-num"></strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suivi colis -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📡 Suivi de colis</h3>
+        </div>
+        <div class="card-body">
+          <!-- Search -->
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <input type="text" id="colis-tracking-search" placeholder="Numéro de suivi" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+            <button class="btn btn-blue" id="btn-tracking-search">Rechercher</button>
+          </div>
+
+          <!-- Tracking result -->
+          <div id="tracking-result" style="display:none">
+            <div id="tracking-status" style="background:var(--navy);border-radius:10px;padding:14px 16px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">✓</div>
+              <div style="flex:1">
+                <div id="tracking-statut-text" style="font-weight:700;font-size:14px">Statut</div>
+                <div id="tracking-details" style="font-size:12px;opacity:0.7;margin-top:1px">Détails</div>
+              </div>
+            </div>
+            
+            <!-- Timeline -->
+            <div id="tracking-timeline" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          
+          <div id="tracking-placeholder" style="text-align:center;color:var(--text-muted);padding:20px">
+            Entrez un numéro de suivi pour rechercher un colis
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+                </div>
+                <div class="tl-sub">Agence Yaoundé Centre — en attente de livraison</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot tl-dot-blue" style="background:#6366f1">2</div>
+              <div class="tl-content">
+                <div class="tl-header">
+                  <div class="tl-title">En transit — Douala → Yaoundé</div>
+                  <div class="tl-time">Hier 22:30</div>
+                </div>
+                <div class="tl-sub">Chargé sur véhicule de transport</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot tl-dot-gray">1</div>
+              <div class="tl-content">
+                <div class="tl-header">
+                  <div class="tl-title">Colis pris en charge</div>
+                  <div class="tl-time">Hier 14:05</div>
+                </div>
+                <div class="tl-sub">Agence Douala Akwa — émission étiquette QR</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="tl-dot tl-dot-gray" style="background:#cbd5e1">0</div>
+              <div class="tl-content">
+                <div class="tl-header">
+                  <div class="tl-title" style="color:var(--text-muted)">Expédition créée</div>
+                  <div class="tl-time">Hier 13:47</div>
+                </div>
+                <div class="tl-sub">Commande enregistrée · Paiement confirmé</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colis info -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--border)">
+            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Expéditeur</div><div style="font-size:13px;font-weight:600;margin-top:2px">Aminata BELLO</div></div>
+            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Destinataire</div><div style="font-size:13px;font-weight:600;margin-top:2px">Paul ESSAMA</div></div>
+            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Poids</div><div style="font-size:13px;font-weight:600;margin-top:2px">3,2 kg</div></div>
+            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Type</div><div style="font-size:13px;font-weight:600;margin-top:2px">Documents</div></div>
+            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Trajet</div><div style="font-size:13px;font-weight:600;margin-top:2px">Douala → Yaoundé</div></div>
+            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Assurance</div><div><span class="badge badge-green" style="margin-top:4px">Incluse</span></div></div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn btn-blue" style="flex:1;justify-content:center">📱 SMS de suivi</button>
+            <button class="btn btn-outline" style="justify-content:center">📥 Télécharger reçu</button>
+            <button class="btn btn-ghost" style="justify-content:center">⚠️ Signaler</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PAGE: PERSONNEL                         -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="page" id="page-personnel">
+    <div class="grid-2">
+      <!-- Liste personnel -->
+      <div class="card">
+        <div class="card-header">
+          <h3>👥 Gestion du Personnel</h3>
+          <button class="btn btn-sm btn-primary" onclick="document.getElementById('modal-employe').classList.add('open')">+ Employé</button>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <input type="search" placeholder="🔍 Rechercher un employé..." style="flex:1;min-width:120px">
+            <select style="min-width:100px"><option>Tous postes</option><option>Chauffeur</option><option>Billetterie</option><option>Convoyeur</option></select>
+            <select style="min-width:100px"><option>Actifs seuls</option><option>Tous</option></select>
+          </div>
+
+          <div class="emp-card">
+            <div class="avatar avatar-orange" style="width:40px;height:40px;font-size:15px">NJ</div>
+            <div class="emp-info">
+              <div class="emp-name">Nkoa Jean-Pierre</div>
+              <div class="emp-sub">Chauffeur · Bus LT-0089 · Ydé → Dba</div>
+              <div class="emp-meta">Tél: +237 677 000 111 · CNI: 123456789</div>
+            </div>
+            <div class="emp-actions">
+              <span class="badge badge-green">ACTIF</span>
+              <span class="badge badge-blue">CDI</span>
+            </div>
+          </div>
+
+          <div class="emp-card">
+            <div class="avatar avatar-teal" style="width:40px;height:40px;font-size:15px">EB</div>
+            <div class="emp-info">
+              <div class="emp-name">Essome Brigitte</div>
+              <div class="emp-sub">Agente Billetterie · Agence Yaoundé Centre</div>
+              <div class="emp-meta">Tél: +237 699 222 333 · CNPS: CM987654</div>
+            </div>
+            <div class="emp-actions">
+              <span class="badge badge-green">ACTIF</span>
+              <span class="badge badge-blue">CDI</span>
+              <button class="btn btn-sm btn-ghost" style="color:var(--orange)">Modifier</button>
+            </div>
+          </div>
+
+          <div class="emp-card">
+            <div class="avatar avatar-purple" style="width:40px;height:40px;font-size:15px">FK</div>
+            <div class="emp-info">
+              <div class="emp-name">Fotso Kouam</div>
+              <div class="emp-sub">Convoyeur · Itinérant plusieurs lignes</div>
+              <div class="emp-meta">Tél: +237 651 444 555 · CDD jusqu'au 31/12/25</div>
+            </div>
+            <div class="emp-actions">
+              <span class="badge badge-yellow">CONGÉ</span>
+              <span class="badge badge-orange">CDD</span>
+              <button class="btn btn-sm btn-ghost" style="color:var(--orange)">Modifier</button>
+            </div>
+          </div>
+
+          <div class="emp-card">
+            <div class="avatar" style="background:#8b5cf6;color:#fff;width:40px;height:40px;font-size:15px">MN</div>
+            <div class="emp-info">
+              <div class="emp-name">Mbarga Narcisse</div>
+              <div class="emp-sub">Resp. Flotte · Garage central</div>
+              <div class="emp-meta">Tél: +237 678 321 000 · CDI · 3 ans</div>
+            </div>
+            <div class="emp-actions">
+              <span class="badge badge-green">ACTIF</span>
+              <span class="badge badge-blue">CDI</span>
+            </div>
+          </div>
+
+          <div class="emp-card">
+            <div class="avatar avatar-green" style="width:40px;height:40px;font-size:15px">TL</div>
+            <div class="emp-info">
+              <div class="emp-name">Tchoua Laure</div>
+              <div class="emp-sub">Comptable · Agence Yaoundé</div>
+              <div class="emp-meta">Tél: +237 699 111 222 · CDI · 2 ans</div>
+            </div>
+            <div class="emp-actions">
+              <span class="badge badge-green">ACTIF</span>
+              <span class="badge badge-blue">CDI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulletin paie + Flotte -->
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="card">
+          <div class="card-header"><h3>💰 Bulletin de Paie — Mai 2025</h3></div>
+          <div class="card-body">
+            <div class="pay-slip">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <div class="avatar avatar-orange">NJ</div>
+                <div>
+                  <div style="font-weight:700">Nkoa Jean-Pierre</div>
+                  <div style="font-size:11px;opacity:0.6">Chauffeur · CNPS: CM-004512</div>
+                </div>
+              </div>
+              <div class="pay-section-title">Gains</div>
+              <div class="pay-row"><span class="label">Salaire de base</span><span>120 000</span></div>
+              <div class="pay-row"><span class="label">Prime rendement</span><span>15 000</span></div>
+              <div class="pay-row"><span class="label">Heures supp.</span><span>8 000</span></div>
+              <div class="pay-section-title">Retenues</div>
+              <div class="pay-row"><span class="label">CNPS (4,2%)</span><span class="deduct">− 5 040</span></div>
+              <div class="pay-row"><span class="label">IRPP</span><span class="deduct">− 3 200</span></div>
+              <div class="pay-row total"><span>NET À PAYER</span><span class="highlight">134 760 FCFA</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>🚌 État de la flotte — Yaoundé</h3></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f0fdf4;border-radius:7px;border:1px solid #86efac">
+                <div>
+                  <div style="font-weight:700;font-size:13px">Bus LT-0089</div>
+                  <div style="font-size:11px;color:var(--text-muted)">Actif | 06:00 Ydé → Dba</div>
+                </div>
+                <span class="badge badge-green">EN ROUTE</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#eff6ff;border-radius:7px;border:1px solid #bfdbfe">
+                <div>
+                  <div style="font-weight:700;font-size:13px">Bus LT-1892</div>
+                  <div style="font-size:11px;color:var(--text-muted)">Actif | 09:30 Ydé → Bfm</div>
+                </div>
+                <span class="badge badge-blue">EMBARQ.</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#fff7ed;border-radius:7px;border:1px solid #fed7aa">
+                <div>
+                  <div style="font-weight:700;font-size:13px">Bus LT-0044</div>
+                  <div style="font-size:11px;color:var(--text-muted)">Maintenance | Garage central</div>
+                  <div style="font-size:10px;color:var(--orange);margin-top:2px">⚠️ Assurance expirée</div>
+                </div>
+                <span class="badge badge-yellow">MAINT.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PAGE: PAIE                              -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="page" id="page-paie">
+    <!-- Header stats -->
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat-card">
+        <div class="stat-label">Masse salariale brute</div>
+        <div class="stat-value" style="font-size:20px">3 620 000<span class="unit">FCFA</span></div>
+        <div class="stat-meta">Mai 2025</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Net à payer total</div>
+        <div class="stat-value" style="font-size:20px">3 087 400<span class="unit">FCFA</span></div>
+        <div class="stat-meta">14 employés</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cotisations CNPS</div>
+        <div class="stat-value" style="font-size:20px">405 440<span class="unit">FCFA</span></div>
+        <div class="stat-meta">employeur</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Bulletins générés</div>
+        <div class="stat-value" style="font-size:22px">14<span class="unit">/ 14</span></div>
+        <div><span class="badge badge-green">CLÔTURÉ</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Liste fiches -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📋 Fiches de paie — Mai 2025</h3>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-outline">Exporter tout</button>
+            <button class="btn btn-sm btn-primary">+ Fiche de paie</button>
+          </div>
+        </div>
+        <div style="padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap">
+          <select style="font-size:12px"><option>Tous postes</option></select>
+          <select style="font-size:12px"><option>Tous statuts</option></select>
+          <input type="search" placeholder="Rechercher..." style="font-size:12px;flex:1;min-width:100px">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Employé</th><th>Poste</th><th>Net (FCFA)</th><th>Statut</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr onclick="selectBulletin('NJ')" style="cursor:pointer">
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange" style="width:28px;height:28px;font-size:11px">NJ</div><div><div style="font-weight:600">Nkoa Jean-Pierre</div><div style="font-size:11px;color:var(--text-muted)">CDI · 5 ans</div></div></div></td>
+                <td>Chauffeur</td>
+                <td class="td-bold">134 760</td>
+                <td><span class="badge badge-green">PAYÉ</span></td>
+                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+              </tr>
+              <tr onclick="selectBulletin('EB')" style="cursor:pointer">
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-teal" style="width:28px;height:28px;font-size:11px">EB</div><div><div style="font-weight:600">Essome Brigitte</div><div style="font-size:11px;color:var(--text-muted)">CDI · 3 ans</div></div></div></td>
+                <td>Billetterie</td>
+                <td class="td-bold">98 500</td>
+                <td><span class="badge badge-green">PAYÉ</span></td>
+                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+              </tr>
+              <tr onclick="selectBulletin('FK')" style="cursor:pointer">
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-purple" style="width:28px;height:28px;font-size:11px">FK</div><div><div style="font-weight:600">Fotso Kouam</div><div style="font-size:11px;color:var(--text-muted)">CDD · Convoyeur</div></div></div></td>
+                <td>Convoyeur</td>
+                <td class="td-bold">74 200</td>
+                <td><span class="badge badge-orange">EN ATTENTE</span></td>
+                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+              </tr>
+              <tr onclick="selectBulletin('MN')" style="cursor:pointer">
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#8b5cf6;color:#fff;width:28px;height:28px;font-size:11px">MN</div><div><div style="font-weight:600">Mbarga Narcisse</div><div style="font-size:11px;color:var(--text-muted)">CDI · 3 ans</div></div></div></td>
+                <td>Resp. Flotte</td>
+                <td class="td-bold">182 000</td>
+                <td><span class="badge badge-green">PAYÉ</span></td>
+                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+              </tr>
+              <tr onclick="selectBulletin('TL')" style="cursor:pointer">
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green" style="width:28px;height:28px;font-size:11px">TL</div><div><div style="font-weight:600">Tchoua Laure</div><div style="font-size:11px;color:var(--text-muted)">CDI · Comptable</div></div></div></td>
+                <td>Comptable</td>
+                <td class="td-bold">156 300</td>
+                <td><span class="badge badge-green">PAYÉ</span></td>
+                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">
+          <span>Total brut : 3 620 000 FCFA | CNPS salarié : 152 040 | IRPP : 380 560 FCFA</span>
+          <strong style="color:var(--navy);font-size:14px">Net total : 3 087 400 FCFA</strong>
+        </div>
+      </div>
+
+      <!-- Bulletin détail -->
+      <div class="card">
+        <div class="card-header"><h3>🧾 Bulletin de paie — Nkoa Jean-Pierre</h3></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--border)">
+            <div class="avatar avatar-orange" style="width:44px;height:44px;font-size:16px">NJ</div>
+            <div>
+              <div style="font-weight:800;font-size:15px;color:var(--navy)">Nkoa Jean-Pierre</div>
+              <div style="font-size:12px;color:var(--text-muted)">Chauffeur · CDI · Échelon 3</div>
+              <div style="font-size:12px;color:var(--text-muted)">Agence Yaoundé · N° CNPS : CM-004512</div>
+            </div>
+          </div>
+
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">
+            Période : 01/05/2025 au 31/05/2025
+          </div>
+
+          <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px">
+            <div style="background:#f8fafc;padding:8px 14px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--green);letter-spacing:0.05em">GAINS</div>
+            <div style="padding:0 14px">
+              <div class="pay-row" style="border-bottom:1px solid var(--border);padding:9px 0"><span>Salaire de base</span><span style="font-weight:600">120 000</span></div>
+              <div class="pay-row" style="border-bottom:1px solid var(--border);padding:9px 0"><span>Indemnité de transport</span><span style="font-weight:600">8 000</span></div>
+              <div class="pay-row" style="border-bottom:1px solid var(--border);padding:9px 0"><span>Prime de rendement</span><span style="font-weight:600">15 000</span></div>
+              <div class="pay-row" style="border-bottom:1px solid var(--border);padding:9px 0"><span>Heures supplémentaires (6h)</span><span style="font-weight:600">8 000</span></div>
+              <div class="pay-row" style="padding:9px 0;font-weight:800"><span>Salaire brut</span><span>151 000</span></div>
+            </div>
+            <div style="background:#fff5f5;padding:8px 14px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--red);letter-spacing:0.05em">RETENUES</div>
+            <div style="padding:0 14px">
+              <div class="pay-row" style="border-bottom:1px solid var(--border);padding:9px 0"><span>Cotisation CNPS (4,2%)</span><span style="color:var(--red);font-weight:600">− 6 342</span></div>
+              <div class="pay-row" style="border-bottom:1px solid var(--border);padding:9px 0"><span>Retenue IRPP</span><span style="color:var(--red);font-weight:600">− 9 898</span></div>
+              <div class="pay-row" style="padding:9px 0"><span>Avance sur salaire (mars)</span><span style="color:var(--text-muted)">− 0</span></div>
+            </div>
+            <div style="background:var(--navy);padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+              <span style="color:#fff;font-weight:800;font-size:14px">NET À PAYER</span>
+              <span style="color:var(--gold);font-weight:900;font-size:18px">134 760 FCFA</span>
+            </div>
+          </div>
+
+          <div style="background:#f8fafc;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text-muted)">
+            <div style="display:flex;justify-content:space-between"><span>Charges patronales CNPS (11,2%)</span><span style="color:var(--blue-accent);font-weight:700">16 912 FCFA</span></div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px"><span>Coût employeur total</span><span style="color:var(--navy);font-weight:700">167 912 FCFA</span></div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline" style="flex:1;justify-content:center">🖨️ Imprimer PDF</button>
+            <button class="btn btn-primary" style="flex:1;justify-content:center">📱 Envoyer par SMS</button>
+          </div>
+          <div style="margin-top:12px">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Mode de règlement</label>
+            <div class="payment-btns">
+              <button class="pay-btn active">Orange Money</button>
+              <button class="pay-btn">MTN MoMo</button>
+              <button class="pay-btn">Espèces</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- PAGE: FLOTTE BUS                        -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="page" id="page-flotte">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total bus</div>
+        <div class="stat-value">14</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">En service</div>
+        <div class="stat-value" style="color:var(--green)">11</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">En maintenance</div>
+        <div class="stat-value" style="color:var(--yellow)">2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hors service</div>
+        <div class="stat-value" style="color:var(--red)">1</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>🚌 Parc de véhicules</h3><button class="btn btn-sm btn-primary">+ Bus</button></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Immatriculation</th><th>Modèle</th><th>Places</th><th>Ligne assignée</th><th>Prochain entretien</th><th>Assurance</th><th>Statut</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">LT-0089</td><td>Yutong ZK6122H</td><td>70</td><td>Ydé → Dba</td><td>15/08/2025</td><td>Valide</td><td><span class="badge badge-green">EN ROUTE</span></td></tr>
+            <tr><td class="td-bold">LT-1892</td><td>King Long XMQ6127</td><td>55</td><td>Ydé → Bfm</td><td><span style="color:var(--red)">08/05/2025 ⚠️</span></td><td>Valide</td><td><span class="badge badge-blue">EMBARQ.</span></td></tr>
+            <tr><td class="td-bold">LT-0044</td><td>Higer KLQ6119</td><td>55</td><td>—</td><td>—</td><td><span style="color:var(--red)">Expirée ⚠️</span></td><td><span class="badge badge-yellow">MAINT.</span></td></tr>
+            <tr><td class="td-bold">LT-0067</td><td>Yutong ZK6122H</td><td>70</td><td>Ydé → Dba</td><td>30/10/2025</td><td>Valide</td><td><span class="badge badge-green">OPÉRAT.</span></td></tr>
+            <tr><td class="td-bold">LT-0022</td><td>Marcopolo Paradiso</td><td>45</td><td>Ydé → Nde</td><td>20/09/2025</td><td>Valide</td><td><span class="badge badge-green">OPÉRAT.</span></td></tr>
+            <tr><td class="td-bold">LT-0105</td><td>King Long XMQ6119</td><td>55</td><td>—</td><td>—</td><td>Valide</td><td><span class="badge badge-red">HORS SVC</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- OTHER PAGES (placeholder)              -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="page" id="page-courriers">
+    <div class="card"><div class="card-header"><h3>✉️ Courriers</h3><button class="btn btn-sm btn-primary">+ Courrier</button></div>
+    <div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted)">
+      <div style="font-size:48px;margin-bottom:12px">✉️</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">Module Courriers</div>
+      <div style="font-size:13px">Gestion des courriers internes et externes</div>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-comptabilite">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Recettes mai</div><div class="stat-value" style="font-size:20px">18 540 000<span class="unit">FCFA</span></div></div>
+      <div class="stat-card"><div class="stat-label">Dépenses mai</div><div class="stat-value" style="font-size:20px">12 380 000<span class="unit">FCFA</span></div></div>
+      <div class="stat-card"><div class="stat-label">Bénéfice net</div><div class="stat-value" style="font-size:20px;color:var(--green)">6 160 000<span class="unit">FCFA</span></div></div>
+      <div class="stat-card"><div class="stat-label">Marge</div><div class="stat-value" style="color:var(--green)">33<span class="unit">%</span></div></div>
+    </div>
+    <div class="card"><div class="card-header"><h3>📋 Journal comptable</h3></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Description</th><th>Débit</th><th>Crédit</th><th>Balance</th></tr></thead>
+      <tbody>
+        <tr><td>06/05/2025</td><td>Ventes billets Ydé→Dba 06h</td><td>—</td><td class="td-bold" style="color:var(--green)">301 500</td><td>+301 500</td></tr>
+        <tr><td>06/05/2025</td><td>Carburant LT-0089</td><td class="td-bold" style="color:var(--red)">45 000</td><td>—</td><td>−45 000</td></tr>
+        <tr><td>06/05/2025</td><td>Colis reçus Douala</td><td>—</td><td class="td-bold" style="color:var(--green)">67 500</td><td>+67 500</td></tr>
+        <tr><td>05/05/2025</td><td>Salaires mai 2025</td><td class="td-bold" style="color:var(--red)">3 087 400</td><td>—</td><td>−3 087 400</td></tr>
+        <tr><td>05/05/2025</td><td>CNPS employeur mai</td><td class="td-bold" style="color:var(--red)">405 440</td><td>—</td><td>−405 440</td></tr>
+      </tbody>
+    </table></div></div>
+  </div>
+
+  <div class="page" id="page-lignes">
+    <div class="card"><div class="card-header"><h3>🗺️ Gestion des Lignes</h3><button class="btn btn-sm btn-primary">+ Ligne</button></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ligne</th><th>Distance</th><th>Durée</th><th>Tarif</th><th>Fréquence/jour</th><th>Taux remplissage</th><th>Statut</th></tr></thead>
+      <tbody>
+        <tr><td class="td-bold">Yaoundé → Douala</td><td>250 km</td><td>3h30</td><td>4 500 FCFA</td><td>6</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:93%"></div></div><span style="font-size:12px;font-weight:700">93%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td class="td-bold">Yaoundé → Bafoussam</td><td>310 km</td><td>4h00</td><td>5 500 FCFA</td><td>4</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:70%"></div></div><span style="font-size:12px;font-weight:700">70%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td class="td-bold">Yaoundé → Bamenda</td><td>380 km</td><td>5h00</td><td>6 000 FCFA</td><td>3</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-orange" style="width:60%"></div></div><span style="font-size:12px;font-weight:700">60%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td class="td-bold">Douala → Kribi</td><td>180 km</td><td>2h30</td><td>3 500 FCFA</td><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-orange" style="width:45%"></div></div><span style="font-size:12px;font-weight:700">45%</span></div></td><td><span class="badge badge-yellow">MODÉRÉE</span></td></tr>
+        <tr><td class="td-bold">Ngaoundéré → Yaoundé</td><td>720 km</td><td>9h00</td><td>12 000 FCFA</td><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-red" style="width:33%"></div></div><span style="font-size:12px;font-weight:700">33%</span></div></td><td><span class="badge badge-red">FAIBLE</span></td></tr>
+      </tbody>
+    </table></div></div>
+  </div>
+
+  <div class="page" id="page-parametres">
+    <div class="card"><div class="card-header"><h3>⚙️ Paramètres</h3></div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nom de l'agence</label><input value="Agence Voyage CM — Yaoundé"></div>
+        <div class="form-group"><label>Téléphone</label><input value="+237 677 000 111"></div>
+        <div class="form-group"><label>Email</label><input type="email" value="contact@sigavt.cm"></div>
+        <div class="form-group"><label>Ville principale</label><select><option>Yaoundé</option><option>Douala</option></select></div>
+        <div class="form-group full"><label>Adresse</label><input value="Carrefour Nlongkak, Yaoundé"></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-outline">Annuler</button>
+        <button class="btn btn-primary">Sauvegarder</button>
+      </div>
+    </div></div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- MODAL: Ajouter Employé                  -->
+<!-- ═══════════════════════════════════════ -->
+<div class="modal-backdrop" id="modal-employe">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>👤 Ajouter un employé</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-employe').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nom complet <span class="req">*</span></label><input placeholder="Nom et prénom"></div>
+        <div class="form-group"><label>Téléphone <span class="req">*</span></label><input placeholder="+237 6XX XXX XXX"></div>
+        <div class="form-group"><label>Poste <span class="req">*</span></label><select><option>Chauffeur</option><option>Billetterie</option><option>Convoyeur</option><option>Comptable</option></select></div>
+        <div class="form-group"><label>Type contrat</label><select><option>CDI</option><option>CDD</option></select></div>
+        <div class="form-group"><label>Salaire de base (FCFA)</label><input type="number" placeholder="120 000"></div>
+        <div class="form-group"><label>N° CNPS</label><input placeholder="CM-XXXXXX"></div>
+        <div class="form-group"><label>N° CNI</label><input placeholder="123456789"></div>
+        <div class="form-group"><label>Permis de conduire</label><input placeholder="D (si chauffeur)"></div>
+        <div class="form-group full"><label>Bus assigné</label><select><option>— Aucun —</option><option>LT-0089 (Ydé→Dba)</option><option>LT-1892 (Ydé→Bfm)</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-employe').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary">Enregistrer l'employé</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Notifications -->
+<div class="modal-backdrop" id="modal-notifs">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h3>🔔 Notifications (3)</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-notifs').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div class="alert alert-red" style="margin:0"><div class="alert-title">⛽ Visite technique expirée</div><div class="alert-sub">Bus LT-1892 — expire dans 8 jours</div></div>
+      </div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div class="alert alert-blue" style="margin:0"><div class="alert-title">📦 Colis non réclamé</div><div class="alert-sub">3 colis en attente depuis +7 jours à Douala</div></div>
+      </div>
+      <div style="padding:12px 16px">
+        <div class="alert alert-orange" style="margin:0"><div class="alert-title">🛡️ Assurance expirée</div><div class="alert-sub">Bus LT-0044 — à renouveler immédiatement</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Check authentication on load
+  const token = localStorage.getItem('sigavt_token');
+  if (!token) {
+    window.location.href = '/login';
+  }
+
+  // API client
+  async function api(endpoint, options = {}) {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+    };
+    
+    const res = await fetch('/api' + endpoint, {
+      headers,
+      ...options
+    });
+    
+    if (res.status === 401) {
+      localStorage.removeItem('sigavt_token');
+      localStorage.removeItem('sigavt_user');
+      window.location.href = '/login';
+      return;
+    }
+    
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Erreur serveur');
+    }
+    return data;
+  }
+
+  // Load user info
+  const user = JSON.parse(localStorage.getItem('sigavt_user') || '{}');
+  if (user.nom) {
+    document.querySelector('.user-info .name').textContent = user.nom;
+    document.querySelector('.user-info .role').textContent = user.role === 'superadmin' ? 'Super Admin' : 
+      user.role === 'admin' ? 'Administrateur' : 
+      user.role === 'agent' ? 'Agent' : 
+      user.role === 'comptable' ? 'Comptable' : user.role;
+    document.querySelector('.avatar').textContent = user.nom.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  // Format helpers
+  function formatFCFA(amount) {
+    return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+  }
+
+  function formatDate(isoDate) {
+    if (!isoDate) return '-';
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  const pageConfig = {
+    dashboard: { title: 'Tableau de bord', sub: 'Agence de Yaoundé', cta: '+ Nouveau' },
+    billets:   { title: 'Vente de Billet', sub: 'Billets', cta: '+ Nouveau billet' },
+    colis:     { title: 'Gestion des Colis', sub: 'Colis', cta: '+ Nouveau colis' },
+    courriers: { title: 'Courriers', sub: 'Messages', cta: '+ Courrier' },
+    flotte:    { title: 'Flotte Bus', sub: 'Bus opérationnels', cta: '+ Ajouter bus' },
+    personnel: { title: 'Personnel', sub: 'Employés actifs', cta: '+ Employé' },
+    paie:      { title: 'Gestion de la Paie', sub: 'Période en cours', cta: '+ Fiche de paie' },
+    comptabilite: { title: 'Comptabilité', sub: 'Journal des opérations', cta: '+ Écriture' },
+    lignes:    { title: 'Lignes de transport', sub: 'Lignes actives', cta: '+ Ligne' },
+    parametres:{ title: 'Paramètres', sub: 'Configuration de l\'agence', cta: 'Sauvegarder' },
+  };
+
+  async function navigate(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    // Show target page
+    const page = document.getElementById('page-' + pageId);
+    if (page) page.classList.add('active');
+
+    // Update nav
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick')?.includes("'" + pageId + "'")) {
+        n.classList.add('active');
+      }
+    });
+
+    // Update topbar
+    const cfg = pageConfig[pageId] || { title: pageId, sub: '', cta: '+ Nouveau' };
+    document.getElementById('page-title').textContent = cfg.title;
+    document.getElementById('page-sub').textContent = cfg.sub;
+    document.getElementById('topbar-cta').textContent = cfg.cta;
+
+    // Load page data
+    if (pageId === 'dashboard') loadDashboard();
+    if (pageId === 'billets') loadBillets();
+    if (pageId === 'colis') loadColis();
+    if (pageId === 'personnel') loadPersonnel();
+    if (pageId === 'paie') loadPaie();
+    if (pageId === 'flotte') loadFlotte();
+    if (pageId === 'comptabilite') loadComptabilite();
+    if (pageId === 'lignes') loadLignes();
+    if (pageId === 'courriers') loadCourriers();
+
+    // Close sidebar on mobile
+    closeSidebar();
+    // Scroll to top
+    window.scrollTo(0, 0);
+  }
+
+  // Load dashboard data
+  async function loadDashboard() {
+    try {
+      // Set today's date
+      const today = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('today-date').textContent = today.toLocaleDateString('fr-FR', options);
+
+      const data = await api('/dashboard');
+      
+      // Update stats based on Java API response structure
+      if (data.recettesAujourdHui) {
+        document.querySelector('#page-dashboard .stat-card:nth-child(1) .stat-value').innerHTML = 
+          formatFCFA(data.recettesAujourdHui) + '<span class="unit">FCFA</span>';
+      }
+      if (data.billetsVendusAujourdHui) {
+        document.querySelector('#page-dashboard .stat-card:nth-child(2) .stat-value').textContent = data.billetsVendusAujourdHui;
+      }
+      if (data.colisEnTransit) {
+        document.querySelector('#page-dashboard .stat-card:nth-child(3) .stat-value').textContent = data.colisEnTransit;
+      }
+      if (data.busEnService) {
+        document.querySelector('#page-dashboard .stat-card:nth-child(4) .stat-value').textContent = data.busEnService;
+      }
+      
+      // Load today's departures to find next trip
+      const departs = await api('/dashboard/departs');
+      if (departs && departs.length > 0) {
+        const now = new Date();
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+        
+        // Find next departure (after current time)
+        const nextTrip = departs.find(d => {
+          if (d.heure) {
+            const [hours, minutes] = d.heure.split(':').map(Number);
+            const tripTime = hours * 60 + minutes;
+            return tripTime > currentTime;
+          }
+          return false;
+        });
+        
+        if (nextTrip) {
+          document.getElementById('next-trip-info').textContent = 
+            `${nextTrip.depart || 'N/A'} → ${nextTrip.arrivee || 'N/A'} à ${nextTrip.heure || 'N/A'}`;
+        } else {
+          document.getElementById('next-trip-info').textContent = 'Aucun voyage prévu aujourd\'hui';
+        }
+        
+        // Update departs table
+        const tbody = document.querySelector('#page-dashboard tbody');
+        tbody.innerHTML = departs.map(d => `
+          <tr>
+            <td class="td-bold">${d.depart || 'N/A'} → ${d.arrivee || 'N/A'}</td>
+            <td>${d.heure || 'N/A'}</td>
+            <td>${d.places || 0}</td>
+            <td><span class="badge ${getStatutBadge(d.statut)}">${d.statut || 'N/A'}</span></td>
+          </tr>
+        `).join('');
+      }
+      
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+    }
+  }
+
+  // Load billets page
+  async function loadBillets() {
+    try {
+      // Set date to today by default
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('billet-date');
+      if (dateInput) {
+        dateInput.value = today;
+        dateInput.addEventListener('change', () => loadVoyagesForDate(dateInput.value));
+      }
+      
+      // Load voyages for today
+      await loadVoyagesForDate(today);
+      
+      // Load today's sold tickets
+      await loadBilletsToday();
+      
+    } catch (error) {
+      console.error('Error loading billets page:', error);
+    }
+  }
+
+  // Load voyages for a specific date
+  async function loadVoyagesForDate(date) {
+    try {
+      const voyages = await api(`/voyages?date=${date}`);
+      const container = document.getElementById('voyages-list');
+      
+      if (!voyages || voyages.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px">Aucun voyage prévu pour cette date</div>';
+        return;
+      }
+      
+      container.innerHTML = voyages.map(v => `
+        <div class="voyage-card" data-voyage-id="${v.id}" onclick="selectVoyage(${v.id})" style="padding:12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700;color:var(--navy)">${v.ligne ? v.ligne.villeDepart : 'N/A'} → ${v.ligne ? v.ligne.villeArrivee : 'N/A'}</div>
+            <div style="font-size:13px;color:var(--text-muted)">${v.heureDepart || 'N/A'}</div>
+          </div>
+          <div style="display:flex;gap:12px;font-size:12px;color:var(--text-muted)">
+            <span>🚌 ${v.bus ? v.bus.immatriculation : 'N/A'}</span>
+            <span>🪑 ${v.placesDisponibles || 0} places</span>
+            <span>💰 ${formatFCFA(v.ligne ? v.ligne.tarifBase : 0)}</span>
+          </div>
+        </div>
+      `).join('');
+      
+    } catch (error) {
+      console.error('Error loading voyages:', error);
+      document.getElementById('voyages-list').innerHTML = '<div style="text-align:center;color:var(--red);padding:20px">Erreur de chargement des voyages</div>';
+    }
+  }
+
+  // Select a voyage and show seat map
+  async function selectVoyage(voyageId) {
+    try {
+      const voyage = await api(`/voyages/${voyageId}`);
+      const sieges = await api(`/voyages/${voyageId}/sieges`);
+      
+      // Show voyage details
+      document.getElementById('voyage-details').style.display = 'block';
+      document.getElementById('voyage-info').innerHTML = `
+        <strong>${voyage.ligne ? voyage.ligne.villeDepart : 'N/A'} → ${voyage.ligne ? voyage.ligne.villeArrivee : 'N/A'}</strong><br>
+        Départ: ${voyage.heureDepart || 'N/A'} | Bus: ${voyage.bus ? voyage.bus.immatriculation : 'N/A'}<br>
+        Tarif base: ${formatFCFA(voyage.ligne ? voyage.ligne.tarifBase : 0)}
+      `;
+      
+      // Render seat map
+      renderSeatMap(sieges, voyage.ligne ? voyage.ligne.tarifBase : 0);
+      
+      // Store selected voyage
+      window.selectedVoyage = voyage;
+      
+    } catch (error) {
+      console.error('Error selecting voyage:', error);
+    }
+  }
+
+  // Render seat map
+  function renderSeatMap(sieges, tarifBase) {
+    const seatMap = document.getElementById('seat-map');
+    if (!sieges || sieges.length === 0) {
+      seatMap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">Plan de sièges non disponible</div>';
+      return;
+    }
+    
+    // Group seats by row
+    const rows = {};
+    sieges.forEach(s => {
+      const match = s.numero.match(/(\d+)([A-D])/);
+      if (match) {
+        const rowNum = parseInt(match[1]);
+        const col = match[2];
+        if (!rows[rowNum]) rows[rowNum] = {};
+        rows[rowNum][col] = s;
+      }
+    });
+    
+    // Render
+    let html = '<div class="seat-map-label">AVANT</div><div style="text-align:center;margin:4px 0"><span style="font-size:18px">⚙️</span></div>';
+    
+    Object.keys(rows).sort((a,b) => parseInt(a)-parseInt(b)).forEach(rowNum => {
+      const row = rows[rowNum];
+      html += '<div class="seat-row">';
+      ['A','B','C','D'].forEach(col => {
+        const siege = row[col];
+        if (siege) {
+          const isOccupied = siege.statut === 'OCCUPE';
+          html += `<div class="seat ${isOccupied ? 'seat-taken' : 'seat-free'}" data-siege-id="${siege.id}" data-siege-num="${siege.numero}" onclick="selectSiege(this)" title="${siege.numero}">${siege.numero}</div>`;
+        }
+      });
+      html += '</div>';
+      if ([6,9].includes(parseInt(rowNum))) {
+        html += '<div style="border-top:2px dashed var(--border);width:100%;margin:6px 0"></div>';
+      }
+    });
+    
+    html += '<div class="seat-map-label">ARRIÈRE</div>';
+    seatMap.innerHTML = html;
+    
+    // Reset selection
+    window.selectedSiege = null;
+    updateSeatRecap(tarifBase);
+  }
+
+  // Select a seat
+  function selectSiege(element) {
+    if (element.classList.contains('seat-taken')) return;
+    
+    // Remove previous selection
+    document.querySelectorAll('.seat-seat-selected').forEach(el => {
+      el.classList.remove('seat-seat-selected');
+      el.classList.add('seat-free');
+    });
+    
+    // Select new seat
+    element.classList.remove('seat-free');
+    element.classList.add('seat-seat-selected');
+    
+    window.selectedSiege = {
+      id: element.dataset.siegeId,
+      numero: element.dataset.siegeNum
+    };
+    
+    updateSeatRecap(window.selectedVoyage?.ligne?.tarifBase || 0);
+  }
+
+  // Update seat recap
+  function updateSeatRecap(tarifBase) {
+    const recap = document.getElementById('seat-recap');
+    const btn = document.getElementById('btn-confirmer-billet');
+    const tarifType = document.getElementById('type-tarif').value;
+    
+    if (!window.selectedSiege) {
+      recap.innerHTML = '<strong>Siège sélectionné : -</strong> | Tarif : <strong style="color:var(--orange)">- FCFA</strong>';
+      btn.disabled = true;
+      return;
+    }
+    
+    let prix = tarifBase;
+    if (tarifType === 'DEMI_TARIF_ENFANT') prix = tarifBase * 0.5;
+    else if (tarifType === 'TARIF_GROUPE') prix = tarifBase * 0.85;
+    
+    recap.innerHTML = `<strong>Siège sélectionné : ${window.selectedSiege.numero}</strong> | Tarif : <strong style="color:var(--orange)}">${formatFCFA(prix)}</strong>`;
+    btn.disabled = false;
+  }
+
+  // Load today's sold tickets
+  async function loadBilletsToday() {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const billets = await api(`/billets?date=${today}`);
+      const tbody = document.getElementById('billets-today-tbody');
+      
+      if (!billets || billets.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Aucun billet vendu aujourd\'hui</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = billets.map(b => `
+        <tr>
+          <td><span class="badge badge-navy">${b.numeroBillet || 'N/A'}</span></td>
+          <td>${b.passagerNom || 'N/A'}</td>
+          <td>${b.voyage ? (b.voyage.ligne ? `${b.voyage.ligne.villeDepart}→${b.voyage.ligne.villeArrivee}` : 'N/A') : 'N/A'}</td>
+          <td><span class="badge badge-info">${b.siege ? b.siege.numero : 'N/A'}</span></td>
+          <td>${formatFCFA(b.prix)}</td>
+          <td><span class="badge badge-green">VALIDE</span></td>
+        </tr>
+      `).join('');
+      
+    } catch (error) {
+      console.error('Error loading billets today:', error);
+    }
+  }
+
+  // Confirm ticket sale
+  async function confirmerBillet() {
+    try {
+      const nom = document.getElementById('passager-nom').value;
+      const tel = document.getElementById('passager-tel').value;
+      const tarifType = document.getElementById('type-tarif').value;
+      
+      if (!nom || !tel || !window.selectedSiege || !window.selectedVoyage) {
+        alert('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+      
+      let prix = window.selectedVoyage.ligne.tarifBase;
+      if (tarifType === 'ENFANT') prix = prix * 0.5;
+      else if (tarifType === 'GROUPE') prix = prix * 0.85;
+      
+      const payload = {
+        passagerNom: nom,
+        passagerTelephone: tel,
+        siegeId: window.selectedSiege.id,
+        voyageId: window.selectedVoyage.id,
+        typeTarif: tarifType,
+        modePaiement: 'ESPECES'
+      };
+      
+      await api('/billets', 'POST', payload);
+      
+      alert('Billet émis avec succès!');
+      
+      // Reset form
+      document.getElementById('passager-nom').value = '';
+      document.getElementById('passager-tel').value = '';
+      window.selectedSiege = null;
+      
+      // Reload
+      await loadVoyagesForDate(document.getElementById('billet-date').value);
+      await loadBilletsToday();
+      
+    } catch (error) {
+      console.error('Error confirming billet:', error);
+      alert('Erreur lors de l\'émission du billet');
+    }
+  }
+
+  // Event listener for confirm button
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('btn-confirmer-billet');
+    if (btn) btn.addEventListener('click', confirmerBillet);
+    
+    const tarifSelect = document.getElementById('type-tarif');
+    if (tarifSelect) {
+      tarifSelect.addEventListener('change', () => updateSeatRecap(window.selectedVoyage?.ligne?.tarifBase || 0));
+    }
+  });
+
+  // Load colis page
+  async function loadColis() {
+    try {
+      // Setup event listeners
+      const btnEnregistrer = document.getElementById('btn-enregistrer-colis');
+      if (btnEnregistrer) {
+        btnEnregistrer.addEventListener('click', enregistrerColis);
+      }
+      
+      const btnTracking = document.getElementById('btn-tracking-search');
+      if (btnTracking) {
+        btnTracking.addEventListener('click', rechercherColis);
+      }
+      
+    } catch (error) {
+      console.error('Error loading colis page:', error);
+    }
+  }
+
+  // Enregistrer un colis
+  async function enregistrerColis() {
+    try {
+      const expediteur = document.getElementById('colis-expediteur').value;
+      const expediteurTel = document.getElementById('colis-expediteur-tel').value;
+      const destinataire = document.getElementById('colis-destinataire').value;
+      const destinataireTel = document.getElementById('colis-destinataire-tel').value;
+      const villeDepart = document.getElementById('colis-ville-depart').value;
+      const villeArrivee = document.getElementById('colis-ville-arrivee').value;
+      const poids = document.getElementById('colis-poids').value;
+      const type = document.getElementById('colis-type').value;
+      const description = document.getElementById('colis-description').value;
+      const fragile = document.getElementById('colis-fragile').checked;
+      const urgent = document.getElementById('colis-urgent').checked;
+      const assure = document.getElementById('colis-assure').checked;
+      const paiement = document.getElementById('colis-paiement').value;
+      
+      if (!expediteur || !destinataire || !villeDepart || !villeArrivee || !poids || !paiement) {
+        alert('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+      
+      const payload = {
+        expediteurNom: expediteur,
+        expediteurTelephone: expediteurTel,
+        destinataireNom: destinataire,
+        destinataireTelephone: destinataireTel,
+        villeDepart: villeDepart,
+        villeArrivee: villeArrivee,
+        poidsKg: parseFloat(poids),
+        typeColis: type,
+        description: description,
+        fragile: fragile,
+        urgent: urgent,
+        assure: assure,
+        modePaiement: paiement
+      };
+      
+      const colis = await api('/colis', 'POST', payload);
+      
+      document.getElementById('colis-tracking-result').style.display = 'block';
+      document.getElementById('colis-tracking-num').textContent = colis.numeroTracking;
+      
+      alert('Colis enregistré avec succès!');
+      
+      // Reset form
+      document.getElementById('colis-expediteur').value = '';
+      document.getElementById('colis-expediteur-tel').value = '';
+      document.getElementById('colis-destinataire').value = '';
+      document.getElementById('colis-destinataire-tel').value = '';
+      document.getElementById('colis-poids').value = '';
+      document.getElementById('colis-description').value = '';
+      document.getElementById('colis-fragile').checked = false;
+      document.getElementById('colis-urgent').checked = false;
+      document.getElementById('colis-assure').checked = false;
+      
+    } catch (error) {
+      console.error('Error enregistrer colis:', error);
+      alert('Erreur lors de l\'enregistrement du colis');
+    }
+  }
+
+  // Rechercher un colis par tracking
+  async function rechercherColis() {
+    try {
+      const tracking = document.getElementById('colis-tracking-search').value;
+      if (!tracking) {
+        alert('Veuillez entrer un numéro de suivi');
+        return;
+      }
+      
+      const colis = await api(`/colis/tracking/${tracking}`);
+      
+      document.getElementById('tracking-placeholder').style.display = 'none';
+      document.getElementById('tracking-result').style.display = 'block';
+      
+      document.getElementById('tracking-statut-text').textContent = colis.statut || 'N/A';
+      document.getElementById('tracking-details').textContent = 
+        `${colis.villeDepart || 'N/A'} → ${colis.villeArrivee || 'N/A'} | ${colis.poidsKg || 0} kg`;
+      
+      // Timeline basique
+      const timeline = document.getElementById('tracking-timeline');
+      timeline.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:6px"></div>
+          <div>
+            <div style="font-weight:600;font-size:13px">${colis.statut || 'Enregistré'}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${formatDate(colis.dateEnregistrement)}</div>
+          </div>
+        </div>
+      `;
+      
+    } catch (error) {
+      console.error('Error rechercher colis:', error);
+      alert('Colis non trouvé');
+    }
+  }
+
+  // Load personnel
+  async function loadPersonnel() {
+    try {
+      const employes = await api('/personnel');
+      const container = document.querySelector('#page-personnel .card-body');
+      if (container && Array.isArray(employes)) {
+        container.innerHTML = `
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <input type="search" placeholder="🔍 Rechercher un employé..." style="flex:1;min-width:120px">
+            <select style="min-width:100px"><option>Tous postes</option><option>CHAUFFEUR</option><option>BILLETTERIE</option></select>
+          </div>
+          ${employes.map(e => `
+            <div class="emp-card">
+              <div class="avatar avatar-orange" style="width:40px;height:40px;font-size:15px">${e.nomComplet ? e.nomComplet.substring(0,2).toUpperCase() : 'NA'}</div>
+              <div class="emp-info">
+                <div class="emp-name">${e.nomComplet || 'N/A'}</div>
+                <div class="emp-sub">${e.poste} · ${e.agence ? 'Assigné' : 'Non assigné'}</div>
+                <div class="emp-meta">Tél: ${e.telephone || '-'}</div>
+              </div>
+              <div class="emp-actions">
+                <span class="badge ${e.statut === 'ACTIF' ? 'badge-green' : 'badge-yellow'}">${e.statut}</span>
+                <span class="badge badge-blue">${e.typeContrat}</span>
+              </div>
+            </div>
+          `).join('')}
+        `;
+      }
+    } catch (error) {
+      console.error('Error loading personnel:', error);
+    }
+  }
+
+  // Load paie
+  async function loadPaie() {
+    try {
+      const today = new Date();
+      const periode = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      const fiches = await api(`/paie/bulletins?periode=${periode}`);
+      
+      // Calculate stats from fiches
+      let masseSalariale = 0, netTotal = 0, cnpsTotal = 0;
+      if (Array.isArray(fiches)) {
+        fiches.forEach(f => {
+          masseSalariale += f.salaireBrut || 0;
+          netTotal += f.netAPayer || 0;
+          cnpsTotal += f.chargesPatronales || 0;
+        });
+      }
+      
+      // Update stats
+      document.querySelector('#page-paie .stat-card:nth-child(1) .stat-value').innerHTML = 
+        formatFCFA(masseSalariale) + '<span class="unit">FCFA</span>';
+      document.querySelector('#page-paie .stat-card:nth-child(2) .stat-value').innerHTML = 
+        formatFCFA(netTotal) + '<span class="unit">FCFA</span>';
+      document.querySelector('#page-paie .stat-card:nth-child(3) .stat-value').innerHTML = 
+        formatFCFA(cnpsTotal) + '<span class="unit">FCFA</span>';
+      document.querySelector('#page-paie .stat-card:nth-child(4) .stat-value').innerHTML = 
+        (fiches ? fiches.length : 0) + '<span class="unit">/ ' + (fiches ? fiches.length : 0) + '</span>';
+      
+      // Update table
+      const tbody = document.querySelector('#page-paie tbody');
+      if (tbody && Array.isArray(fiches)) {
+        tbody.innerHTML = fiches.map(f => `
+          <tr onclick="showFicheDetail(${f.id})" style="cursor:pointer">
+            <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange" style="width:28px;height:28px;font-size:11px">NA</div><div><div style="font-weight:600">Employé #${f.personnelId}</div><div style="font-size:11px;color:var(--text-muted)">CDI</div></div></div></td>
+            <td>N/A</td>
+            <td class="td-bold">${formatFCFA(f.netAPayer)}</td>
+            <td><span class="badge ${f.statutPaiement === 'PAYE' ? 'badge-green' : 'badge-orange'}">${f.statutPaiement}</span></td>
+            <td><button class="btn btn-ghost btn-sm">👁</button></td>
+          </tr>
+        `).join('');
+      }
+    } catch (error) {
+      console.error('Error loading paie:', error);
+    }
+  }
+
+  // Load flotte
+  async function loadFlotte() {
+    try {
+      const bus = await api('/bus');
+      const tbody = document.querySelector('#page-flotte tbody');
+      if (tbody && Array.isArray(bus)) {
+        tbody.innerHTML = bus.map(b => `
+          <tr><td class="td-bold">${b.immatriculation}</td><td>${b.modele}</td><td>${b.nombrePlaces}</td><td>—</td><td>${formatDate(b.prochainEntretien)}</td><td>${formatDate(b.assuranceExpiration)}</td><td><span class="badge ${getStatutBadge(b.statut)}">${b.statut}</span></td></tr>
+        `).join('');
+      }
+    } catch (error) {
+      console.error('Error loading flotte:', error);
+    }
+  }
+
+  // Load comptabilite
+  async function loadComptabilite() {
+    try {
+      const today = new Date();
+      const ecritures = await api('/comptabilite/ecritures');
+      const bilan = await api(`/comptabilite/resume?annee=${today.getFullYear()}&mois=${today.getMonth() + 1}`);
+      
+      // Update stats
+      if (bilan) {
+        document.querySelector('#page-comptabilite .stat-card:nth-child(1) .stat-value').innerHTML = 
+          formatFCFA(bilan.recettes || 0) + '<span class="unit">FCFA</span>';
+        document.querySelector('#page-comptabilite .stat-card:nth-child(2) .stat-value').innerHTML = 
+          formatFCFA(bilan.depenses || 0) + '<span class="unit">FCFA</span>';
+        document.querySelector('#page-comptabilite .stat-card:nth-child(3) .stat-value').innerHTML = 
+          formatFCFA(bilan.benefice || 0) + '<span class="unit">FCFA</span>';
+      }
+      
+      // Update table
+      const tbody = document.querySelector('#page-comptabilite tbody');
+      if (tbody && Array.isArray(ecritures)) {
+        tbody.innerHTML = ecritures.map(e => `
+          <tr><td>${formatDate(e.dateEcriture)}</td><td>${e.description}</td><td class="td-bold" style="color:${e.credit > 0 ? 'var(--green)' : 'var(--red)'}">${e.credit > 0 ? '+' : '-'}${formatFCFA(e.credit || e.debit)}</td><td>—</td><td>—</td></tr>
+        `).join('');
+      }
+    } catch (error) {
+      console.error('Error loading comptabilite:', error);
+    }
+  }
+
+  // Load lignes
+  async function loadLignes() {
+    try {
+      const lignes = await api('/lignes');
+      const tbody = document.querySelector('#page-lignes tbody');
+      if (tbody && Array.isArray(lignes)) {
+        tbody.innerHTML = lignes.map(l => `
+          <tr><td class="td-bold">${l.villeDepart} → ${l.villeArrivee}</td><td>${l.distanceKm} km</td><td>${Math.round(l.dureeMinutes / 60)}h</td><td>${formatFCFA(l.tarifBase)}</td><td>—</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:50%"></div></div><span style="font-size:12px;font-weight:700">50%</span></div></td><td><span class="badge badge-green">${l.statut}</span></td></tr>
+        `).join('');
+      }
+    } catch (error) {
+      console.error('Error loading lignes:', error);
+    }
+  }
+
+  // Load courriers
+  async function loadCourriers() {
+    try {
+      const courriers = await api('/courriers');
+      // Update courriers badge - count non lus
+      const nonLus = Array.isArray(courriers) ? courriers.filter(c => c.statut === 'NON_LU').length : 0;
+      const badge = document.querySelector('.nav-badge');
+      if (badge) badge.textContent = nonLus;
+    } catch (error) {
+      console.error('Error loading courriers:', error);
+    }
+  }
+
+  function getStatutBadge(statut) {
+    const badges = {
+      'ACTIF': 'badge-green', 'OPERATIONNEL': 'badge-green', 'PAYE': 'badge-green', 'EN_ROUTE': 'badge-green',
+      'VALIDE': 'badge-green', 'LIVRE': 'badge-green', 'ARRIVE': 'badge-green',
+      'ANNULE': 'badge-red', 'HORS_SERVICE': 'badge-red', 'MAINTENANCE': 'badge-yellow', 'EN_ATTENTE': 'badge-yellow',
+      'PLANIFIE': 'badge-gray', 'OUVERT': 'badge-blue', 'EMBARQUEMENT': 'badge-blue', 'ENREGISTRE': 'badge-blue',
+      'EN_TRANSIT': 'badge-blue', 'EN_LIVRAISON': 'badge-orange', 'NON_RECLAME': 'badge-red',
+      'CONGE': 'badge-yellow', 'INACTIF': 'badge-red'
+    };
+    return badges[statut] || 'badge-gray';
+  }
+
+  function handleCTA() {
+    const active = document.querySelector('.page.active');
+    if (!active) return;
+    const id = active.id.replace('page-', '');
+    if (id === 'personnel') {
+      document.getElementById('modal-employe').classList.add('open');
+    }
+  }
+
+  function showNotifs() {
+    document.getElementById('modal-notifs').classList.add('open');
+  }
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  // Seat selection
+  document.querySelectorAll('.seat-free').forEach(seat => {
+    seat.addEventListener('click', function() {
+      document.querySelectorAll('.seat-selected').forEach(s => {
+        s.classList.remove('seat-selected');
+        s.classList.add('seat-free');
+      });
+      this.classList.remove('seat-free');
+      this.classList.add('seat-selected');
+    });
+  });
+
+  // Payment button toggle
+  document.querySelectorAll('.pay-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.closest('.payment-btns').querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Horaire button toggle
+  document.querySelectorAll('.horaire-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.closest('.horaire-grid').querySelectorAll('.horaire-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Close modals on backdrop click
+  document.querySelectorAll('.modal-backdrop').forEach(bd => {
+    bd.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
+
+  // Check authentication on load
+  function checkAuth() {
+    const token = localStorage.getItem('sigavt_token');
+    if (!token) {
+      window.location.href = '/login.html';
+      return false;
+    }
+    return true;
+  }
+
+  // Update user info display
+  function updateUserInfo() {
+    const user = JSON.parse(localStorage.getItem('sigavt_user') || '{}');
+    const nameEl = document.querySelector('.user-info .name');
+    const roleEl = document.querySelector('.user-info .role');
+    const avatarEl = document.querySelector('.user-info .avatar');
+    
+    if (nameEl) nameEl.textContent = user.nom || user.email || 'Utilisateur';
+    if (roleEl) roleEl.textContent = user.role || 'Utilisateur';
+    if (avatarEl && user.nom) {
+      avatarEl.textContent = user.nom.charAt(0).toUpperCase();
+    }
+  }
+
+  // Logout function
+  function logout() {
+    localStorage.removeItem('sigavt_token');
+    localStorage.removeItem('sigavt_user');
+    window.location.href = '/login.html';
+  }
+
+  // Load initial page
+  if (checkAuth()) {
+    updateUserInfo();
+    navigate('dashboard');
+  }
+</script>
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+target/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+*.log
+.mvn/
+HELP.md
+
+# Environnement et secrets
+.env
+.env.*
+!.env.example
+*.env
+
+# Logs
+logs/
+/var/log/
+
+# Build Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# OS
+Thumbs.db

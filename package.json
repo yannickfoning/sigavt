@@ -1,0 +1,15 @@
+{
+  "name": "sigavt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SIGAVT est une application Java/Spring Boot. Ce package.json ne contient aucune dependance JS : il expose juste des commandes npm familieres qui appellent Docker et Maven en dessous.",
+  "scripts": {
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "build": ".\\apache-maven-3.9.6\\bin\\mvn.cmd clean package",
+    "start": ".\\apache-maven-3.9.6\\bin\\mvn.cmd spring-boot:run"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}

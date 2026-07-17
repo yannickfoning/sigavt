@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SIGAVT — Connexion</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .login-hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a2744 0%, #243158 50%, #1a2744 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(245,166,35,0.1) 0%, transparent 50%);
+      animation: pulse 15s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-30%, -30%); }
+      50% { transform: translate(-30%, -30%) scale(1.1); }
+    }
+
+    .lang-toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .lang-toggle-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    #brand-title {
+      text-align: center;
+      color: white;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    .brand-logo {
+      height: 80px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    }
+
+    #brand-title h1 {
+      font-size: 42px;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+      letter-spacing: -1px;
+    }
+
+    #brand-title p {
+      font-size: 16px;
+      opacity: 0.8;
+      margin: 0;
+    }
+
+    .login-toggle-btn {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #f5a623 0%, #d4891a 100%);
+      border: none;
+      color: white;
+      padding: 14px 32px;
+      border-radius: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(245,166,35,0.4);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .login-toggle-btn:hover {
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 6px 25px rgba(245,166,35,0.5);
+    }
+
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .login-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .login-page {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      position: relative;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #64748b;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background: #f1f5f9;
+      color: #1a2744;
+    }
+
+    .login-card h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1a2744;
+      margin: 0 0 8px 0;
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 15px;
+      margin: 0 0 24px 0;
+    }
+
+    .login-error {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .input-icon-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon-wrapper svg {
+      position: absolute;
+      left: 14px;
+      color: #94a3b8;
+    }
+
+    .input-icon-wrapper input {
+      width: 100%;
+      padding: 14px 14px 14px 44px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .input-icon-wrapper input:focus {
+      border-color: #f5a623;
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f5a623 0%, #d4891a 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245,166,35,0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .demo-accounts {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .demo-accounts h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 12px 0;
+    }
+
+    .demo-account {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .demo-account:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .demo-account .role {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a2744;
+    }
+
+    .demo-account .credentials {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    @media (max-width: 768px) {
+      .login-card {
+        padding: 30px 24px;
+        margin: 20px;
+      }
+
+      #brand-title h1 {
+        font-size: 32px;
+      }
+
+      .login-toggle-btn {
+        bottom: 30px;
+        padding: 12px 24px;
+      }
+    }
+  </style>
+</head>
+<body class="login-hero">
+
+  <button type="button" class="lang-toggle-btn" id="lang-toggle-btn" aria-label="Changer la langue">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M2 12h20"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+    <span id="lang-text">FR</span>
+  </button>
+
+  <div id="brand-title">
+    <svg class="brand-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="80" rx="16" fill="#f5a623"/>
+      <path d="M16 56L24 40L32 48L40 32L48 40L56 24L64 40" stroke="#1a2744" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>SIGAVT</h1>
+    <p>Système de Gestion d'Agence de Voyage Terrestre</p>
+  </div>
+
+  <button type="button" class="login-toggle-btn" id="login-toggle-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+      <polyline points="10,17 15,12 10,7"/>
+      <line x1="15" y1="12" x2="3" y2="12"/>
+    </svg>
+    <span>Connexion</span>
+  </button>
+
+  <div class="login-overlay" id="login-overlay" role="dialog" aria-modal="true" aria-labelledby="login-dialog-title">
+    <div class="login-page">
+      <div class="login-card">
+        <div class="login-card-header">
+          <div></div>
+          <button type="button" class="close-btn" id="close-login" aria-label="Fermer">×</button>
+        </div>
+        <h1 id="login-dialog-title">Connexion</h1>
+        <p class="subtitle">Connectez-vous à votre espace de gestion</p>
+
+        <div class="login-error" id="login-error"></div>
+
+        <form id="login-form" autocomplete="on">
+          <div class="form-group">
+            <label for="email">Adresse email</label>
+            <div class="input-icon-wrapper">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <input type="email" id="email" name="email" required autocomplete="email" placeholder="votre@email.com">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="motDePasse">Mot de passe</label>
+            <div class="input-icon-wrapper">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="motDePasse" name="motDePasse" required autocomplete="current-password" placeholder="••••••••">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary login-btn" id="login-btn">Se connecter</button>
+        </form>
+
+        <div class="demo-accounts">
+          <h4>Comptes de démonstration</h4>
+          <div class="demo-account" onclick="fillDemo('admin@sigavt.cm', 'admin123')">
+            <span class="role">Administrateur</span>
+            <span class="credentials">admin@sigavt.cm / admin123</span>
+          </div>
+          <div class="demo-account" onclick="fillDemo('billetterie@sigavt.cm', 'admin123')">
+            <span class="role">Billetterie</span>
+            <span class="credentials">billetterie@sigavt.cm / admin123</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var form = document.getElementById('login-form');
+      var emailInput = document.getElementById('email');
+      var pwdInput = document.getElementById('motDePasse');
+      var loginBtn = document.getElementById('login-btn');
+      var errorDiv = document.getElementById('login-error');
+      var closeBtn = document.getElementById('close-login');
+      var loginToggleBtn = document.getElementById('login-toggle-btn');
+      var loginOverlay = document.getElementById('login-overlay');
+      var brandTitle = document.getElementById('brand-title');
+      var langToggleBtn = document.getElementById('lang-toggle-btn');
+      var langText = document.getElementById('lang-text');
+
+      function openLoginOverlay() {
+        loginOverlay.classList.add('is-open');
+        brandTitle.style.opacity = '0.3';
+        loginToggleBtn.style.display = 'none';
+      }
+
+      function closeLoginOverlay() {
+        loginOverlay.classList.remove('is-open');
+        brandTitle.style.opacity = '1';
+        loginToggleBtn.style.display = 'flex';
+      }
+
+      function fillDemo(email, password) {
+        emailInput.value = email;
+        pwdInput.value = password;
+        openLoginOverlay();
+      }
+
+      closeBtn.addEventListener('click', closeLoginOverlay);
+      loginToggleBtn.addEventListener('click', openLoginOverlay);
+
+      loginOverlay.addEventListener('click', function (e) {
+        if (e.target === loginOverlay) {
+          closeLoginOverlay();
+        }
+      });
+
+      langToggleBtn.addEventListener('click', function () {
+        var currentLang = langText.textContent;
+        var newLang = currentLang === 'FR' ? 'EN' : 'FR';
+        langText.textContent = newLang;
+      });
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        errorDiv.style.display = 'none';
+        loginBtn.disabled = true;
+        var originalText = loginBtn.textContent;
+        loginBtn.innerHTML = '<span class="spinner"></span>';
+
+        try {
+          var resp = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: emailInput.value,
+              motDePasse: pwdInput.value
+            })
+          });
+
+          var data = await resp.json();
+
+          if (!resp.ok) {
+            errorDiv.textContent = data.error || 'Identifiants invalides';
+            errorDiv.style.display = 'block';
+            return;
+          }
+
+          localStorage.setItem('sigavt_token', data.token);
+          localStorage.setItem('sigavt_user', JSON.stringify({
+            nomComplet: data.nomComplet,
+            email: data.email,
+            role: data.role
+          }));
+          
+          window.location.href = '/sigavt.html';
+        } catch (_err) {
+          errorDiv.textContent = 'Erreur réseau. Vérifiez votre connexion.';
+          errorDiv.style.display = 'block';
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = originalText;
+        }
+      });
+
+      // Check if already logged in
+      if (localStorage.getItem('sigavt_token')) {
+        window.location.href = '/sigavt.html';
+      }
+    })();
+  </script>
+</body>
+</html>

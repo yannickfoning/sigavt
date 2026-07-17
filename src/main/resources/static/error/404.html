@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAVT — Page introuvable</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0;
+        }
+        .container { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 48px; 
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+            max-width: 480px; 
+            width: 90%; 
+        }
+        .icon { 
+            font-size: 80px; 
+            margin-bottom: 24px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        h1 { 
+            color: #1a2744; 
+            font-size: 32px; 
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+        .code { 
+            color: #e85d04; 
+            font-size: 72px; 
+            font-weight: 900;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+        p { 
+            color: #64748b; 
+            margin: 16px 0 32px; 
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        .btn {
+            display: inline-block; 
+            background: linear-gradient(135deg, #e85d04 0%, #f27a35 100%);
+            color: white; 
+            padding: 14px 32px; 
+            border-radius: 10px; 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 16px;
+            margin: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 93, 4, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #1a2744 0%, #243158 100%);
+        }
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(26, 39, 68, 0.4);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="icon">🚌</div>
+    <div class="code">404</div>
+    <h1>Page introuvable</h1>
+    <p>La page que vous cherchez n'existe pas ou a été déplacée.<br>
+       Vérifiez l'URL ou retournez à l'accueil.</p>
+    <a href="/" class="btn">🏠 Accueil</a>
+    <a href="/login" class="btn btn-secondary">🔐 Se connecter</a>
+</div>
+</body>
+</html>

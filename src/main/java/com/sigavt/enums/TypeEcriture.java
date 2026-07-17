@@ -1,0 +1,5 @@
+package com.sigavt.enums;
+
+public enum TypeEcriture {
+    RECETTE_BILLETTERIE, RECETTE_COLIS, CARBURANT, SALAIRE, CHARGES_SOCIALES, MAINTENANCE, ASSURANCE, AUTRE
+}
