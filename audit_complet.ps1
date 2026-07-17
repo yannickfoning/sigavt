@@ -119,12 +119,12 @@ Test-Endpoint -Name "POST ligne" -Method "POST" -Url "/api/lignes" -Headers $Aut
 # Module Bus
 Write-Host "Module Bus" -ForegroundColor Cyan
 Test-Endpoint -Name "GET bus" -Method "GET" -Url "/api/bus" -Headers $AuthHeaders -ExpectedStatus 200
-Test-Endpoint -Name "POST bus" -Method "POST" -Url "/api/bus" -Headers $AuthHeaders -Body '{"immatriculation":"AUDIT-999","modele":"Bus Test","nombrePlaces":50}' -ExpectedStatus 201
+Test-Endpoint -Name "POST bus" -Method "POST" -Url "/api/bus" -Headers $AuthHeaders -Body '{"immatriculation":"AUDIT-NEW","modele":"Bus Test","nombrePlaces":50,"statut":"maintenance"}' -ExpectedStatus 201
 
 # Module Personnel
 Write-Host "Module Personnel" -ForegroundColor Cyan
 Test-Endpoint -Name "GET personnel" -Method "GET" -Url "/api/personnel" -Headers $AuthHeaders -ExpectedStatus 200
-Test-Endpoint -Name "POST personnel" -Method "POST" -Url "/api/personnel" -Headers $AuthHeaders -Body '{"nomComplet":"Test Employé","poste":"CHAUFFEUR","typeContrat":"CDI"}' -ExpectedStatus 201
+Test-Endpoint -Name "POST personnel" -Method "POST" -Url "/api/personnel" -Headers $AuthHeaders -Body '{"nomComplet":"Test Employé","poste":"chauffeur","typeContrat":"cdi"}' -ExpectedStatus 201
 
 # Module Voyages
 Write-Host "Module Voyages" -ForegroundColor Cyan

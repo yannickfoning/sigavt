@@ -34,8 +34,8 @@ public class PersonnelServiceImpl implements PersonnelService {
         Personnel p = Personnel.builder()
                 .nomComplet(r.getNomComplet())
                 .telephone(r.getTelephone())
-                .poste(Poste.valueOf(r.getPoste()))
-                .typeContrat(r.getTypeContrat() != null ? TypeContrat.valueOf(r.getTypeContrat()) : TypeContrat.CDI)
+                .poste(parsePoste(r.getPoste()))
+                .typeContrat(parseTypeContrat(r.getTypeContrat()))
                 .dateFinContrat(r.getDateFinContrat())
                 .salaireBase(r.getSalaireBase())
                 .numeroCnps(r.getNumeroCnps())
@@ -43,10 +43,37 @@ public class PersonnelServiceImpl implements PersonnelService {
                 .permisConduire(r.getPermisConduire())
                 .busAssigne(resoudreBus(r.getBusAssigneId()))
                 .agence(resoudreAgence(r.getAgenceId()))
-                .statut(r.getStatut() != null ? StatutEmploye.valueOf(r.getStatut()) : StatutEmploye.ACTIF)
+                .statut(parseStatutEmploye(r.getStatut()))
                 .dateEmbauche(r.getDateEmbauche())
                 .build();
         return personnelRepository.save(p);
+    }
+
+    private Poste parsePoste(String poste) {
+        if (!StringUtils.hasText(poste)) return Poste.CHAUFFEUR;
+        try {
+            return Poste.valueOf(poste.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Poste.CHAUFFEUR;
+        }
+    }
+
+    private TypeContrat parseTypeContrat(String typeContrat) {
+        if (!StringUtils.hasText(typeContrat)) return TypeContrat.CDI;
+        try {
+            return TypeContrat.valueOf(typeContrat.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return TypeContrat.CDI;
+        }
+    }
+
+    private StatutEmploye parseStatutEmploye(String statut) {
+        if (!StringUtils.hasText(statut)) return StatutEmploye.ACTIF;
+        try {
+            return StatutEmploye.valueOf(statut.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return StatutEmploye.ACTIF;
+        }
     }
 
     @Override

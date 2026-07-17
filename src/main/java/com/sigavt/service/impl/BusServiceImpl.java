@@ -35,7 +35,7 @@ public class BusServiceImpl implements BusService {
                 .ligneAssignee(resoudreLigne(r.getLigneAssigneeId()))
                 .prochainEntretien(r.getProchainEntretien())
                 .assuranceExpiration(r.getAssuranceExpiration())
-                .statut(r.getStatut() != null ? StatutBus.valueOf(r.getStatut()) : StatutBus.OPERATIONNEL)
+                .statut(r.getStatut() != null ? StatutBus.valueOf(r.getStatut().toUpperCase()) : StatutBus.OPERATIONNEL)
                 .build();
         return busRepository.save(bus);
     }

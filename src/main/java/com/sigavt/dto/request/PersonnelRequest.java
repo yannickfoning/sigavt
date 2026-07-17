@@ -10,7 +10,6 @@ import java.time.LocalDate;
 @Data
 public class PersonnelRequest {
     @NotBlank private String nomComplet;
-    @Pattern(regexp = "\\+237[0-9]{9}", message = "Le téléphone doit être au format camerounais: +237XXXXXXXXX")
     private String telephone;
     @NotBlank private String poste;
     private String typeContrat;
