@@ -29,7 +29,7 @@ public class ComptabiliteServiceImpl implements ComptabiliteService {
                 .libelle(r.getLibelle())
                 .description(r.getDescription())
                 .categorie(r.getCategorie())
-                .typeEcriture(r.getTypeEcriture() != null ? TypeEcriture.valueOf(r.getTypeEcriture()) : null)
+                .typeEcriture(r.getTypeEcriture() != null ? TypeEcriture.valueOf(r.getTypeEcriture().toUpperCase()) : null)
                 .compteDebit(r.getCompteDebit())
                 .compteCredit(r.getCompteCredit())
                 .montantDebit(r.getMontantDebit() != null ? r.getMontantDebit() : BigDecimal.ZERO)

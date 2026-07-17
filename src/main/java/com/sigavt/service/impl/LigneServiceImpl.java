@@ -28,7 +28,7 @@ public class LigneServiceImpl implements LigneService {
                 .dureeMinutes(r.getDureeMinutes())
                 .tarifBase(r.getTarifBase())
                 .frequenceJour(r.getFrequenceJour())
-                .statut(r.getStatut() != null ? StatutLigne.valueOf(r.getStatut()) : StatutLigne.ACTIVE)
+                .statut(r.getStatut() != null ? StatutLigne.valueOf(r.getStatut().toUpperCase()) : StatutLigne.ACTIVE)
                 .build();
         return ligneRepository.save(ligne);
     }
@@ -57,7 +57,7 @@ public class LigneServiceImpl implements LigneService {
         ligne.setDureeMinutes(r.getDureeMinutes());
         ligne.setTarifBase(r.getTarifBase());
         ligne.setFrequenceJour(r.getFrequenceJour());
-        if (r.getStatut() != null) ligne.setStatut(StatutLigne.valueOf(r.getStatut()));
+        if (r.getStatut() != null) ligne.setStatut(StatutLigne.valueOf(r.getStatut().toUpperCase()));
         return ligneRepository.save(ligne);
     }
 

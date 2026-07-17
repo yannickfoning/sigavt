@@ -119,7 +119,8 @@ Test-Endpoint -Name "POST ligne" -Method "POST" -Url "/api/lignes" -Headers $Aut
 # Module Bus
 Write-Host "Module Bus" -ForegroundColor Cyan
 Test-Endpoint -Name "GET bus" -Method "GET" -Url "/api/bus" -Headers $AuthHeaders -ExpectedStatus 200
-Test-Endpoint -Name "POST bus" -Method "POST" -Url "/api/bus" -Headers $AuthHeaders -Body '{"immatriculation":"AUDIT-NEW","modele":"Bus Test","nombrePlaces":50,"statut":"maintenance"}' -ExpectedStatus 201
+$busImmat = "AUDIT-" + (Get-Date).Ticks.ToString().Substring(14)
+Test-Endpoint -Name "POST bus" -Method "POST" -Url "/api/bus" -Headers $AuthHeaders -Body "{""immatriculation"":""$busImmat"",""modele"":""Bus Test"",""nombrePlaces"":50,""statut"":""maintenance""}" -ExpectedStatus 201
 
 # Module Personnel
 Write-Host "Module Personnel" -ForegroundColor Cyan

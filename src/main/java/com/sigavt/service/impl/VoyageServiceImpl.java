@@ -47,7 +47,7 @@ public class VoyageServiceImpl implements VoyageService {
                 .dateVoyage(r.getDateVoyage())
                 .heureDepart(r.getHeureDepart())
                 .placesDisponibles(places)
-                .statut(r.getStatut() != null ? StatutVoyage.valueOf(r.getStatut()) : StatutVoyage.PLANIFIE)
+                .statut(r.getStatut() != null ? StatutVoyage.valueOf(r.getStatut().toUpperCase()) : StatutVoyage.PLANIFIE)
                 .build();
         voyage = voyageRepository.save(voyage);
 
@@ -107,7 +107,7 @@ public class VoyageServiceImpl implements VoyageService {
         voyage.setDateVoyage(r.getDateVoyage());
         voyage.setHeureDepart(r.getHeureDepart());
         if (r.getPlacesDisponibles() != null) voyage.setPlacesDisponibles(r.getPlacesDisponibles());
-        if (r.getStatut() != null) voyage.setStatut(StatutVoyage.valueOf(r.getStatut()));
+        if (r.getStatut() != null) voyage.setStatut(StatutVoyage.valueOf(r.getStatut().toUpperCase()));
         return voyageRepository.save(voyage);
     }
 

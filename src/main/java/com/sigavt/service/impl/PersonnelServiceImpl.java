@@ -33,7 +33,7 @@ public class PersonnelServiceImpl implements PersonnelService {
     public Personnel creer(PersonnelRequest r) {
         Personnel p = Personnel.builder()
                 .nomComplet(r.getNomComplet())
-                .telephone(r.getTelephone())
+                .telephone(normaliserTelephone(r.getTelephone()))
                 .poste(parsePoste(r.getPoste()))
                 .typeContrat(parseTypeContrat(r.getTypeContrat()))
                 .dateFinContrat(r.getDateFinContrat())
@@ -47,6 +47,21 @@ public class PersonnelServiceImpl implements PersonnelService {
                 .dateEmbauche(r.getDateEmbauche())
                 .build();
         return personnelRepository.save(p);
+    }
+
+    private String normaliserTelephone(String telephone) {
+        if (!StringUtils.hasText(telephone)) return null;
+        String cleaned = telephone.replaceAll("[^0-9+]", "");
+        if (cleaned.startsWith("237") && !cleaned.startsWith("+237")) {
+            return "+237" + cleaned.substring(3);
+        }
+        if (cleaned.startsWith("6") && cleaned.length() == 9) {
+            return "+237" + cleaned;
+        }
+        if (cleaned.startsWith("+237")) {
+            return cleaned;
+        }
+        return cleaned;
     }
 
     private Poste parsePoste(String poste) {
@@ -99,9 +114,9 @@ public class PersonnelServiceImpl implements PersonnelService {
     public Personnel modifier(Long id, PersonnelRequest r) {
         Personnel p = obtenirParId(id);
         p.setNomComplet(r.getNomComplet());
-        p.setTelephone(r.getTelephone());
-        p.setPoste(Poste.valueOf(r.getPoste()));
-        if (r.getTypeContrat() != null) p.setTypeContrat(TypeContrat.valueOf(r.getTypeContrat()));
+        p.setTelephone(normaliserTelephone(r.getTelephone()));
+        p.setPoste(parsePoste(r.getPoste()));
+        if (r.getTypeContrat() != null) p.setTypeContrat(parseTypeContrat(r.getTypeContrat()));
         p.setDateFinContrat(r.getDateFinContrat());
         p.setSalaireBase(r.getSalaireBase());
         p.setNumeroCnps(r.getNumeroCnps());
@@ -109,7 +124,7 @@ public class PersonnelServiceImpl implements PersonnelService {
         p.setPermisConduire(r.getPermisConduire());
         p.setBusAssigne(resoudreBus(r.getBusAssigneId()));
         p.setAgence(resoudreAgence(r.getAgenceId()));
-        if (r.getStatut() != null) p.setStatut(StatutEmploye.valueOf(r.getStatut()));
+        if (r.getStatut() != null) p.setStatut(parseStatutEmploye(r.getStatut()));
         p.setDateEmbauche(r.getDateEmbauche());
         return personnelRepository.save(p);
     }

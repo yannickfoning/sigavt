@@ -50,7 +50,7 @@ public class CourrierServiceImpl implements CourrierService {
         if (r.getObjet() != null) c.setObjet(r.getObjet());
         if (r.getExpediteur() != null) c.setExpediteur(r.getExpediteur());
         if (r.getDestinataire() != null) c.setDestinataire(r.getDestinataire());
-        if (r.getStatut() != null) c.setStatut(StatutCourrier.valueOf(r.getStatut()));
+        if (r.getStatut() != null) c.setStatut(StatutCourrier.valueOf(r.getStatut().toUpperCase()));
         return courrierRepository.save(c);
     }
 
