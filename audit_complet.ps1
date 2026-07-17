@@ -2,7 +2,7 @@
 # Adapté pour Spring Boot 2.7.18 + Java 17 + MySQL XAMPP
 
 $BaseUrl = "http://localhost:8080"
-$Results = @()
+$Results = New-Object System.Collections.Generic.List[object]
 
 function Test-Endpoint {
     param(
@@ -35,33 +35,33 @@ function Test-Endpoint {
         $Status = $Response.StatusCode
         
         if ($Status -eq $ExpectedStatus) {
-            $Results += [PSCustomObject]@{
+            $Results.Add([PSCustomObject]@{
                 Test = $Name
                 Status = "SUCCESS"
                 Expected = $ExpectedStatus
                 Actual = $Status
                 Description = $Description
-            }
+            })
             Write-Host "✅ $Name" -ForegroundColor Green
         } else {
-            $Results += [PSCustomObject]@{
+            $Results.Add([PSCustomObject]@{
                 Test = $Name
                 Status = "FAIL"
                 Expected = $ExpectedStatus
                 Actual = $Status
                 Description = $Description
-            }
+            })
             Write-Host "❌ $Name - Expected $ExpectedStatus, got $Status" -ForegroundColor Red
         }
     } catch {
         $Status = $_.Exception.Response.StatusCode.value__
-        $Results += [PSCustomObject]@{
+        $Results.Add([PSCustomObject]@{
             Test = $Name
             Status = "ERROR"
             Expected = $ExpectedStatus
             Actual = $Status
             Description = "$Description - Error: $($_.Exception.Message)"
-        }
+        })
         Write-Host "❌ $Name - Error: $($_.Exception.Message)" -ForegroundColor Red
     }
 }

@@ -56,6 +56,11 @@ public class ComptabiliteServiceImpl implements ComptabiliteService {
 
     @Override
     public Map<String, Object> genererBilan(int mois, int annee) {
+        if (mois == 0 || annee == 0) {
+            YearMonth ym = YearMonth.now();
+            mois = ym.getMonthValue();
+            annee = ym.getYear();
+        }
         YearMonth ym = YearMonth.of(annee, mois);
         List<EcritureComptable> ecritures = ecritureComptableRepository
                 .findByDateEcritureBetweenOrderByDateEcritureDesc(ym.atDay(1), ym.atEndOfMonth());
