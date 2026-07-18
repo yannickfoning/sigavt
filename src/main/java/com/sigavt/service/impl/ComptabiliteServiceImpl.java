@@ -24,8 +24,13 @@ public class ComptabiliteServiceImpl implements ComptabiliteService {
 
     @Override
     public EcritureComptable creer(EcritureComptableRequest r) {
+        if (r.getLibelle() == null || r.getLibelle().isBlank()) {
+            throw new com.sigavt.exception.RegleMetierException("Le libelle est obligatoire");
+        }
+        String numeroEcriture = genererNumeroEcriture();
         EcritureComptable e = EcritureComptable.builder()
-                .dateEcriture(r.getDateEcriture())
+                .numeroEcriture(numeroEcriture)
+                .dateEcriture(r.getDateEcriture() != null ? r.getDateEcriture() : LocalDate.now())
                 .libelle(r.getLibelle())
                 .description(r.getDescription())
                 .categorie(r.getCategorie())
@@ -39,6 +44,12 @@ public class ComptabiliteServiceImpl implements ComptabiliteService {
                 .reference(r.getReference())
                 .build();
         return ecritureComptableRepository.save(e);
+    }
+
+    private String genererNumeroEcriture() {
+        String prefix = "EC-" + LocalDate.now().getYear();
+        long count = ecritureComptableRepository.count() + 1;
+        return String.format("%s-%04d", prefix, count);
     }
 
     @Override
