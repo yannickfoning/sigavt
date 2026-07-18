@@ -7,8 +7,8 @@ import java.time.LocalDate;
 
 @Data
 public class CourrierRequest {
-    @NotBlank private String type; // ENTRANT, SORTANT
-    @NotBlank private String objet;
+    private String type; // ENTRANT, SORTANT
+    private String objet;
     private String expediteur;
     private String destinataire;
     private String contenu;

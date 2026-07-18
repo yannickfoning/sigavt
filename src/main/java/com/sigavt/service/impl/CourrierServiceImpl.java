@@ -21,8 +21,16 @@ public class CourrierServiceImpl implements CourrierService {
 
     @Override
     public Courrier creer(CourrierRequest r) {
+        if (r.getType() == null || r.getType().isBlank()) {
+            throw new com.sigavt.exception.RegleMetierException("Le type de courrier est obligatoire");
+        }
+        if (r.getObjet() == null || r.getObjet().isBlank()) {
+            throw new com.sigavt.exception.RegleMetierException("L'objet du courrier est obligatoire");
+        }
+        String numeroCourrier = genererNumeroCourrier();
         Courrier c = Courrier.builder()
-                .typeCourrier(TypeCourrier.valueOf(r.getType()))
+                .numeroCourrier(numeroCourrier)
+                .typeCourrier(TypeCourrier.valueOf(r.getType().toUpperCase()))
                 .objet(r.getObjet())
                 .expediteur(r.getExpediteur())
                 .destinataire(r.getDestinataire())
@@ -31,6 +39,12 @@ public class CourrierServiceImpl implements CourrierService {
                 .observations(r.getObservations())
                 .build();
         return courrierRepository.save(c);
+    }
+
+    private String genererNumeroCourrier() {
+        String prefix = "C-" + LocalDate.now().getYear();
+        long count = courrierRepository.count() + 1;
+        return String.format("%s-%04d", prefix, count);
     }
 
     @Override
