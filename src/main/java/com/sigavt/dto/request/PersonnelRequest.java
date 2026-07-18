@@ -9,9 +9,9 @@ import java.time.LocalDate;
 
 @Data
 public class PersonnelRequest {
-    @NotBlank private String nomComplet;
+    private String nomComplet;
     private String telephone;
-    @NotBlank private String poste;
+    private String poste;
     private String typeContrat;
     private LocalDate dateFinContrat;
     private BigDecimal salaireBase;

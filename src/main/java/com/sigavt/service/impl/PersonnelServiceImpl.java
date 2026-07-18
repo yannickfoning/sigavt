@@ -31,6 +31,12 @@ public class PersonnelServiceImpl implements PersonnelService {
 
     @Override
     public Personnel creer(PersonnelRequest r) {
+        if (r.getNomComplet() == null || r.getNomComplet().isBlank()) {
+            throw new com.sigavt.exception.RegleMetierException("Le nom complet est obligatoire");
+        }
+        if (r.getPoste() == null || r.getPoste().isBlank()) {
+            throw new com.sigavt.exception.RegleMetierException("Le poste est obligatoire");
+        }
         Personnel p = Personnel.builder()
                 .nomComplet(r.getNomComplet())
                 .telephone(normaliserTelephone(r.getTelephone()))
