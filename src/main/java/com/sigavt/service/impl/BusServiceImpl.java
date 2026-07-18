@@ -25,6 +25,12 @@ public class BusServiceImpl implements BusService {
 
     @Override
     public Bus creer(BusRequest r) {
+        if (r.getImmatriculation() == null || r.getImmatriculation().isBlank()) {
+            throw new RegleMetierException("L'immatriculation est obligatoire");
+        }
+        if (r.getNombrePlaces() == null || r.getNombrePlaces() <= 0) {
+            throw new RegleMetierException("Le nombre de places est obligatoire et doit être positif");
+        }
         if (busRepository.findByImmatriculation(r.getImmatriculation()).isPresent()) {
             throw new RegleMetierException("Un bus avec cette immatriculation existe deja");
         }
@@ -58,12 +64,12 @@ public class BusServiceImpl implements BusService {
     @Override
     public Bus modifier(Long id, BusRequest r) {
         Bus bus = obtenirParId(id);
-        bus.setModele(r.getModele());
-        bus.setNombrePlaces(r.getNombrePlaces());
-        bus.setLigneAssignee(resoudreLigne(r.getLigneAssigneeId()));
-        bus.setProchainEntretien(r.getProchainEntretien());
-        bus.setAssuranceExpiration(r.getAssuranceExpiration());
-        if (r.getStatut() != null) bus.setStatut(StatutBus.valueOf(r.getStatut()));
+        if (r.getModele() != null) bus.setModele(r.getModele());
+        if (r.getNombrePlaces() != null) bus.setNombrePlaces(r.getNombrePlaces());
+        if (r.getLigneAssigneeId() != null) bus.setLigneAssignee(resoudreLigne(r.getLigneAssigneeId()));
+        if (r.getProchainEntretien() != null) bus.setProchainEntretien(r.getProchainEntretien());
+        if (r.getAssuranceExpiration() != null) bus.setAssuranceExpiration(r.getAssuranceExpiration());
+        if (r.getStatut() != null) bus.setStatut(StatutBus.valueOf(r.getStatut().toUpperCase()));
         return busRepository.save(bus);
     }
 
