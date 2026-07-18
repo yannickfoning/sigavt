@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 
 @Data
 public class LigneRequest {
-    @NotBlank private String villeDepart;
-    @NotBlank private String villeArrivee;
+    private String villeDepart;
+    private String villeArrivee;
     private Integer distanceKm;
     private Integer dureeMinutes;
-    @NotNull @Positive private BigDecimal tarifBase;
+    private BigDecimal tarifBase;
     private Integer frequenceJour;
     private String statut;
 }

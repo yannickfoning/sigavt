@@ -51,12 +51,12 @@ public class LigneServiceImpl implements LigneService {
     @Override
     public Ligne modifier(Long id, LigneRequest r) {
         Ligne ligne = obtenirParId(id);
-        ligne.setVilleDepart(r.getVilleDepart());
-        ligne.setVilleArrivee(r.getVilleArrivee());
-        ligne.setDistanceKm(r.getDistanceKm());
-        ligne.setDureeMinutes(r.getDureeMinutes());
-        ligne.setTarifBase(r.getTarifBase());
-        ligne.setFrequenceJour(r.getFrequenceJour());
+        if (r.getVilleDepart() != null) ligne.setVilleDepart(r.getVilleDepart());
+        if (r.getVilleArrivee() != null) ligne.setVilleArrivee(r.getVilleArrivee());
+        if (r.getDistanceKm() != null) ligne.setDistanceKm(r.getDistanceKm());
+        if (r.getDureeMinutes() != null) ligne.setDureeMinutes(r.getDureeMinutes());
+        if (r.getTarifBase() != null) ligne.setTarifBase(r.getTarifBase());
+        if (r.getFrequenceJour() != null) ligne.setFrequenceJour(r.getFrequenceJour());
         if (r.getStatut() != null) ligne.setStatut(StatutLigne.valueOf(r.getStatut().toUpperCase()));
         return ligneRepository.save(ligne);
     }
