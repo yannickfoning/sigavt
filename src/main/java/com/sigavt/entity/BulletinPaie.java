@@ -1,5 +1,6 @@
 package com.sigavt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sigavt.enums.StatutPaiement;
 import javax.persistence.*;
 import lombok.*;
@@ -18,6 +19,7 @@ public class BulletinPaie {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "personnel_id", nullable = false)
+    @JsonIgnore
     private Personnel personnel;
 
     @Column(name = "periode", nullable = false, length = 20)
