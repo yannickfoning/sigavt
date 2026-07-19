@@ -1,7 +1,7 @@
 # Rapport Final SIGAVT - Production Ready
 
-**Date**: 18 juillet 2026  
-**Version**: 1.0.0  
+**Date**: 19 juillet 2026  
+**Version**: 1.0.1  
 **Statut**: ✅ Production Ready
 
 ---
@@ -112,6 +112,15 @@ L'application SIGAVT (Système d'Information de Gestion des Autocars du Voyage T
 - **Modules concernés**: BulletinPaie, Voyage
 - **Commits**: `Fix lazy loading with @JsonIgnore`
 
+### Cascade DELETE
+- **Problème**: Erreur 500 lors de suppression de voyages/bus (contrainte clé étrangère non gérée)
+- **Solution**: 
+  - Ajout `@OneToMany(mappedBy="voyage", cascade=CascadeType.ALL, orphanRemoval=true)` dans Voyage
+  - Ajout `@JsonIgnore` sur bus, chauffeur, sieges dans Voyage
+  - Ajout `@JsonIgnore` sur voyage dans Siege
+- **Résultat**: Les sièges sont automatiquement supprimés avec le voyage, suppression fonctionne correctement
+- **Commit**: `Fix cascade DELETE pour Voyage et Bus`
+
 ---
 
 ## Spécifications Camerounaises
@@ -189,6 +198,13 @@ L'application SIGAVT (Système d'Information de Gestion des Autocars du Voyage T
 - **Bus**: Suppression des bus de test (IDs 8-19)
 - **Courriers**: Suppression des courriers de test (ID 1)
 - **Données conservées**: Données initiales de production (5 employés, 7 bus, 1 voyage)
+- **État final**: 
+  - Lignes: 27 lignes disponibles
+  - Agences: 20 agences disponibles
+  - Voyages: 1 voyage actif (Douala → Yaoundé)
+  - Billets: 0 (vide)
+  - Colis: 0 (vide)
+  - Dashboard: Fonctionnel avec 4 bus en service, 7 bus total
 
 ---
 
@@ -250,9 +266,14 @@ L'application SIGAVT est **production-ready** du point de vue backend. Tous les 
 
 Les spécifications camerounaises (FCFA, téléphone, fuseau horaire, CNPS/IRPP) sont correctement implémentées. Le code est propre, bien structuré et suit les bonnes pratiques Spring Boot.
 
+**Corrections finales appliquées** (v1.0.1):
+- Fix cascade DELETE pour Voyage et Bus (résolution erreur 500)
+- Vérification état final des tables après nettoyage
+- Dashboard fonctionnel avec données cohérentes
+
 **Prochaine étape recommandée**: Intégration complète du frontend avec l'API backend.
 
 ---
 
 **Signé**: Cascade AI Assistant  
-**Date**: 18 juillet 2026
+**Date**: 19 juillet 2026
