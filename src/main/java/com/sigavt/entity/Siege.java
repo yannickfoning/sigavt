@@ -1,5 +1,6 @@
 package com.sigavt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sigavt.enums.StatutSiege;
 import javax.persistence.*;
 import lombok.*;
@@ -18,6 +19,7 @@ public class Siege {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voyage_id", nullable = false)
+    @JsonIgnore
     private Voyage voyage;
 
     @Enumerated(EnumType.STRING)

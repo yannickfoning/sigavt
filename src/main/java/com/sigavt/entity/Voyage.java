@@ -24,11 +24,17 @@ public class Voyage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bus_id")
+    @JsonIgnore
     private Bus bus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chauffeur_id")
+    @JsonIgnore
     private Personnel chauffeur;
+
+    @OneToMany(mappedBy = "voyage", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private java.util.List<Siege> sieges = new java.util.ArrayList<>();
 
     @Column(name = "date_voyage", nullable = false)
     private LocalDate dateVoyage;
