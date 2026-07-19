@@ -16,6 +16,7 @@ import java.util.Optional;
 public interface VoyageRepository extends JpaRepository<Voyage, Long> {
     List<Voyage> findByDateVoyage(LocalDate dateVoyage);
     List<Voyage> findByLigne_IdAndDateVoyage(Long ligneId, LocalDate dateVoyage);
+    List<Voyage> findByBus_Id(Long busId);
 
     Page<Voyage> findAll(Pageable pageable);
     Page<Voyage> findByDateVoyage(LocalDate dateVoyage, Pageable pageable);

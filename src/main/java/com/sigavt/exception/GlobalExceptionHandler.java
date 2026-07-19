@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RegleMetierException.class)
     public ResponseEntity<ErreurReponse> handleRegleMetier(RegleMetierException ex) {
-        return construire(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+        return construire(HttpStatus.CONFLICT, ex.getMessage(), null);
     }
 
     @ExceptionHandler(BadCredentialsException.class)

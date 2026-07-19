@@ -3,11 +3,14 @@ package com.sigavt.service.impl;
 import com.sigavt.dto.request.BusRequest;
 import com.sigavt.entity.Bus;
 import com.sigavt.entity.Ligne;
+import com.sigavt.entity.Voyage;
 import com.sigavt.enums.StatutBus;
+import com.sigavt.enums.StatutVoyage;
 import com.sigavt.exception.RegleMetierException;
 import com.sigavt.exception.RessourceIntrouvableException;
 import com.sigavt.repository.BusRepository;
 import com.sigavt.repository.LigneRepository;
+import com.sigavt.repository.VoyageRepository;
 import com.sigavt.service.BusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,12 +19,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BusServiceImpl implements BusService {
 
     private final BusRepository busRepository;
     private final LigneRepository ligneRepository;
+    private final VoyageRepository voyageRepository;
 
     @Override
     public Bus creer(BusRequest r) {
@@ -75,7 +81,12 @@ public class BusServiceImpl implements BusService {
 
     @Override
     public void supprimer(Long id) {
-        busRepository.delete(obtenirParId(id));
+        Bus bus = obtenirParId(id);
+        List<Voyage> voyagesActifs = voyageRepository.findByBus_Id(id);
+        if (!voyagesActifs.isEmpty()) {
+            throw new RegleMetierException("Impossible de supprimer ce bus : " + voyagesActifs.size() + " voyage(s) actif(s) le référence");
+        }
+        busRepository.delete(bus);
     }
 
     private Ligne resoudreLigne(Long ligneId) {
