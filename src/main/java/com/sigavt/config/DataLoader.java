@@ -4,10 +4,16 @@ import com.sigavt.entity.Agence;
 import com.sigavt.entity.Bus;
 import com.sigavt.entity.Ligne;
 import com.sigavt.entity.ParametresAgence;
+import com.sigavt.entity.Personnel;
 import com.sigavt.entity.Role;
 import com.sigavt.entity.Utilisateur;
 import com.sigavt.entity.Voyage;
+import com.sigavt.enums.Poste;
 import com.sigavt.enums.RoleNom;
+import com.sigavt.enums.StatutBus;
+import com.sigavt.enums.StatutEmploye;
+import com.sigavt.enums.StatutLigne;
+import com.sigavt.enums.TypeContrat;
 import com.sigavt.repository.AgenceRepository;
 import com.sigavt.repository.BusRepository;
 import com.sigavt.repository.ColisRepository;
@@ -147,8 +153,8 @@ public class DataLoader implements CommandLineRunner {
                     .distanceKm(240)
                     .dureeMinutes(240)
                     .tarifBase(new BigDecimal("8000"))
-                    .frequenceJournaliere(8)
-                    .statut("ACTIVE")
+                    .frequenceJour(8)
+                    .statut(StatutLigne.ACTIVE)
                     .build());
             ligneRepository.save(Ligne.builder()
                     .villeDepart("Yaoundé")
@@ -156,8 +162,8 @@ public class DataLoader implements CommandLineRunner {
                     .distanceKm(230)
                     .dureeMinutes(300)
                     .tarifBase(new BigDecimal("7500"))
-                    .frequenceJournaliere(4)
-                    .statut("ACTIVE")
+                    .frequenceJour(4)
+                    .statut(StatutLigne.ACTIVE)
                     .build());
             ligneRepository.save(Ligne.builder()
                     .villeDepart("Yaoundé")
@@ -165,8 +171,8 @@ public class DataLoader implements CommandLineRunner {
                     .distanceKm(360)
                     .dureeMinutes(420)
                     .tarifBase(new BigDecimal("10000"))
-                    .frequenceJournaliere(2)
-                    .statut("ACTIVE")
+                    .frequenceJour(2)
+                    .statut(StatutLigne.ACTIVE)
                     .build());
         }
 
@@ -178,8 +184,7 @@ public class DataLoader implements CommandLineRunner {
                     .modele("Toyota Coaster")
                     .nombrePlaces(24)
                     .ligneAssignee(ligne1)
-                    .agence(agence)
-                    .statut("OPERATIONNEL")
+                    .statut(StatutBus.OPERATIONNEL)
                     .prochainEntretien(LocalDate.now().plusDays(30))
                     .assuranceExpiration(LocalDate.now().plusDays(180))
                     .build());
@@ -188,8 +193,7 @@ public class DataLoader implements CommandLineRunner {
                     .modele("Hyundai County")
                     .nombrePlaces(28)
                     .ligneAssignee(ligne1)
-                    .agence(agence)
-                    .statut("OPERATIONNEL")
+                    .statut(StatutBus.OPERATIONNEL)
                     .prochainEntretien(LocalDate.now().plusDays(45))
                     .assuranceExpiration(LocalDate.now().plusDays(200))
                     .build());
@@ -201,29 +205,27 @@ public class DataLoader implements CommandLineRunner {
             personnelRepository.save(Personnel.builder()
                     .nomComplet("Jean Pierre Mbarga")
                     .telephone("+237 699 111 222")
-                    .email("jp.mbarga@sigavt.cm")
-                    .poste("CHAUFFEUR")
-                    .typeContrat("CDI")
-                    .salaireBase(180000)
+                    .poste(Poste.CHAUFFEUR)
+                    .typeContrat(TypeContrat.CDI)
+                    .salaireBase(new BigDecimal("180000"))
                     .numeroCnps("CNPS-001")
                     .numeroCni("CNI-1234567890")
                     .permisConduire("D")
                     .busAssigne(bus1)
                     .agence(agence)
-                    .statut("ACTIF")
+                    .statut(StatutEmploye.ACTIF)
                     .dateEmbauche(LocalDate.of(2023, 1, 15))
                     .build());
             personnelRepository.save(Personnel.builder()
                     .nomComplet("Marie Claire Atangana")
                     .telephone("+237 677 555 666")
-                    .email("mc.atangana@sigavt.cm")
-                    .poste("BILLETTERIE")
-                    .typeContrat("CDI")
-                    .salaireBase(120000)
+                    .poste(Poste.BILLETTERIE)
+                    .typeContrat(TypeContrat.CDI)
+                    .salaireBase(new BigDecimal("120000"))
                     .numeroCnps("CNPS-003")
                     .numeroCni("CNI-1122334455")
                     .agence(agence)
-                    .statut("ACTIF")
+                    .statut(StatutEmploye.ACTIF)
                     .dateEmbauche(LocalDate.of(2023, 3, 10))
                     .build());
         }

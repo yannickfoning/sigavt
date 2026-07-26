@@ -377,6 +377,33 @@
       var langToggleBtn = document.getElementById('lang-toggle-btn');
       var langText = document.getElementById('lang-text');
 
+      var translations = {
+        FR: {
+          brandTitle: 'SIGAVT',
+          brandSubtitle: 'Système de Gestion d\'Agence de Voyage Terrestre',
+          loginBtn: 'Connexion',
+          loginTitle: 'Connexion',
+          loginSubtitle: 'Connectez-vous à votre espace de gestion',
+          emailLabel: 'Adresse email',
+          passwordLabel: 'Mot de passe',
+          submitBtn: 'Se connecter',
+          emailPlaceholder: 'votre@email.com',
+          passwordPlaceholder: '••••••••'
+        },
+        EN: {
+          brandTitle: 'SIGAVT',
+          brandSubtitle: 'Land Travel Agency Management System',
+          loginBtn: 'Login',
+          loginTitle: 'Login',
+          loginSubtitle: 'Sign in to your management space',
+          emailLabel: 'Email address',
+          passwordLabel: 'Password',
+          submitBtn: 'Sign in',
+          emailPlaceholder: 'your@email.com',
+          passwordPlaceholder: '••••••••'
+        }
+      };
+
       function openLoginOverlay() {
         loginOverlay.classList.add('is-open');
         brandTitle.style.opacity = '0.3';
@@ -387,6 +414,20 @@
         loginOverlay.classList.remove('is-open');
         brandTitle.style.opacity = '1';
         loginToggleBtn.style.display = 'flex';
+      }
+
+      function applyTranslations(lang) {
+        var t = translations[lang];
+        document.querySelector('#brand-title h1').textContent = t.brandTitle;
+        document.querySelector('#brand-title p').textContent = t.brandSubtitle;
+        document.querySelector('#login-toggle-btn span').textContent = t.loginBtn;
+        document.querySelector('#login-dialog-title').textContent = t.loginTitle;
+        document.querySelector('.subtitle').textContent = t.loginSubtitle;
+        document.querySelector('label[for="email"]').textContent = t.emailLabel;
+        document.querySelector('label[for="motDePasse"]').textContent = t.passwordLabel;
+        loginBtn.textContent = t.submitBtn;
+        emailInput.placeholder = t.emailPlaceholder;
+        pwdInput.placeholder = t.passwordPlaceholder;
       }
 
       closeBtn.addEventListener('click', closeLoginOverlay);
@@ -402,6 +443,7 @@
         var currentLang = langText.textContent;
         var newLang = currentLang === 'FR' ? 'EN' : 'FR';
         langText.textContent = newLang;
+        applyTranslations(newLang);
       });
 
       form.addEventListener('submit', async function (e) {

@@ -27,7 +27,7 @@ public class Bus {
     private String modele;
 
     @Column(name = "nombre_places", nullable = false)
-    private Integer nombrePlaces;
+    private Integer nombrePlaces = 45;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ligne_assignee_id")
@@ -46,7 +46,7 @@ public class Bus {
     private StatutBus statut = StatutBus.OPERATIONNEL;
 
     @Column(name = "classe_bus", length = 20)
-    private String classeBusString;
+    private String classeBusString = "CLASSIQUE";
 
     public ClasseSiege getClasseBus() {
         if (classeBusString == null || classeBusString.isEmpty()) {

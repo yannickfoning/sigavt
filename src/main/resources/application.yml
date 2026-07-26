@@ -12,17 +12,17 @@ spring:
   application:
     name: sigavt
   profiles:
-    active: dev
+    active: disabled
 
   datasource:
-    url: jdbc:mysql://localhost:3306/sigavt?useSSL=false&serverTimezone=Africa/Douala&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/sigavt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Africa/Douala&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true
     username: root
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
@@ -68,3 +68,4 @@ logging:
   level:
     com.sigavt: DEBUG
     org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
