@@ -28,9 +28,6 @@ public class BulletinPaie {
     @Column(name = "salaire_base", precision = 10, scale = 2)
     private BigDecimal salaireBase;
 
-    @Column(name = "heures_sup", precision = 5, scale = 2)
-    private BigDecimal heuresSup;
-
     @Column(name = "taux_horaire_sup", precision = 10, scale = 2)
     private BigDecimal tauxHoraireSup;
 
@@ -39,12 +36,6 @@ public class BulletinPaie {
 
     @Column(name = "prime_performance", precision = 10, scale = 2)
     private BigDecimal primePerformance;
-
-    @Column(name = "cnps_salarie", precision = 10, scale = 2)
-    private BigDecimal cnpsSalarie;
-
-    @Column(name = "cnps_patronal", precision = 10, scale = 2)
-    private BigDecimal cnpsPatronal;
 
     @Column(name = "irpp", precision = 10, scale = 2)
     private BigDecimal irpp;
@@ -89,9 +80,6 @@ public class BulletinPaie {
     @Builder.Default
     @Column(nullable = false, length = 20)
     private StatutPaiement statut = StatutPaiement.EN_ATTENTE;
-
-    @Column(name = "statut_paiement", length = 20)
-    private StatutPaiement statutPaiement;
 
     @Column(name = "date_paiement")
     private LocalDate datePaiement;

@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>SIGAVT — Connexion</title>
-  <link rel="stylesheet" href="/style.css">
   <style>
     .login-hero {
       min-height: 100vh;
@@ -285,50 +284,6 @@
       to { transform: rotate(360deg); }
     }
 
-    .demo-accounts {
-      margin-top: 24px;
-      padding-top: 24px;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    .demo-accounts h4 {
-      font-size: 12px;
-      font-weight: 700;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 0 0 12px 0;
-    }
-
-    .demo-account {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .demo-account:hover {
-      background: #f1f5f9;
-      border-color: #cbd5e1;
-    }
-
-    .demo-account .role {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1a2744;
-    }
-
-    .demo-account .credentials {
-      font-size: 12px;
-      color: #64748b;
-    }
-
     @media (max-width: 768px) {
       .login-card {
         padding: 30px 24px;
@@ -406,22 +361,6 @@
 
           <button type="submit" class="btn btn-primary login-btn" id="login-btn">Se connecter</button>
         </form>
-
-        <div class="demo-accounts">
-          <h4>Comptes de démonstration</h4>
-          <div class="demo-account" onclick="fillDemo('admin@sigavt.cm', 'admin123')">
-            <span class="role">Administrateur</span>
-            <span class="credentials">admin@sigavt.cm / admin123</span>
-          </div>
-          <div class="demo-account" onclick="fillDemo('billetterie@sigavt.cm', 'admin123')">
-            <span class="role">Billetterie</span>
-            <span class="credentials">billetterie@sigavt.cm / admin123</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
     (function () {
       'use strict';
@@ -448,12 +387,6 @@
         loginOverlay.classList.remove('is-open');
         brandTitle.style.opacity = '1';
         loginToggleBtn.style.display = 'flex';
-      }
-
-      function fillDemo(email, password) {
-        emailInput.value = email;
-        pwdInput.value = password;
-        openLoginOverlay();
       }
 
       closeBtn.addEventListener('click', closeLoginOverlay);
@@ -498,13 +431,13 @@
             return;
           }
 
-          localStorage.setItem('sigavt_token', data.token);
+          localStorage.setItem('authToken', data.token);
           localStorage.setItem('sigavt_user', JSON.stringify({
             nomComplet: data.nomComplet,
             email: data.email,
             role: data.role
           }));
-          
+
           window.location.href = '/sigavt.html';
         } catch (_err) {
           errorDiv.textContent = 'Erreur réseau. Vérifiez votre connexion.';
@@ -516,7 +449,7 @@
       });
 
       // Check if already logged in
-      if (localStorage.getItem('sigavt_token')) {
+      if (localStorage.getItem('authToken')) {
         window.location.href = '/sigavt.html';
       }
     })();

@@ -5,6 +5,7 @@ import com.sigavt.entity.*;
 import com.sigavt.enums.ModePaiement;
 import com.sigavt.enums.StatutBillet;
 import com.sigavt.enums.StatutSiege;
+import com.sigavt.enums.TypeEcriture;
 import com.sigavt.enums.TypeTarif;
 import com.sigavt.exception.RegleMetierException;
 import com.sigavt.exception.RessourceIntrouvableException;
@@ -33,6 +34,7 @@ public class BilletServiceImpl implements BilletService {
     private final VoyageRepository voyageRepository;
     private final SiegeRepository siegeRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final EcritureComptableRepository ecritureComptableRepository;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
@@ -81,8 +83,31 @@ public class BilletServiceImpl implements BilletService {
 
         voyage.setPlacesDisponibles(voyage.getPlacesDisponibles() - 1);
         voyageRepository.save(voyage);
+        enregistrerEcritureBillet(billet, voyage);
 
         return billet;
+    }
+
+    private void enregistrerEcritureBillet(Billet billet, Voyage voyage) {
+        long count = ecritureComptableRepository.count() + 1;
+        EcritureComptable ecriture = EcritureComptable.builder()
+                .numeroEcriture(String.format("EC-%d-%04d", LocalDate.now().getYear(), count))
+                .dateEcriture(LocalDate.now())
+                .typeEcriture(TypeEcriture.RECETTE_BILLETTERIE)
+                .libelle("Vente billet " + billet.getNumeroBillet())
+                .description("Recette automatique billetterie - " + billet.getPassagerNom())
+                .categorie("BILLETS")
+                .compteDebit("571")
+                .compteCredit("706")
+                .montantDebit(BigDecimal.ZERO)
+                .montantCredit(billet.getPrix())
+                .debit(BigDecimal.ZERO)
+                .credit(billet.getPrix())
+                .reference(billet.getNumeroBillet())
+                .voyage(voyage)
+                .billet(billet)
+                .build();
+        ecritureComptableRepository.save(ecriture);
     }
 
     private Siege resoudreSiege(Voyage voyage, BilletRequest r) {

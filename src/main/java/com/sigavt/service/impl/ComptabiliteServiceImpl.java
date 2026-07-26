@@ -76,8 +76,8 @@ public class ComptabiliteServiceImpl implements ComptabiliteService {
         List<EcritureComptable> ecritures = ecritureComptableRepository
                 .findByDateEcritureBetweenOrderByDateEcritureDesc(ym.atDay(1), ym.atEndOfMonth());
 
-        BigDecimal recettes = ecritures.stream().map(EcritureComptable::getCredit).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal depenses = ecritures.stream().map(EcritureComptable::getDebit).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal recettes = ecritures.stream().map(e -> e.getCredit() != null ? e.getCredit() : BigDecimal.ZERO).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal depenses = ecritures.stream().map(e -> e.getDebit() != null ? e.getDebit() : BigDecimal.ZERO).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal benefice = recettes.subtract(depenses);
         double marge = recettes.compareTo(BigDecimal.ZERO) > 0
                 ? benefice.doubleValue() / recettes.doubleValue() * 100

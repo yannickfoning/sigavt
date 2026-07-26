@@ -17,4 +17,7 @@ public class DashboardResponse {
     private long billetsVendusAujourdHui;
     private BigDecimal recettesAujourdHui;
     private List<AlerteResponse> alertes;
+    private VoyageResponse voyageDuJour;
+    private VoyageResponse prochainVoyage;
+    private List<VoyageResponse> departsDuJour;
 }

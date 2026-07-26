@@ -1,5 +1,6 @@
 package com.sigavt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sigavt.enums.TypeEcriture;
 import javax.persistence.*;
 import lombok.*;
@@ -56,11 +57,13 @@ public class EcritureComptable {
     @Column(length = 255)
     private String reference;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "voyage_id")
+    @JsonIgnore
     private Voyage voyage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "billet_id")
+    @JsonIgnore
     private Billet billet;
 }

@@ -1,8 +1,13 @@
 package com.sigavt.service.impl;
 
 import com.sigavt.entity.Agence;
+import com.sigavt.exception.RegleMetierException;
 import com.sigavt.exception.RessourceIntrouvableException;
 import com.sigavt.repository.AgenceRepository;
+import com.sigavt.repository.ColisRepository;
+import com.sigavt.repository.CourrierRepository;
+import com.sigavt.repository.PersonnelRepository;
+import com.sigavt.repository.UtilisateurRepository;
 import com.sigavt.service.AgenceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +21,10 @@ import org.springframework.stereotype.Service;
 public class AgenceServiceImpl implements AgenceService {
 
     private final AgenceRepository agenceRepository;
+    private final UtilisateurRepository utilisateurRepository;
+    private final PersonnelRepository personnelRepository;
+    private final CourrierRepository courrierRepository;
+    private final ColisRepository colisRepository;
 
     @Override
     public Agence creer(Agence agence) {
@@ -50,6 +59,16 @@ public class AgenceServiceImpl implements AgenceService {
 
     @Override
     public void supprimer(Long id) {
-        agenceRepository.delete(obtenirParId(id));
+        Agence agence = obtenirParId(id);
+        int utilisateurs = utilisateurRepository.findByAgence_Id(id).size();
+        int personnels = personnelRepository.findByAgence_Id(id).size();
+        int courriers = courrierRepository.findByAgence_Id(id).size();
+        int colis = colisRepository.findByAgence_Id(id).size();
+        if (utilisateurs > 0 || personnels > 0 || courriers > 0 || colis > 0) {
+            throw new RegleMetierException("Impossible de supprimer cette agence : "
+                    + utilisateurs + " utilisateur(s), " + personnels + " employe(s), "
+                    + courriers + " courrier(s) et " + colis + " colis la referencent encore.");
+        }
+        agenceRepository.delete(agence);
     }
 }

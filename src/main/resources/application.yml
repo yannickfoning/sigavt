@@ -1,12 +1,12 @@
 server:
-  port: 8080
+  port: 8081
   error:
     whitelabel:
       enabled: false
     path: /error
-    include-stacktrace: never
-    include-exception: false
-    include-message: never
+    include-stacktrace: always
+    include-exception: true
+    include-message: always
 
 spring:
   application:
@@ -15,24 +15,27 @@ spring:
     active: dev
 
   datasource:
-    url: jdbc:h2:mem:sigavt;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3306/sigavt?useSSL=false&serverTimezone=Africa/Douala&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
     open-in-view: false
-    show-sql: false
+    show-sql: true
 
   jackson:
     time-zone: Africa/Douala
     date-format: yyyy-MM-dd
+    serialization:
+      fail-on-empty-beans: false
+      write-dates-as-timestamps: false
 
   flyway:
     enabled: false
@@ -43,6 +46,8 @@ app:
   jwt:
     secret: ${JWT_SECRET:aG9zdC1zZWNyZXQtc2lnYXZ0LXByb2R1Y3Rpb24tMjAyNS1zdHJvbmctcmFuZG9tLWtleS0yNTYtYml0cy1mb3Itand0LXRva2VuLXNpZ25pbmc=}
     expiration-ms: 86400000
+  data:
+    seed-on-startup: false
 
 springdoc:
   swagger-ui:
@@ -50,7 +55,16 @@ springdoc:
   api-docs:
     path: /api-docs
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 logging:
   level:
-    com.sigavt: INFO
-    org.hibernate.SQL: WARN
+    com.sigavt: DEBUG
+    org.hibernate.SQL: DEBUG

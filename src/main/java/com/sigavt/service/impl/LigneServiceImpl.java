@@ -3,8 +3,11 @@ package com.sigavt.service.impl;
 import com.sigavt.dto.request.LigneRequest;
 import com.sigavt.entity.Ligne;
 import com.sigavt.enums.StatutLigne;
+import com.sigavt.exception.RegleMetierException;
 import com.sigavt.exception.RessourceIntrouvableException;
+import com.sigavt.repository.BusRepository;
 import com.sigavt.repository.LigneRepository;
+import com.sigavt.repository.VoyageRepository;
 import com.sigavt.service.LigneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +21,8 @@ import org.springframework.stereotype.Service;
 public class LigneServiceImpl implements LigneService {
 
     private final LigneRepository ligneRepository;
+    private final BusRepository busRepository;
+    private final VoyageRepository voyageRepository;
 
     @Override
     public Ligne creer(LigneRequest r) {
@@ -63,6 +68,13 @@ public class LigneServiceImpl implements LigneService {
 
     @Override
     public void supprimer(Long id) {
-        ligneRepository.delete(obtenirParId(id));
+        Ligne ligne = obtenirParId(id);
+        int busReferences = busRepository.findByLigneAssignee_Id(id).size();
+        int voyagesReferences = voyageRepository.findByLigne_Id(id).size();
+        if (busReferences > 0 || voyagesReferences > 0) {
+            throw new RegleMetierException("Impossible de supprimer cette ligne : "
+                    + busReferences + " bus et " + voyagesReferences + " voyage(s) la referencent encore.");
+        }
+        ligneRepository.delete(ligne);
     }
 }

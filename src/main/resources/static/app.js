@@ -1,7 +1,65 @@
+// ============ CENTRALIZED STATE MANAGEMENT ============
+
+const AppState = {
+    user: null,
+    token: null,
+    currentModule: 'dashboard',
+    billetData: {},
+    colisData: {},
+    personnelData: {},
+    paieData: {},
+    flotteData: {},
+    comptabiliteData: {},
+    lignesData: {},
+    courriersData: {},
+    parametresData: {},
+    dashboardData: {},
+    
+    // Initialize state from localStorage
+    init() {
+        this.token = localStorage.getItem('sigavt_token');
+        this.user = JSON.parse(localStorage.getItem('sigavt_user') || 'null');
+    },
+    
+    // Set user data
+    setUser(user, token) {
+        this.user = user;
+        this.token = token;
+        localStorage.setItem('sigavt_token', token);
+        localStorage.setItem('sigavt_user', JSON.stringify(user));
+    },
+    
+    // Clear user data (logout)
+    clearUser() {
+        this.user = null;
+        this.token = null;
+        localStorage.removeItem('sigavt_token');
+        localStorage.removeItem('sigavt_user');
+    },
+    
+    // Update module data
+    setModuleData(module, data) {
+        this[`${module}Data`] = data;
+    },
+    
+    // Get module data
+    getModuleData(module) {
+        return this[`${module}Data`] || {};
+    },
+    
+    // Reset module data
+    resetModuleData(module) {
+        this[`${module}Data`] = {};
+    }
+};
+
+// Initialize state on load
+AppState.init();
+
 // ============ API CLIENT ============
 
 async function api(endpoint, options = {}) {
-    const token = localStorage.getItem('sigavt_token');
+    const token = AppState.token || localStorage.getItem('sigavt_token');
     const headers = {
         'Content-Type': 'application/json',
         ...(token ? { 'Authorization': 'Bearer ' + token } : {})
@@ -27,14 +85,12 @@ async function api(endpoint, options = {}) {
 // ============ AUTH ============
 
 function logout() {
-    localStorage.removeItem('sigavt_token');
-    localStorage.removeItem('sigavt_user');
+    AppState.clearUser();
     window.location.href = '/login';
 }
 
 function getCurrentUser() {
-    const user = localStorage.getItem('sigavt_user');
-    return user ? JSON.parse(user) : null;
+    return AppState.user;
 }
 
 // ============ UI HELPERS ============
@@ -218,9 +274,10 @@ function navigate(page, params = {}) {
     }
     
     currentPage = page;
+    AppState.currentModule = page;
     
     // Update sidebar active state
-    document.querySelectorAll('.dashboard-nav-item').forEach(item => {
+    document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
         if (item.dataset.page === page) {
             item.classList.add('active');
@@ -241,17 +298,22 @@ function navigate(page, params = {}) {
         parametres: 'Paramètres'
     };
     
-    document.querySelector('.dashboard-topbar-title').textContent = titles[page] || page;
+    const titleElement = document.querySelector('.topbar-title');
+    if (titleElement) {
+        titleElement.textContent = titles[page] || page;
+    }
     
     // Render page content
     const content = document.getElementById('main-content');
-    content.innerHTML = '<div class="spinner-overlay active"><div class="spinner"></div></div>';
-    
-    try {
-        pages[page](content, params);
-    } catch (error) {
-        console.error('Error rendering page:', error);
-        content.innerHTML = `<div class="dashboard-card"><div class="dashboard-card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement de la page</p></div></div>`;
+    if (content) {
+        content.innerHTML = '<div class="spinner-overlay active"><div class="spinner"></div></div>';
+        
+        try {
+            pages[page](content, params);
+        } catch (error) {
+            console.error('Error rendering page:', error);
+            content.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement de la page</p></div></div>`;
+        }
     }
 }
 
@@ -266,90 +328,113 @@ async function renderDashboard(container) {
             api('/dashboard/top-lignes')
         ]);
         
+        // Store dashboard data in state
+        AppState.setModuleData('dashboard', { stats, departs, recettes, topLignes });
+        
         container.innerHTML = `
-            <div class="dashboard-stats-grid">
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Recettes du jour</div>
-                    <div class="dashboard-stat-value">${formatFCFA(stats.recettes_jour)}</div>
-                    <div class="dashboard-stat-variation ${stats.variation_recettes >= 0 ? 'positive' : 'negative'}">
-                        ${stats.variation_recettes >= 0 ? '↑' : '↓'} ${Math.abs(stats.variation_recettes)}% vs hier
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Recettes du jour</div>
+                    <div class="stat-value">${formatFCFA(stats.recettes_jour)}</div>
+                    <div class="stat-meta">
+                        <span class="badge-change ${stats.variation_recettes >= 0 ? 'badge-up' : 'badge-down'}">
+                            ${stats.variation_recettes >= 0 ? '↑' : '↓'} ${Math.abs(stats.variation_recettes)}% vs hier
+                        </span>
                     </div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Billets vendus</div>
-                    <div class="dashboard-stat-value">${stats.billets_jour}</div>
-                    <div class="dashboard-stat-variation ${stats.variation_billets >= 0 ? 'positive' : 'negative'}">
-                        ${stats.variation_billets >= 0 ? '↑' : '↓'} ${Math.abs(stats.variation_billets)}% vs hier
+                <div class="stat-card">
+                    <div class="stat-label">Billets vendus</div>
+                    <div class="stat-value">${stats.billets_jour}</div>
+                    <div class="stat-meta">
+                        <span class="badge-change ${stats.variation_billets >= 0 ? 'badge-up' : 'badge-down'}">
+                            ${stats.variation_billets >= 0 ? '↑' : '↓'} ${Math.abs(stats.variation_billets)}% vs hier
+                        </span>
                     </div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Colis en transit</div>
-                    <div class="dashboard-stat-value">${stats.colis_transit}</div>
-                    <div class="dashboard-stat-variation" style="color: var(--text-muted);">
-                        Sur toutes les lignes
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-label">Colis en transit</div>
+                    <div class="stat-value">${stats.colis_transit}</div>
+                    <div class="stat-meta">Sur toutes les lignes</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Bus en service</div>
-                    <div class="dashboard-stat-value">${stats.bus_service}</div>
-                    <div class="dashboard-stat-variation" style="color: var(--text-muted);">
-                        Disponibles
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-label">Bus en service</div>
+                    <div class="stat-value">${stats.bus_service}</div>
+                    <div class="stat-meta">Disponibles</div>
                 </div>
             </div>
             
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h3 class="dashboard-card-title">Départs du jour</h3>
-                </div>
-                <div class="dashboard-card-body">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Ligne</th>
-                                <th>Code</th>
-                                <th>Heure</th>
-                                <th>Places</th>
-                                <th>Bus</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${departs.map(d => `
-                                <tr>
-                                    <td>${d.ligne}</td>
-                                    <td><span class="badge badge-navy">${d.code}</span></td>
-                                    <td>${d.heure}</td>
-                                    <td>${d.places}</td>
-                                    <td>${d.bus}</td>
-                                    <td><span class="badge ${getStatutBadgeClass(d.statut)}">${d.statut}</span></td>
-                                </tr>
+            ${stats.alertes && stats.alertes.length > 0 ? `
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3>⚠️ Alertes actives (${stats.alertes.length})</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                            ${stats.alertes.map(a => `
+                                <div class="alert alert-${a.severity || 'orange'}" style="flex: 1; min-width: 250px;">
+                                    <div class="alert-title">${a.type || 'Alerte'}</div>
+                                    <div class="alert-sub">${a.message}</div>
+                                </div>
                             `).join('')}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h3>Départs du jour</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ligne</th>
+                                    <th>Code</th>
+                                    <th>Heure</th>
+                                    <th>Places</th>
+                                    <th>Bus</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${departs.map(d => `
+                                    <tr>
+                                        <td>${d.ligne}</td>
+                                        <td><span class="route-plate">${d.code}</span></td>
+                                        <td>${d.heure}</td>
+                                        <td>${d.places}</td>
+                                        <td>${d.bus}</td>
+                                        <td><span class="badge ${getStatutBadgeClass(d.statut)}">${d.statut}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="dashboard-card">
-                    <div class="dashboard-card-header">
-                        <h3 class="dashboard-card-title">Recettes / semaine</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Recettes / semaine</h3>
                     </div>
-                    <div class="dashboard-card-body" id="recettes-chart"></div>
+                    <div class="card-body" id="recettes-chart"></div>
                 </div>
-                <div class="dashboard-card">
-                    <div class="dashboard-card-header">
-                        <h3 class="dashboard-card-title">Top lignes</h3>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Top lignes</h3>
                     </div>
-                    <div class="dashboard-card-body">
+                    <div class="card-body">
                         ${topLignes.map(l => `
                             <div style="margin-bottom: 16px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <span style="font-weight: 600;">${l.ligne}</span>
                                     <span style="color: var(--text-muted);">${l.code}</span>
                                 </div>
-                                <div class="progress-bar">
-                                    <div class="progress-bar-fill" style="width: ${l.taux}%"></div>
+                                <div class="progress">
+                                    <div class="progress-bar progress-blue" style="width: ${l.taux}%"></div>
                                 </div>
                                 <div style="text-align: right; font-size: 12px; color: var(--text-muted); margin-top: 4px;">${l.taux}% remplissage</div>
                             </div>
@@ -357,21 +442,6 @@ async function renderDashboard(container) {
                     </div>
                 </div>
             </div>
-            
-            ${stats.alertes.length > 0 ? `
-                <div class="dashboard-card">
-                    <div class="dashboard-card-header">
-                        <h3 class="dashboard-card-title">Alertes</h3>
-                    </div>
-                    <div class="dashboard-card-body">
-                        ${stats.alertes.map(a => `
-                            <div class="badge badge-warning" style="display: inline-block; margin-right: 8px; margin-bottom: 8px;">
-                                ${a.message}
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
         `;
         
         // Render chart
@@ -383,7 +453,7 @@ async function renderDashboard(container) {
         
     } catch (error) {
         console.error('Error loading dashboard:', error);
-        container.innerHTML = `<div class="dashboard-card"><div class="dashboard-card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement du tableau de bord</p></div></div>`;
+        container.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement du tableau de bord</p></div></div>`;
     }
 }
 
@@ -496,7 +566,18 @@ async function annulerBillet(id) {
     }
 }
 
-let billetData = {};
+// Use centralized state for billet data
+function getBilletData() {
+    return AppState.billetData;
+}
+
+function setBilletData(data) {
+    AppState.billetData = { ...AppState.billetData, ...data };
+}
+
+function resetBilletData() {
+    AppState.resetModuleData('billet');
+}
 
 async function loadBilletStep1() {
     const today = new Date().toISOString().split('T')[0];
@@ -557,14 +638,14 @@ async function loadBilletStep1() {
         </div>
     `;
     
-    billetData.places = 1;
+    setBilletData({ places: 1 });
 }
 
 function adjustPlaces(delta) {
     const count = document.getElementById('billet-places-count');
     const newValue = Math.max(1, Math.min(10, parseInt(count.textContent) + delta));
     count.textContent = newValue;
-    billetData.places = newValue;
+    setBilletData({ places: newValue });
 }
 
 async function loadVoyages() {
@@ -600,17 +681,20 @@ async function loadVoyages() {
 }
 
 function selectVoyage(id, heure, placesDispo, tarif, bus, chauffeur) {
+    const billetData = getBilletData();
     if (placesDispo < billetData.places) {
         showToast(`Pas assez de places disponibles (${placesDispo} places)`, 'error');
         return;
     }
     
-    billetData.voyageId = id;
-    billetData.heure = heure;
-    billetData.tarif = tarif;
-    billetData.bus = bus;
-    billetData.chauffeur = chauffeur;
-    billetData.total = tarif * billetData.places;
+    setBilletData({
+        voyageId: id,
+        heure: heure,
+        tarif: tarif,
+        bus: bus,
+        chauffeur: chauffeur,
+        total: tarif * billetData.places
+    });
     
     document.getElementById('billet-recap').classList.remove('hidden');
     document.getElementById('billet-recap').innerHTML = `
@@ -619,7 +703,7 @@ function selectVoyage(id, heure, placesDispo, tarif, bus, chauffeur) {
             <div>Heure : <strong>${heure}</strong></div>
             <div>Bus : <strong>${bus}</strong></div>
             <div>Chauffeur : <strong>${chauffeur}</strong></div>
-            <div>Total : <strong style="color: var(--gold);">${formatFCFA(billetData.total)}</strong></div>
+            <div>Total : <strong style="color: var(--gold);">${formatFCFA(tarif * billetData.places)}</strong></div>
         </div>
         <button class="btn btn-primary" style="margin-top: 16px; width: 100%;" onclick="goToBilletStep(2)">Continuer →</button>
     `;
@@ -638,6 +722,7 @@ function goToBilletStep(step) {
 }
 
 function loadBilletStep2() {
+    const billetData = getBilletData();
     let passengerFields = '';
     for (let i = 0; i < billetData.places; i++) {
         passengerFields += `
@@ -671,7 +756,8 @@ function loadBilletStep2() {
 }
 
 function validatePassagersAndContinue() {
-    billetData.passagers = [];
+    const billetData = getBilletData();
+    const passagers = [];
     
     for (let i = 0; i < billetData.places; i++) {
         const nom = document.getElementById(`passager-nom-${i}`).value;
@@ -683,13 +769,15 @@ function validatePassagersAndContinue() {
             return;
         }
         
-        billetData.passagers.push({ nom, tel, cni });
+        passagers.push({ nom, tel, cni });
     }
     
+    setBilletData({ passagers });
     goToBilletStep(3);
 }
 
 async function loadBilletStep3() {
+    const billetData = getBilletData();
     try {
         const sieges = await api(`/voyages/${billetData.voyageId}/sieges`);
         
@@ -729,7 +817,7 @@ async function loadBilletStep3() {
             </div>
         `;
         
-        billetData.selectedSieges = [];
+        setBilletData({ selectedSieges: [] });
     } catch (error) {
         console.error('Error loading seats:', error);
         showToast('Erreur de chargement du plan de siège', 'error');
@@ -737,26 +825,31 @@ async function loadBilletStep3() {
 }
 
 function selectSiege(siege, element) {
+    const billetData = getBilletData();
     if (element.classList.contains('occupied')) return;
     
-    if (billetData.selectedSieges.includes(siege)) {
-        billetData.selectedSieges = billetData.selectedSieges.filter(s => s !== siege);
+    let selectedSieges = [...billetData.selectedSieges];
+    
+    if (selectedSieges.includes(siege)) {
+        selectedSieges = selectedSieges.filter(s => s !== siege);
         element.classList.remove('selected');
         element.classList.add('available');
     } else {
-        if (billetData.selectedSieges.length >= billetData.places) {
+        if (selectedSieges.length >= billetData.places) {
             showToast(`Vous avez déjà sélectionné ${billetData.places} siège(s)`, 'error');
             return;
         }
-        billetData.selectedSieges.push(siege);
+        selectedSieges.push(siege);
         element.classList.remove('available');
         element.classList.add('selected');
     }
     
-    document.getElementById('selected-sieges').textContent = 
-        `Sièges sélectionnés : ${billetData.selectedSieges.length > 0 ? billetData.selectedSieges.join(', ') : 'Aucun'}`;
+    setBilletData({ selectedSieges });
     
-    document.getElementById('continue-sieges').disabled = billetData.selectedSieges.length !== billetData.places;
+    document.getElementById('selected-sieges').textContent = 
+        `Sièges sélectionnés : ${selectedSieges.length > 0 ? selectedSieges.join(', ') : 'Aucun'}`;
+    
+    document.getElementById('continue-sieges').disabled = selectedSieges.length !== billetData.places;
 }
 
 function validateSiegesAndContinue() {
@@ -764,6 +857,7 @@ function validateSiegesAndContinue() {
 }
 
 function loadBilletStep4() {
+    const billetData = getBilletData();
     document.getElementById('billet-step-content').innerHTML = `
         <div style="background: var(--bg); padding: 24px; border-radius: 8px; margin-bottom: 20px;">
             <h4 style="color: var(--navy); margin-bottom: 16px;">Récapitulatif final</h4>
@@ -818,7 +912,7 @@ function loadBilletStep4() {
         </div>
     `;
     
-    billetData.modePaiement = null;
+    setBilletData({ modePaiement: null });
 }
 
 function selectPaiement(mode, button) {
@@ -828,11 +922,12 @@ function selectPaiement(mode, button) {
     });
     button.classList.remove('btn-outline');
     button.classList.add('btn-primary');
-    billetData.modePaiement = mode;
+    setBilletData({ modePaiement: mode });
     document.getElementById('confirmer-billet').disabled = false;
 }
 
 async function confirmerBillet() {
+    const billetData = getBilletData();
     showSpinner();
     
     try {
@@ -854,6 +949,7 @@ async function confirmerBillet() {
         hideSpinner();
         showToast('Billet(s) émis avec succès !');
         loadBilletsList();
+        resetBilletData();
         loadBilletStep1();
     } catch (error) {
         hideSpinner();
@@ -862,16 +958,19 @@ async function confirmerBillet() {
 }
 
 async function renderColis(container) {
+    // Initialize colis data in state
+    AppState.setModuleData('colis', { currentTab: 'enregistrer' });
+    
     container.innerHTML = `
-        <div class="dashboard-card">
-            <div class="dashboard-card-header">
-                <h3 class="dashboard-card-title">Gestion des colis</h3>
+        <div class="card">
+            <div class="card-header">
+                <h3>Gestion des colis</h3>
             </div>
-            <div class="dashboard-card-body">
+            <div class="card-body">
                 <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    <button class="btn btn-primary" onclick="showColisTab('enregistrer')">Enregistrer</button>
-                    <button class="btn btn-outline" onclick="showColisTab('suivi')">Suivi</button>
-                    <button class="btn btn-outline" onclick="showColisTab('liste')">Liste</button>
+                    <button class="btn btn-primary" onclick="showColisTab('enregistrer')" id="tab-enregistrer">Enregistrer</button>
+                    <button class="btn btn-outline" onclick="showColisTab('suivi')" id="tab-suivi">Suivi</button>
+                    <button class="btn btn-outline" onclick="showColisTab('liste')" id="tab-liste">Liste</button>
                 </div>
                 
                 <div id="colis-tab-content">
@@ -885,6 +984,20 @@ async function renderColis(container) {
 }
 
 function showColisTab(tab) {
+    // Update tab buttons
+    document.querySelectorAll('[id^="tab-"]').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+    });
+    const activeBtn = document.getElementById(`tab-${tab}`);
+    if (activeBtn) {
+        activeBtn.classList.remove('btn-outline');
+        activeBtn.classList.add('btn-primary');
+    }
+    
+    // Update state
+    AppState.setModuleData('colis', { currentTab: tab });
+    
     if (tab === 'enregistrer') loadColisEnregistrer();
     if (tab === 'suivi') loadColisSuivi();
     if (tab === 'liste') loadColisListe();
@@ -893,39 +1006,35 @@ function showColisTab(tab) {
 function loadColisEnregistrer() {
     document.getElementById('colis-tab-content').innerHTML = `
         <form id="colis-form" onsubmit="enregistrerColis(event)">
-            <div class="form-row">
+            <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label">Expéditeur - Nom</label>
-                    <input type="text" class="form-input" id="colis-expediteur-nom" required>
+                    <label>Expéditeur - Nom <span class="req">*</span></label>
+                    <input type="text" id="colis-expediteur-nom" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Expéditeur - Téléphone</label>
-                    <input type="tel" class="form-input" id="colis-expediteur-tel" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Destinataire - Nom</label>
-                    <input type="text" class="form-input" id="colis-destinataire-nom" required>
+                    <label>Expéditeur - Téléphone <span class="req">*</span></label>
+                    <input type="tel" id="colis-expediteur-tel" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Destinataire - Téléphone</label>
-                    <input type="tel" class="form-input" id="colis-destinataire-tel" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Poids (kg)</label>
-                    <input type="number" class="form-input" id="colis-poids" step="0.1" required onchange="calculerTarifColis()">
+                    <label>Destinataire - Nom <span class="req">*</span></label>
+                    <input type="text" id="colis-destinataire-nom" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Description</label>
-                    <input type="text" class="form-input" id="colis-description">
+                    <label>Destinataire - Téléphone <span class="req">*</span></label>
+                    <input type="tel" id="colis-destinataire-tel" required>
+                </div>
+                <div class="form-group">
+                    <label>Poids (kg) <span class="req">*</span></label>
+                    <input type="number" id="colis-poids" step="0.1" required onchange="calculerTarifColis()">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="colis-description">
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">Options</label>
-                <div style="display: flex; gap: 16px;">
+                <label>Options</label>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
                     <label style="display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" id="colis-fragile" onchange="calculerTarifColis()">
                         Fragile (+300F)
@@ -941,12 +1050,12 @@ function loadColisEnregistrer() {
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">Tarif calculé</label>
+                <label>Tarif calculé</label>
                 <div id="colis-tarif" style="font-size: 24px; font-weight: 800; color: var(--gold);">0 FCFA</div>
             </div>
             <div class="form-group">
-                <label class="form-label">Mode de paiement</label>
-                <select class="form-select" id="colis-paiement">
+                <label>Mode de paiement</label>
+                <select id="colis-paiement">
                     <option value="especes">Espèces</option>
                     <option value="orange_money">Orange Money</option>
                     <option value="mtn_momo">MTN MoMo</option>
@@ -1005,10 +1114,10 @@ async function enregistrerColis(event) {
             <div style="text-align: center;">
                 <h3 style="color: var(--green); margin-bottom: 16px;">✓ Colis enregistré !</h3>
                 <div style="background: var(--bg); padding: 24px; border-radius: 8px; margin-bottom: 16px;">
-                    <div style="_font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Numéro de tracking</div>
+                    <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Numéro de tracking</div>
                     <div style="font-size: 28px; font-weight: 800; color: var(--navy);">${result.numero_tracking}</div>
                 </div>
-                <button class="btn btn-primary" onclick="closeModal(); showColisTab('enregistrer();">Nouveau colis</button>
+                <button class="btn btn-primary" onclick="closeModal(); showColisTab('enregistrer');">Nouveau colis</button>
             </div>
         `);
         
@@ -1165,35 +1274,45 @@ async function renderPersonnel(container) {
     try {
         const employes = await api('/employes');
         
+        // Store personnel data in state
+        AppState.setModuleData('personnel', { employes });
+        
         container.innerHTML = `
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h3 class="dashboard-card-title">Personnel</h3>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Personnel</h3>
                     <button class="btn btn-primary btn-sm" onclick="showAddEmployeModal()">+ Employé</button>
                 </div>
-                <div class="dashboard-card-body">
+                <div class="card-body">
                     <div style="margin-bottom: 16px; display: flex; gap: 12px;">
-                        <input type="text" placeholder="Rechercher..." class="form-input" style="flex: 1;">
-                        <select class="form-select" style="width: 150px;">
+                        <input type="text" placeholder="Rechercher..." class="form-input" style="flex: 1;" id="personnel-search" onkeyup="filterPersonnel()">
+                        <select class="form-select" style="width: 150px;" id="personnel-poste-filter" onchange="filterPersonnel()">
                             <option value="">Tous postes</option>
                             <option value="chauffeur">Chauffeur</option>
                             <option value="billetterie">Billetterie</option>
                             <option value="convoyeur">Convoyeur</option>
                             <option value="comptable">Comptable</option>
+                            <option value="responsable_flotte">Resp. Flotte</option>
+                            <option value="directeur">Directeur</option>
+                        </select>
+                        <select class="form-select" style="width: 150px;" id="personnel-statut-filter" onchange="filterPersonnel()">
+                            <option value="">Tous statuts</option>
+                            <option value="actif">Actif</option>
+                            <option value="inactif">Inactif</option>
                         </select>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;" id="personnel-grid">
                         ${employes.map(e => `
-                            <div style="background: var(--bg); padding: 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
-                                <div class="dashboard-user-avatar" style="width: 48px; height: 48px; font-size: 18px;">
+                            <div class="card" style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar avatar-${getAvatarColor(e.poste)}" style="width: 48px; height: 48px; font-size: 18px;">
                                     ${e.prenom[0]}${e.nom[0]}
                                 </div>
                                 <div style="flex: 1;">
                                     <div style="font-weight: 700; color: var(--navy);">${e.nom} ${e.prenom}</div>
                                     <div style="font-size: 13px; color: var(--text-muted);">${e.poste}</div>
                                     <div style="margin-top: 4px;">
-                                        <span class="badge ${e.statut === 'actif' ? 'badge-success' : 'badge-warning'}">${e.statut}</span>
-                                        <span class="badge badge-info">${e.type_contrat}</span>
+                                        <span class="badge ${e.statut === 'actif' ? 'badge-green' : 'badge-red'}">${e.statut}</span>
+                                        <span class="badge badge-blue">${e.type_contrat}</span>
                                     </div>
                                 </div>
                                 <button class="btn btn-sm btn-outline" onclick="showEditEmployeModal(${e.id})">Modifier</button>
@@ -1205,26 +1324,74 @@ async function renderPersonnel(container) {
         `;
     } catch (error) {
         console.error('Error loading personnel:', error);
+        container.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement du personnel</p></div></div>`;
     }
+}
+
+function getAvatarColor(poste) {
+    const colors = {
+        'chauffeur': 'orange',
+        'billetterie': 'blue',
+        'convoyeur': 'green',
+        'comptable': 'purple',
+        'responsable_flotte': 'teal',
+        'directeur': 'red'
+    };
+    return colors[poste] || 'blue';
+}
+
+function filterPersonnel() {
+    const search = document.getElementById('personnel-search').value.toLowerCase();
+    const poste = document.getElementById('personnel-poste-filter').value;
+    const statut = document.getElementById('personnel-statut-filter').value;
+    
+    const personnelData = AppState.getModuleData('personnel');
+    const allEmployes = personnelData.employes || [];
+    
+    const filtered = allEmployes.filter(e => {
+        const matchSearch = !search || 
+            e.nom.toLowerCase().includes(search) || 
+            e.prenom.toLowerCase().includes(search) ||
+            e.poste.toLowerCase().includes(search);
+        const matchPoste = !poste || e.poste === poste;
+        const matchStatut = !statut || e.statut === statut;
+        return matchSearch && matchPoste && matchStatut;
+    });
+    
+    const grid = document.getElementById('personnel-grid');
+    grid.innerHTML = filtered.map(e => `
+        <div class="card" style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+            <div class="avatar avatar-${getAvatarColor(e.poste)}" style="width: 48px; height: 48px; font-size: 18px;">
+                ${e.prenom[0]}${e.nom[0]}
+            </div>
+            <div style="flex: 1;">
+                <div style="font-weight: 700; color: var(--navy);">${e.nom} ${e.prenom}</div>
+                <div style="font-size: 13px; color: var(--text-muted);">${e.poste}</div>
+                <div style="margin-top: 4px;">
+                    <span class="badge ${e.statut === 'actif' ? 'badge-green' : 'badge-red'}">${e.statut}</span>
+                    <span class="badge badge-blue">${e.type_contrat}</span>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-outline" onclick="showEditEmployeModal(${e.id})">Modifier</button>
+        </div>
+    `).join('');
 }
 
 function showAddEmployeModal() {
     showModal(`
         <form onsubmit="saveEmploye(event)">
-            <div class="form-row">
+            <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label">Nom</label>
-                    <input type="text" class="form-input" name="nom" required>
+                    <label>Nom <span class="req">*</span></label>
+                    <input type="text" name="nom" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Prénom</label>
-                    <input type="text" class="form-input" name="prenom" required>
+                    <label>Prénom <span class="req">*</span></label>
+                    <input type="text" name="prenom" required>
                 </div>
-            </div>
-            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Poste</label>
-                    <select class="form-select" name="poste" required>
+                    <label>Poste <span class="req">*</span></label>
+                    <select name="poste" required>
                         <option value="chauffeur">Chauffeur</option>
                         <option value="billetterie">Billetterie</option>
                         <option value="convoyeur">Convoyeur</option>
@@ -1234,35 +1401,35 @@ function showAddEmployeModal() {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Type contrat</label>
-                    <select class="form-select" name="type_contrat" required>
+                    <label>Type contrat <span class="req">*</span></label>
+                    <select name="type_contrat" required>
                         <option value="CDI">CDI</option>
                         <option value="CDD">CDD</option>
                     </select>
                 </div>
-            </div>
-            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Date embauche</label>
-                    <input type="date" class="form-input" name="date_embauche" required>
+                    <label>Date embauche <span class="req">*</span></label>
+                    <input type="date" name="date_embauche" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Salaire base (FCFA)</label>
-                    <input type="number" class="form-input" name="salaire_base" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Téléphone</label>
-                <input type="tel" class="form-input" name="telephone">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">CNI</label>
-                    <input type="text" class="form-input" name="cni">
+                    <label>Salaire base (FCFA) <span class="req">*</span></label>
+                    <input type="number" name="salaire_base" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">CNPS</label>
-                    <input type="text" class="form-input" name="cnps">
+                    <label>Téléphone</label>
+                    <input type="tel" name="telephone">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email">
+                </div>
+                <div class="form-group">
+                    <label>CNI</label>
+                    <input type="text" name="cni">
+                </div>
+                <div class="form-group">
+                    <label>CNPS</label>
+                    <input type="text" name="cnps">
                 </div>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Enregistrer</button>
@@ -1300,71 +1467,137 @@ async function renderPaie(container) {
             api(`/paie/stats/${mois}/${annee}`)
         ]);
         
+        // Store paie data in state
+        AppState.setModuleData('paie', { fiches, stats, mois, annee });
+        
         container.innerHTML = `
-            <div class="dashboard-stats-grid">
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Masse salariale brute</div>
-                    <div class="dashboard-stat-value">${formatFCFA(stats.masse_salariale)}</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Masse salariale brute</div>
+                    <div class="stat-value">${formatFCFA(stats.masse_salariale)}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Net à payer total</div>
-                    <div class="dashboard-stat-value" style="color: var(--gold);">${formatFCFA(stats.net_total)}</div>
+                <div class="stat-card">
+                    <div class="stat-label">Net à payer total</div>
+                    <div class="stat-value" style="color: var(--gold);">${formatFCFA(stats.net_total)}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Cotisations CNPS (employeur)</div>
-                    <div class="dashboard-stat-value">${formatFCFA(stats.cnps_total)}</div>
+                <div class="stat-card">
+                    <div class="stat-label">Cotisations CNPS (employeur)</div>
+                    <div class="stat-value">${formatFCFA(stats.cnps_total)}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Bulletins générés</div>
-                    <div class="dashboard-stat-value">${stats.bulletins}</div>
+                <div class="stat-card">
+                    <div class="stat-label">Bulletins générés</div>
+                    <div class="stat-value">${stats.bulletins}</div>
                 </div>
             </div>
             
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h3 class="dashboard-card-title">Fiches de paie - ${mois}/${annee}</h3>
-                    <button class="btn btn-primary btn-sm" onclick="genererFichesPaie()">Générer fiches</button>
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h3>Fiches de paie - ${mois}/${annee}</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <select class="form-select" style="width: 120px;" id="paie-mois-filter" onchange="filterPaie()">
+                            ${[1,2,3,4,5,6,7,8,9,10,11,12].map(m => 
+                                `<option value="${m}" ${m === mois ? 'selected' : ''}>${m}</option>`
+                            ).join('')}
+                        </select>
+                        <select class="form-select" style="width: 100px;" id="paie-annee-filter" onchange="filterPaie()">
+                            <option value="${annee}" selected>${annee}</option>
+                            <option value="${annee-1}">${annee-1}</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" onclick="genererFichesPaie()">Générer fiches</button>
+                    </div>
                 </div>
-                <div class="dashboard-card-body">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Employé</th>
-                                <th>Poste</th>
-                                <th>Salaire brut</th>
-                                <th>Net à payer</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${fiches.map(f => `
-                                <tr onclick="showFichePaieDetail(${f.id})" style="cursor: pointer;">
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <div class="dashboard-user-avatar" style="width: 32px; height: 32px; font-size: 12px;">
-                                                ${f.prenom[0]}${f.nom[0]}
-                                            </div>
-                                            <span>${f.nom} ${f.prenom}</span>
-                                        </div>
-                                    </td>
-                                    <td>${f.poste}</td>
-                                    <td>${formatFCFA(f.salaire_brut)}</td>
-                                    <td style="font-weight: 700; color: var(--gold);">${formatFCFA(f.net_a_payer)}</td>
-                                    <td><span class="badge ${f.statut === 'paye' ? 'badge-success' : 'badge-warning'}">${f.statut}</span></td>
+                <div class="card-body">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Employé</th>
+                                    <th>Poste</th>
+                                    <th>Salaire brut</th>
+                                    <th>Net à payer</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
                                 </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="paie-table-body">
+                                ${fiches.map(f => `
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <div class="avatar avatar-blue" style="width: 32px; height: 32px; font-size: 12px;">
+                                                    ${f.prenom[0]}${f.nom[0]}
+                                                </div>
+                                                <span>${f.nom} ${f.prenom}</span>
+                                            </div>
+                                        </td>
+                                        <td>${f.poste}</td>
+                                        <td>${formatFCFA(f.salaire_brut)}</td>
+                                        <td style="font-weight: 700; color: var(--gold);">${formatFCFA(f.net_a_payer)}</td>
+                                        <td><span class="badge ${f.statut === 'paye' ? 'badge-green' : 'badge-orange'}">${f.statut}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline" onclick="showFichePaieDetail(${f.id})">Voir</button>
+                                            ${f.statut === 'en_attente' ? `<button class="btn btn-sm btn-green" onclick="marquerPaye(${f.id})">Payer</button>` : ''}
+                                            <button class="btn btn-sm btn-outline" onclick="imprimerFiche(${f.id})">Imprimer</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <div id="fiche-detail" class="dashboard-card hidden">
+            <div id="fiche-detail" class="card" style="display: none;">
                 <!-- Fiche detail will be shown here -->
             </div>
         `;
     } catch (error) {
         console.error('Error loading paie:', error);
+        container.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement de la paie</p></div></div>`;
     }
+}
+
+async function filterPaie() {
+    const mois = document.getElementById('paie-mois-filter').value;
+    const annee = document.getElementById('paie-annee-filter').value;
+    
+    try {
+        const [fiches, stats] = await Promise.all([
+            api(`/paie?mois=${mois}&annee=${annee}`),
+            api(`/paie/stats/${mois}/${annee}`)
+        ]);
+        
+        AppState.setModuleData('paie', { fiches, stats, mois, annee });
+        
+        const tbody = document.getElementById('paie-table-body');
+        tbody.innerHTML = fiches.map(f => `
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="avatar avatar-blue" style="width: 32px; height: 32px; font-size: 12px;">
+                            ${f.prenom[0]}${f.nom[0]}
+                        </div>
+                        <span>${f.nom} ${f.prenom}</span>
+                    </div>
+                </td>
+                <td>${f.poste}</td>
+                <td>${formatFCFA(f.salaire_brut)}</td>
+                <td style="font-weight: 700; color: var(--gold);">${formatFCFA(f.net_a_payer)}</td>
+                <td><span class="badge ${f.statut === 'paye' ? 'badge-green' : 'badge-orange'}">${f.statut}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline" onclick="showFichePaieDetail(${f.id})">Voir</button>
+                    ${f.statut === 'en_attente' ? `<button class="btn btn-sm btn-green" onclick="marquerPaye(${f.id})">Payer</button>` : ''}
+                    <button class="btn btn-sm btn-outline" onclick="imprimerFiche(${f.id})">Imprimer</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error filtering paie:', error);
+    }
+}
+
+function imprimerFiche(id) {
+    showToast('Fonction d\'impression en cours de développement', 'info');
 }
 
 async function genererFichesPaie() {
@@ -1515,116 +1748,161 @@ async function renderFlotte(container) {
     try {
         const bus = await api('/bus');
         
+        // Store flotte data in state
+        AppState.setModuleData('flotte', { bus });
+        
         const operationnel = bus.filter(b => b.statut === 'operationnel').length;
         const maintenance = bus.filter(b => b.statut === 'maintenance').length;
         const horsService = bus.filter(b => b.statut === 'hors_service').length;
         
         container.innerHTML = `
-            <div class="dashboard-stats-grid">
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Total bus</div>
-                    <div class="dashboard-stat-value">${bus.length}</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total bus</div>
+                    <div class="stat-value">${bus.length}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">En service</div>
-                    <div class="dashboard-stat-value" style="color: var(--green);">${operationnel}</div>
+                <div class="stat-card">
+                    <div class="stat-label">En service</div>
+                    <div class="stat-value" style="color: var(--green);">${operationnel}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">En maintenance</div>
-                    <div class="dashboard-stat-value" style="color: var(--yellow);">${maintenance}</div>
+                <div class="stat-card">
+                    <div class="stat-label">En maintenance</div>
+                    <div class="stat-value" style="color: var(--yellow);">${maintenance}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Hors service</div>
-                    <div class="dashboard-stat-value" style="color: var(--red);">${horsService}</div>
+                <div class="stat-card">
+                    <div class="stat-label">Hors service</div>
+                    <div class="stat-value" style="color: var(--red);">${horsService}</div>
                 </div>
             </div>
             
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h3 class="dashboard-card-title">Flotte de bus</h3>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Flotte de bus</h3>
                     <button class="btn btn-primary btn-sm" onclick="showAddBusModal()">+ Bus</button>
                 </div>
-                <div class="dashboard-card-body">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Immatriculation</th>
-                                <th>Modèle</th>
-                                <th>Places</th>
-                                <th>Agence</th>
-                                <th>Km total</th>
-                                <th>Visite technique</th>
-                                <th>Assurance</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${bus.map(b => `
+                <div class="card-body">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td><strong>${b.immatriculation}</strong></td>
-                                    <td>${b.modele}</td>
-                                    <td>${b.places}</td>
-                                    <td>${b.agence_nom || '-'}</td>
-                                    <td>${b.km_total.toLocaleString()} km</td>
-                                    <td>${formatDate(b.date_visite_tech)}</td>
-                                    <td>${formatDate(b.date_assurance)}</td>
-                                    <td><span class="badge ${getStatutBadgeClass(b.statut)}">${b.statut}</span></td>
+                                    <th>Immatriculation</th>
+                                    <th>Modèle</th>
+                                    <th>Places</th>
+                                    <th>Agence</th>
+                                    <th>Km total</th>
+                                    <th>Visite technique</th>
+                                    <th>Assurance</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
                                 </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                ${bus.map(b => `
+                                    <tr>
+                                        <td><strong>${b.immatriculation}</strong></td>
+                                        <td>${b.modele}</td>
+                                        <td>${b.places}</td>
+                                        <td>${b.agence_nom || '-'}</td>
+                                        <td>${b.km_total.toLocaleString()} km</td>
+                                        <td>${formatDate(b.date_visite_tech)}</td>
+                                        <td>${formatDate(b.date_assurance)}</td>
+                                        <td><span class="badge ${getStatutBadgeClass(b.statut)}">${b.statut}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline" onclick="showEditBusModal(${b.id})">Modifier</button>
+                                            <button class="btn btn-sm btn-outline" onclick="showChangeStatutModal(${b.id}, '${b.statut}', '${b.immatriculation}')">Statut</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         `;
     } catch (error) {
         console.error('Error loading flotte:', error);
+        container.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement de la flotte</p></div></div>`;
     }
 }
 
 function showAddBusModal() {
     showModal(`
         <form onsubmit="saveBus(event)">
-            <div class="form-row">
+            <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label">Immatriculation</label>
-                    <input type="text" class="form-input" name="immatriculation" required>
+                    <label>Immatriculation <span class="req">*</span></label>
+                    <input type="text" name="immatriculation" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Modèle</label>
-                    <input type="text" class="form-input" name="modele" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Places</label>
-                    <input type="number" class="form-input" name="places" required>
+                    <label>Modèle <span class="req">*</span></label>
+                    <input type="text" name="modele" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Statut</label>
-                    <select class="form-select" name="statut" required>
+                    <label>Places <span class="req">*</span></label>
+                    <input type="number" name="places" required>
+                </div>
+                <div class="form-group">
+                    <label>Statut <span class="req">*</span></label>
+                    <select name="statut" required>
                         <option value="operationnel">Opérationnel</option>
                         <option value="maintenance">Maintenance</option>
                         <option value="hors_service">Hors service</option>
                     </select>
                 </div>
-            </div>
-            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Km total</label>
-                    <input type="number" class="form-input" name="km_total" value="0">
+                    <label>Km total</label>
+                    <input type="number" name="km_total" value="0">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Date visite technique</label>
-                    <input type="date" class="form-input" name="date_visite_tech">
+                    <label>Date visite technique</label>
+                    <input type="date" name="date_visite_tech">
                 </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Date assurance</label>
-                <input type="date" class="form-input" name="date_assurance">
+                <div class="form-group full">
+                    <label>Date assurance</label>
+                    <input type="date" name="date_assurance">
+                </div>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Enregistrer</button>
         </form>
     `);
+}
+
+function showChangeStatutModal(id, currentStatut, immatriculation) {
+    showModal(`
+        <form onsubmit="changeBusStatut(event, ${id})">
+            <div class="form-group">
+                <label>Bus : ${immatriculation}</label>
+            </div>
+            <div class="form-group">
+                <label>Nouveau statut <span class="req">*</span></label>
+                <select name="statut" required>
+                    <option value="operationnel" ${currentStatut === 'operationnel' ? 'selected' : ''}>Opérationnel</option>
+                    <option value="maintenance" ${currentStatut === 'maintenance' ? 'selected' : ''}>Maintenance</option>
+                    <option value="hors_service" ${currentStatut === 'hors_service' ? 'selected' : ''}>Hors service</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Changer le statut</button>
+        </form>
+    `);
+}
+
+async function changeBusStatut(event, id) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+        await api(`/bus/${id}/statut`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+        closeModal();
+        showToast('Statut du bus modifié avec succès');
+        navigate('flotte');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
 }
 
 async function saveBus(event) {
@@ -1657,61 +1935,185 @@ async function renderComptabilite(container) {
             api('/compta/ecritures')
         ]);
         
+        // Store comptabilite data in state
+        AppState.setModuleData('comptabilite', { bilan, ecritures, mois, annee });
+        
         container.innerHTML = `
-            <div class="dashboard-stats-grid">
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Recettes du mois</div>
-                    <div class="dashboard-stat-value" style="color: var(--green);">${formatFCFA(bilan.recettes)}</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Recettes du mois</div>
+                    <div class="stat-value" style="color: var(--green);">${formatFCFA(bilan.recettes)}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Dépenses du mois</div>
-                    <div class="dashboard-stat-value" style="color: var(--red);">${formatFCFA(bilan.depenses)}</div>
+                <div class="stat-card">
+                    <div class="stat-label">Dépenses du mois</div>
+                    <div class="stat-value" style="color: var(--red);">${formatFCFA(bilan.depenses)}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Bénéfice net</div>
-                    <div class="dashboard-stat-value" style="color: ${bilan.benefice >= 0 ? 'var(--green)' : 'var(--red)'};">${formatFCFA(bilan.benefice)}</div>
+                <div class="stat-card">
+                    <div class="stat-label">Bénéfice net</div>
+                    <div class="stat-value" style="color: ${bilan.benefice >= 0 ? 'var(--green)' : 'var(--red)'};">${formatFCFA(bilan.benefice)}</div>
                 </div>
-                <div class="dashboard-stat-card">
-                    <div class="dashboard-stat-label">Marge</div>
-                    <div class="dashboard-stat-value">${bilan.marge}%</div>
+                <div class="stat-card">
+                    <div class="stat-label">Marge</div>
+                    <div class="stat-value">${bilan.marge}%</div>
                 </div>
             </div>
             
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h3 class="dashboard-card-title">Journal des écritures</h3>
-                    <button class="btn btn-primary btn-sm" onclick="showAddEcritureModal()">+ Écriture</button>
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h3>Journal des écritures</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <select class="form-select" style="width: 120px;" id="compta-mois-filter" onchange="filterComptabilite()">
+                            ${[1,2,3,4,5,6,7,8,9,10,11,12].map(m => 
+                                `<option value="${m}" ${m === mois ? 'selected' : ''}>${m}</option>`
+                            ).join('')}
+                        </select>
+                        <select class="form-select" style="width: 100px;" id="compta-annee-filter" onchange="filterComptabilite()">
+                            <option value="${annee}" selected>${annee}</option>
+                            <option value="${annee-1}">${annee-1}</option>
+                        </select>
+                        <select class="form-select" style="width: 150px;" id="compta-type-filter" onchange="filterComptabilite()">
+                            <option value="">Tous types</option>
+                            <option value="recette">Recettes</option>
+                            <option value="depense">Dépenses</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" onclick="showAddEcritureModal()">+ Écriture</button>
+                    </div>
                 </div>
-                <div class="dashboard-card-body">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Description</th>
-                                <th>Catégorie</th>
-                                <th>Type</th>
-                                <th>Montant</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${ecritures.map(e => `
+                <div class="card-body">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>${formatDate(e.date_ecriture)}</td>
-                                    <td>${e.description}</td>
-                                    <td><span class="badge badge-info">${e.categorie}</span></td>
-                                    <td><span class="badge ${e.type === 'recette' ? 'badge-success' : 'badge-danger'}">${e.type}</span></td>
-                                    <td style="font-weight: 700; color: ${e.type === 'recette' ? 'var(--green)' : 'var(--red)'};">
-                                        ${e.type === 'recette' ? '+' : '-'}${formatFCFA(e.montant)}
-                                    </td>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Catégorie</th>
+                                    <th>Type</th>
+                                    <th>Montant</th>
+                                    <th>Actions</th>
                                 </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="compta-table-body">
+                                ${ecritures.map(e => `
+                                    <tr>
+                                        <td>${formatDate(e.date_ecriture)}</td>
+                                        <td>${e.description}</td>
+                                        <td><span class="badge badge-blue">${e.categorie}</span></td>
+                                        <td><span class="badge ${e.type === 'recette' ? 'badge-green' : 'badge-red'}">${e.type}</span></td>
+                                        <td style="font-weight: 700; color: ${e.type === 'recette' ? 'var(--green)' : 'var(--red)'};">
+                                            ${e.type === 'recette' ? '+' : '-'}${formatFCFA(e.montant)}
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline" onclick="showEditEcritureModal(${e.id})">Modifier</button>
+                                            <button class="btn btn-sm btn-red" onclick="deleteEcriture(${e.id})">Supprimer</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>Balance des comptes</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Catégorie</th>
+                                    <th>Total recettes</th>
+                                    <th>Total dépenses</th>
+                                    <th>Solde</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${getBalanceByCategorie(ecritures).map(b => `
+                                    <tr>
+                                        <td><span class="badge badge-blue">${b.categorie}</span></td>
+                                        <td style="color: var(--green);">${formatFCFA(b.recettes)}</td>
+                                        <td style="color: var(--red);">${formatFCFA(b.depenses)}</td>
+                                        <td style="font-weight: 700; color: ${b.solde >= 0 ? 'var(--green)' : 'var(--red)'};">${formatFCFA(b.solde)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         `;
     } catch (error) {
         console.error('Error loading comptabilite:', error);
+        container.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement de la comptabilité</p></div></div>`;
+    }
+}
+
+function getBalanceByCategorie(ecritures) {
+    const categories = {};
+    ecritures.forEach(e => {
+        if (!categories[e.categorie]) {
+            categories[e.categorie] = { categorie: e.categorie, recettes: 0, depenses: 0 };
+        }
+        if (e.type === 'recette') {
+            categories[e.categorie].recettes += e.montant;
+        } else {
+            categories[e.categorie].depenses += e.montant;
+        }
+    });
+    
+    return Object.values(categories).map(c => ({
+        ...c,
+        solde: c.recettes - c.depenses
+    }));
+}
+
+async function filterComptabilite() {
+    const mois = document.getElementById('compta-mois-filter').value;
+    const annee = document.getElementById('compta-annee-filter').value;
+    const type = document.getElementById('compta-type-filter').value;
+    
+    try {
+        const [bilan, ecritures] = await Promise.all([
+            api(`/compta/bilan?mois=${mois}&annee=${annee}`),
+            api('/compta/ecritures')
+        ]);
+        
+        AppState.setModuleData('comptabilite', { bilan, ecritures, mois, annee });
+        
+        const filtered = type ? ecritures.filter(e => e.type === type) : ecritures;
+        
+        const tbody = document.getElementById('compta-table-body');
+        tbody.innerHTML = filtered.map(e => `
+            <tr>
+                <td>${formatDate(e.date_ecriture)}</td>
+                <td>${e.description}</td>
+                <td><span class="badge badge-blue">${e.categorie}</span></td>
+                <td><span class="badge ${e.type === 'recette' ? 'badge-green' : 'badge-red'}">${e.type}</span></td>
+                <td style="font-weight: 700; color: ${e.type === 'recette' ? 'var(--green)' : 'var(--red)'};">
+                    ${e.type === 'recette' ? '+' : '-'}${formatFCFA(e.montant)}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline" onclick="showEditEcritureModal(${e.id})">Modifier</button>
+                    <button class="btn btn-sm btn-red" onclick="deleteEcriture(${e.id})">Supprimer</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error filtering comptabilite:', error);
+    }
+}
+
+async function deleteEcriture(id) {
+    if (!confirm('Supprimer cette écriture ?')) return;
+    
+    try {
+        await api(`/compta/ecritures/${id}`, { method: 'DELETE' });
+        showToast('Écriture supprimée avec succès');
+        navigate('comptabilite');
+    } catch (error) {
+        showToast(error.message, 'error');
     }
 }
 
@@ -1779,83 +2181,135 @@ async function renderLignes(container) {
     try {
         const lignes = await api('/lignes');
         
+        // Store lignes data in state
+        AppState.setModuleData('lignes', { lignes });
+        
         container.innerHTML = `
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h3 class="dashboard-card-title">Lignes</h3>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Lignes</h3>
                     <button class="btn btn-primary btn-sm" onclick="showAddLigneModal()">+ Ligne</button>
                 </div>
-                <div class="dashboard-card-body">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Trajet</th>
-                                <th>Distance</th>
-                                <th>Durée</th>
-                                <th>Tarif</th>
-                                <th>Taux remplissage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${lignes.map(l => `
+                <div class="card-body">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td><span class="badge badge-navy">${l.code}</span></td>
-                                    <td>${l.ville_depart} → ${l.ville_arrivee}</td>
-                                    <td>${l.distance_km} km</td>
-                                    <td>${l.duree_h}h</td>
-                                    <td>${formatFCFA(l.tarif_base)}</td>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <div class="progress-bar" style="width: 80px;">
-                                                <div class="progress-bar-fill" style="width: ${l.taux_remplissage}%"></div>
-                                            </div>
-                                            <span style="font-size: 12px;">${l.taux_remplissage}%</span>
-                                        </div>
-                                    </td>
+                                    <th>Code</th>
+                                    <th>Trajet</th>
+                                    <th>Distance</th>
+                                    <th>Durée</th>
+                                    <th>Tarif</th>
+                                    <th>Taux remplissage</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
                                 </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                ${lignes.map(l => `
+                                    <tr>
+                                        <td><span class="badge badge-blue">${l.code}</span></td>
+                                        <td>${l.ville_depart} → ${l.ville_arrivee}</td>
+                                        <td>${l.distance_km} km</td>
+                                        <td>${l.duree_h}h</td>
+                                        <td>${formatFCFA(l.tarif_base)}</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <div class="progress" style="width: 80px;">
+                                                    <div class="progress-bar progress-blue" style="width: ${l.taux_remplissage}%"></div>
+                                                </div>
+                                                <span style="font-size: 12px;">${l.taux_remplissage}%</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge ${l.statut === 'actif' ? 'badge-green' : 'badge-red'}">${l.statut || 'actif'}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline" onclick="showEditLigneModal(${l.id})">Modifier</button>
+                                            <button class="btn btn-sm btn-outline" onclick="toggleLigneStatut(${l.id}, '${l.statut || 'actif'}')">
+                                                ${l.statut === 'actif' ? 'Désactiver' : 'Activer'}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-header">
+                    <h3>Performance des lignes</h3>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+                        ${lignes.map(l => `
+                            <div style="background: var(--bg); padding: 16px; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span style="font-weight: 700; color: var(--navy);">${l.code}</span>
+                                    <span class="badge badge-blue">${l.taux_remplissage}%</span>
+                                </div>
+                                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">${l.ville_depart} → ${l.ville_arrivee}</div>
+                                <div class="progress">
+                                    <div class="progress-bar ${l.taux_remplissage >= 80 ? 'progress-green' : l.taux_remplissage >= 50 ? 'progress-blue' : 'progress-orange'}" style="width: ${l.taux_remplissage}%"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px;">
+                                    <span style="color: var(--text-muted);">Tarif: ${formatFCFA(l.tarif_base)}</span>
+                                    <span style="color: var(--text-muted);">${l.distance_km} km</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
         `;
     } catch (error) {
         console.error('Error loading lignes:', error);
+        container.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement des lignes</p></div></div>`;
+    }
+}
+
+async function toggleLigneStatut(id, currentStatut) {
+    const newStatut = currentStatut === 'actif' ? 'inactif' : 'actif';
+    
+    try {
+        await api(`/lignes/${id}/statut`, {
+            method: 'PUT',
+            body: JSON.stringify({ statut: newStatut })
+        });
+        showToast(`Ligne ${newStatut === 'actif' ? 'activée' : 'désactivée'} avec succès`);
+        navigate('lignes');
+    } catch (error) {
+        showToast(error.message, 'error');
     }
 }
 
 function showAddLigneModal() {
     showModal(`
         <form onsubmit="saveLigne(event)">
-            <div class="form-row">
+            <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label">Code</label>
-                    <input type="text" class="form-input" name="code" placeholder="YDE-DBA" required>
+                    <label>Code <span class="req">*</span></label>
+                    <input type="text" name="code" placeholder="YDE-DBA" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Tarif base (FCFA)</label>
-                    <input type="number" class="form-input" name="tarif_base" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Ville départ</label>
-                    <input type="text" class="form-input" name="ville_depart" required>
+                    <label>Tarif base (FCFA) <span class="req">*</span></label>
+                    <input type="number" name="tarif_base" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Ville arrivée</label>
-                    <input type="text" class="form-input" name="ville_arrivee" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Distance (km)</label>
-                    <input type="number" class="form-input" name="distance_km" required>
+                    <label>Ville départ <span class="req">*</span></label>
+                    <input type="text" name="ville_depart" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Durée (heures)</label>
-                    <input type="number" class="form-input" name="duree_h" step="0.5" required>
+                    <label>Ville arrivée <span class="req">*</span></label>
+                    <input type="text" name="ville_arrivee" required>
+                </div>
+                <div class="form-group">
+                    <label>Distance (km) <span class="req">*</span></label>
+                    <input type="number" name="distance_km" required>
+                </div>
+                <div class="form-group">
+                    <label>Durée (heures) <span class="req">*</span></label>
+                    <input type="number" name="duree_h" step="0.5" required>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Enregistrer</button>
@@ -1886,68 +2340,137 @@ async function renderCourriers(container) {
     try {
         const result = await api('/courriers');
         
+        // Store courriers data in state
+        AppState.setModuleData('courriers', { 
+            courriers: result.data, 
+            nonLus: result.non_lus 
+        });
+        
         container.innerHTML = `
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h3 class="dashboard-card-title">
+            <div class="card">
+                <div class="card-header">
+                    <h3>
                         Courriers
-                        ${result.non_lus > 0 ? `<span class="badge badge-warning" style="margin-left: 8px;">${result.non_lus} non lu(s)</span>` : ''}
+                        ${result.non_lus > 0 ? `<span class="badge badge-orange" style="margin-left: 8px;">${result.non_lus} non lu(s)</span>` : ''}
                     </h3>
                     <button class="btn btn-primary btn-sm" onclick="showAddCourrierModal()">+ Courrier</button>
                 </div>
-                <div class="dashboard-card-body">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Objet</th>
-                                <th>Expéditeur</th>
-                                <th>Destinataire</th>
-                                <th>Type</th>
-                                <th>Priorité</th>
-                                <th>Statut</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${result.data.map(c => `
-                                <tr onclick="showCourrierDetail(${c.id}, '${c.objet}', '${c.contenu}', '${c.expediteur}', '${c.destinataire}')" style="cursor: pointer; ${c.statut === 'non_lu' ? 'font-weight: 700;' : ''}">
-                                    <td>${c.objet}</td>
-                                    <td>${c.expediteur}</td>
-                                    <td>${c.destinataire}</td>
-                                    <td><span class="badge badge-info">${c.type}</span></td>
-                                    <td>${c.priorite === 'urgente' ? '<span class="badge badge-danger">URGENTE</span>' : '<span class="badge badge-navy">Normale</span>'}</td>
-                                    <td><span class="badge ${c.statut === 'non_lu' ? 'badge-danger' : 'badge-success'}">${c.statut}</span></td>
-                                    <td>${formatDate(c.created_at)}</td>
+                <div class="card-body">
+                    <div style="margin-bottom: 16px; display: flex; gap: 12px;">
+                        <input type="text" placeholder="Rechercher..." class="form-input" style="flex: 1;" id="courrier-search" onkeyup="filterCourriers()">
+                        <select class="form-select" style="width: 150px;" id="courrier-statut-filter" onchange="filterCourriers()">
+                            <option value="">Tous statuts</option>
+                            <option value="non_lu">Non lu</option>
+                            <option value="lu">Lu</option>
+                            <option value="archive">Archivé</option>
+                        </select>
+                        <select class="form-select" style="width: 150px;" id="courrier-priorite-filter" onchange="filterCourriers()">
+                            <option value="">Toutes priorités</option>
+                            <option value="normale">Normale</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Objet</th>
+                                    <th>Expéditeur</th>
+                                    <th>Destinataire</th>
+                                    <th>Type</th>
+                                    <th>Priorité</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="courriers-table-body">
+                                ${result.data.map(c => `
+                                    <tr style="${c.statut === 'non_lu' ? 'font-weight: 700;' : ''}" data-courrier-id="${c.id}">
+                                        <td>${c.objet}</td>
+                                        <td>${c.expediteur}</td>
+                                        <td>${c.destinataire}</td>
+                                        <td><span class="badge badge-blue">${c.type}</span></td>
+                                        <td>${c.priorite === 'urgente' ? '<span class="badge badge-red">URGENTE</span>' : '<span class="badge badge-gray">Normale</span>'}</td>
+                                        <td><span class="badge ${c.statut === 'non_lu' ? 'badge-red' : c.statut === 'lu' ? 'badge-green' : 'badge-gray'}">${c.statut}</span></td>
+                                        <td>${formatDate(c.created_at)}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline" onclick="showCourrierDetail(${c.id})">Voir</button>
+                                            ${c.statut === 'non_lu' ? `<button class="btn btn-sm btn-green" onclick="marquerCourrierLu(${c.id})">Marquer lu</button>` : ''}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         `;
     } catch (error) {
         console.error('Error loading courriers:', error);
+        container.innerHTML = `<div class="card"><div class="card-body"><p class="text-center" style="color: var(--red);">Erreur de chargement des courriers</p></div></div>`;
     }
 }
 
-function showCourrierDetail(id, objet, contenu, expediteur, destinataire) {
-    showModal(`
-        <div>
-            <h3 style="color: var(--navy); margin-bottom: 16px;">${objet}</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                <div>
-                    <div style="font-size: 12px; color: var(--text-muted);">De</div>
-                    <div style="font-weight: 600;">${expediteur}</div>
+async function showCourrierDetail(id) {
+    try {
+        const courrier = await api(`/courriers/${id}`);
+        showModal(`
+            <div>
+                <h3 style="color: var(--navy); margin-bottom: 16px;">${courrier.objet}</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-muted);">De</div>
+                        <div style="font-weight: 600;">${courrier.expediteur}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-muted);">À</div>
+                        <div style="font-weight: 600;">${courrier.destinataire}</div>
+                    </div>
                 </div>
-                <div>
-                    <div style="font-size: 12px; color: var(--text-muted);">À</div>
-                    <div style="font-weight: 600;">${destinataire}</div>
-                </div>
+                <div style="background: var(--bg); padding: 16px; border-radius: 8px; margin-bottom: 16px; white-space: pre-wrap;">${courrier.contenu}</div>
+                ${courrier.statut === 'non_lu' ? `<button class="btn btn-primary" onclick="marquerCourrierLu(${id})">Marquer comme lu</button>` : ''}
             </div>
-            <div style="background: var(--bg); padding: 16px; border-radius: 8px; margin-bottom: 16px; white-space: pre-wrap;">${contenu}</div>
-            <button class="btn btn-primary" onclick="marquerCourrierLu(${id})">Marquer comme lu</button>
-        </div>
-    `);
+        `);
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function filterCourriers() {
+    const search = document.getElementById('courrier-search').value.toLowerCase();
+    const statut = document.getElementById('courrier-statut-filter').value;
+    const priorite = document.getElementById('courrier-priorite-filter').value;
+    
+    const courriersData = AppState.getModuleData('courriers');
+    const allCourriers = courriersData.courriers || [];
+    
+    const filtered = allCourriers.filter(c => {
+        const matchSearch = !search || 
+            c.objet.toLowerCase().includes(search) || 
+            c.expediteur.toLowerCase().includes(search) ||
+            c.destinataire.toLowerCase().includes(search);
+        const matchStatut = !statut || c.statut === statut;
+        const matchPriorite = !priorite || c.priorite === priorite;
+        return matchSearch && matchStatut && matchPriorite;
+    });
+    
+    const tbody = document.getElementById('courriers-table-body');
+    tbody.innerHTML = filtered.map(c => `
+        <tr style="${c.statut === 'non_lu' ? 'font-weight: 700;' : ''}" data-courrier-id="${c.id}">
+            <td>${c.objet}</td>
+            <td>${c.expediteur}</td>
+            <td>${c.destinataire}</td>
+            <td><span class="badge badge-blue">${c.type}</span></td>
+            <td>${c.priorite === 'urgente' ? '<span class="badge badge-red">URGENTE</span>' : '<span class="badge badge-gray">Normale</span>'}</td>
+            <td><span class="badge ${c.statut === 'non_lu' ? 'badge-red' : c.statut === 'lu' ? 'badge-green' : 'badge-gray'}">${c.statut}</span></td>
+            <td>${formatDate(c.created_at)}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="showCourrierDetail(${c.id})">Voir</button>
+                ${c.statut === 'non_lu' ? `<button class="btn btn-sm btn-green" onclick="marquerCourrierLu(${c.id})">Marquer lu</button>` : ''}
+            </td>
+        </tr>
+    `).join('');
 }
 
 async function marquerCourrierLu(id) {
@@ -2026,46 +2549,61 @@ async function saveCourrier(event) {
 async function renderParametres(container) {
     const user = getCurrentUser();
     
+    // Store parametres data in state
+    AppState.setModuleData('parametres', { user });
+    
     container.innerHTML = `
-        <div class="dashboard-card">
-            <div class="dashboard-card-header">
-                <h3 class="dashboard-card-title">Paramètres</h3>
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3>Mon compte</h3>
             </div>
-            <div class="dashboard-card-body">
+            <div class="card-body">
                 <div style="max-width: 600px;">
-                    <h4 style="color: var(--navy); margin-bottom: 16px;">Mon compte</h4>
-                    <div style="background: var(--bg); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-                        <div style="margin-bottom: 12px;">
-                            <div style="font-size: 12px; color: var(--text-muted);">Nom</div>
-                            <div style="font-weight: 600;">${user.nom}</div>
+                    <div style="background: var(--bg); padding: 24px; border-radius: 8px; margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div class="avatar avatar-blue" style="width: 64px; height: 64px; font-size: 24px;">
+                                ${user.nom ? user.nom[0] : 'U'}${user.prenom ? user.prenom[0] : ''}
+                            </div>
+                            <div>
+                                <div style="font-size: 20px; font-weight: 700; color: var(--navy);">${user.nom} ${user.prenom || ''}</div>
+                                <div style="font-size: 14px; color: var(--text-muted);">${user.email}</div>
+                            </div>
                         </div>
-                        <div style="margin-bottom: 12px;">
-                            <div style="font-size: 12px; color: var(--text-muted);">Email</div>
-                            <div style="font-weight: 600;">${user.email}</div>
-                        </div>
-                        <div style="margin-bottom: 12px;">
-                            <div style="font-size: 12px; color: var(--text-muted);">Rôle</div>
-                            <div><span class="badge badge-navy">${user.role}</span></div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Agence</div>
-                            <div style="font-weight: 600;">${user.agence || 'Non assigné'}</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Rôle</div>
+                                <div><span class="badge badge-blue">${user.role}</span></div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Agence</div>
+                                <div style="font-weight: 600;">${user.agence || 'Non assigné'}</div>
+                            </div>
                         </div>
                     </div>
                     
-                    <h4 style="color: var(--navy); margin-bottom: 16px;">Sécurité</h4>
+                    <button class="btn btn-outline" onclick="showEditProfileModal()">Modifier mon profil</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>Sécurité</h3>
+            </div>
+            <div class="card-body">
+                <div style="max-width: 600px;">
                     <form onsubmit="changePassword(event)">
                         <div class="form-group">
-                            <label class="form-label">Mot de passe actuel</label>
-                            <input type="password" class="form-input" name="current_password" required>
+                            <label>Mot de passe actuel <span class="req">*</span></label>
+                            <input type="password" name="current_password" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Nouveau mot de passe</label>
-                            <input type="password" class="form-input" name="new_password" required>
+                            <label>Nouveau mot de passe <span class="req">*</span></label>
+                            <input type="password" name="new_password" required minlength="8">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Confirmer le mot de passe</label>
-                            <input type="password" class="form-input" name="confirm_password" required>
+                            <label>Confirmer le mot de passe <span class="req">*</span></label>
+                            <input type="password" name="confirm_password" required minlength="8">
                         </div>
                         <button type="submit" class="btn btn-primary">Changer le mot de passe</button>
                     </form>
@@ -2075,9 +2613,93 @@ async function renderParametres(container) {
     `;
 }
 
+function showEditProfileModal() {
+    const user = getCurrentUser();
+    showModal(`
+        <form onsubmit="updateProfile(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nom <span class="req">*</span></label>
+                    <input type="text" name="nom" value="${user.nom}" required>
+                </div>
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" name="prenom" value="${user.prenom || ''}">
+                </div>
+                <div class="form-group full">
+                    <label>Email <span class="req">*</span></label>
+                    <input type="email" name="email" value="${user.email}" required>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" name="telephone" value="${user.telephone || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Agence</label>
+                    <input type="text" name="agence" value="${user.agence || ''}">
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <button type="button" class="btn btn-outline" onclick="closeModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary">Sauvegarder</button>
+            </div>
+        </form>
+    `);
+}
+
+async function updateProfile(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+        await api('/utilisateur/profile', {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+        
+        // Update user in state
+        AppState.setUser({ ...AppState.user, ...data }, AppState.token);
+        
+        closeModal();
+        showToast('Profil mis à jour avec succès');
+        navigate('parametres');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
 async function changePassword(event) {
     event.preventDefault();
-    showToast('Fonctionnalité de changement de mot de passe non implémentée en démonstration', 'info');
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    if (data.new_password !== data.confirm_password) {
+        showToast('Les mots de passe ne correspondent pas', 'error');
+        return;
+    }
+    
+    if (data.new_password.length < 8) {
+        showToast('Le mot de passe doit contenir au moins 8 caractères', 'error');
+        return;
+    }
+    
+    try {
+        await api('/utilisateur/change-password', {
+            method: 'POST',
+            body: JSON.stringify({
+                current_password: data.current_password,
+                new_password: data.new_password
+            })
+        });
+        
+        form.reset();
+        showToast('Mot de passe changé avec succès');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
 }
 
 // ============ HELPERS ============

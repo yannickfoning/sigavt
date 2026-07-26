@@ -1,5 +1,7 @@
 package com.sigavt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sigavt.enums.ModePaiement;
 import com.sigavt.enums.StatutColis;
 import com.sigavt.enums.TypeColis;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "colis")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Colis {
 
     @Id
@@ -32,6 +35,16 @@ public class Colis {
 
     @Column(name = "destinataire_tel", length = 30)
     private String destinataireTel;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ligne_id")
+    @JsonIgnore
+    private Ligne ligne;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "voyage_id")
+    @JsonIgnore
+    private Voyage voyage;
 
     @Column(name = "ville_depart", length = 100)
     private String villeDepart;
@@ -61,8 +74,8 @@ public class Colis {
     @Builder.Default
     private boolean assure = false;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal montant;
+    @Column(name = "tarif", precision = 10, scale = 2)
+    private BigDecimal tarif;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "mode_paiement", length = 20)
@@ -73,12 +86,14 @@ public class Colis {
     @Column(nullable = false, length = 20)
     private StatutColis statut = StatutColis.ENREGISTRE;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agence_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "agence_id", nullable = true)
+    @JsonIgnore
     private Agence agence;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agent_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "agent_id", nullable = true)
+    @JsonIgnore
     private Utilisateur agent;
 
     @Builder.Default

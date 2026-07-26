@@ -30,9 +30,13 @@ public class Utilisateur {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agence_id")
     private Agence agence;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "personnel_id")
+    private Personnel personnel;
 
     @Builder.Default
     @Column(nullable = false)

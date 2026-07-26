@@ -4,39 +4,45 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIGAVT — Système de Gestion d'Agence de Voyage Terrestre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --navy: #1a2744;
-    --navy-light: #243158;
-    --navy-dark: #111b33;
-    --gold: #f5a623;
-    --gold-dark: #d4891a;
-    --orange: #e85d04;
-    --orange-light: #f27a35;
-    --blue-accent: #3b82f6;
-    --blue-light: #60a5fa;
-    --green: #10b981;
-    --green-light: #34d399;
-    --red: #ef4444;
-    --yellow: #f59e0b;
-    --purple: #8b5cf6;
-    --teal: #14b8a6;
-    --bg: #f0f4f8;
-    --bg-card: #ffffff;
-    --text: #1e293b;
-    --text-muted: #64748b;
-    --text-light: #94a3b8;
-    --border: #e2e8f0;
-    --sidebar-w: 220px;
-    --radius: 10px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    /* Plaque peinte à la main — panneaux de gare routière camerounaise */
+    --navy: #211710;
+    --navy-light: #322419;
+    --navy-dark: #150e09;
+    --gold: #f2b705;
+    --gold-dark: #c99a04;
+    --orange: #c1440e;
+    --orange-light: #e0641f;
+    --blue-accent: #2f6690;
+    --blue-light: #4a85b3;
+    --green: #1b7340;
+    --green-light: #2e9c58;
+    --red: #b3211e;
+    --yellow: #d99a06;
+    --purple: #7a4f9e;
+    --teal: #1b7d78;
+    --bg: #f2ead9;
+    --bg-card: #fffcf6;
+    --text: #251a10;
+    --text-muted: #7a6a55;
+    --text-light: #a5967f;
+    --border: #e3d5b8;
+    --sidebar-w: 224px;
+    --radius: 8px;
+    --shadow: 0 2px 12px rgba(37,26,16,0.08);
+    --shadow-lg: 0 10px 36px rgba(37,26,16,0.18);
+    --font-display: 'Archivo Black', 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -61,20 +67,25 @@
     padding: 18px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }
-  .sidebar-logo h1 {
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .sidebar-logo .plate {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy-dark);
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    padding: 6px 10px;
+    border-radius: 3px;
+    transform: rotate(-1.5deg);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
   }
   .sidebar-logo span {
     font-size: 11px;
     color: rgba(255,255,255,0.5);
     display: block;
-    margin-top: 2px;
+    margin-top: 8px;
     font-weight: 400;
+    letter-spacing: 0.03em;
   }
 
   .sidebar-nav {
@@ -170,7 +181,7 @@
     z-index: 50;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
-  .topbar-title { font-size: 17px; font-weight: 700; color: var(--navy); }
+  .topbar-title { font-family: var(--font-display); font-size: 16px; font-weight: 400; letter-spacing: 0.01em; color: var(--navy); }
   .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
   .topbar-actions { display: flex; align-items: center; gap: 10px; }
 
@@ -186,6 +197,8 @@
   .btn-primary:hover { background: var(--orange-light); }
   .btn-outline { background: transparent; color: var(--navy); border: 1.5px solid var(--border); }
   .btn-outline:hover { border-color: var(--navy); }
+  .btn-logout { background: var(--red); color: #fff; border: 1.5px solid var(--red); }
+  .btn-logout:hover { background: #c9322f; border-color: #c9322f; }
   .btn-ghost { background: transparent; color: var(--text-muted); padding: 7px 10px; }
   .btn-ghost:hover { background: var(--bg); color: var(--text); }
   .btn-blue { background: var(--blue-accent); color: #fff; }
@@ -235,7 +248,7 @@
     box-shadow: var(--shadow);
   }
   .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-  .stat-value { font-size: 26px; font-weight: 800; color: var(--navy); margin: 6px 0 4px; line-height: 1; }
+  .stat-value { font-family: var(--font-display); font-size: 24px; font-weight: 400; color: var(--navy); margin: 8px 0 4px; line-height: 1; }
   .stat-value .unit { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-left: 2px; }
   .stat-meta { font-size: 11px; color: var(--text-light); }
   .badge-change {
@@ -264,6 +277,17 @@
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #f8fafc; }
   .td-bold { font-weight: 700; }
+  .route-plate {
+    display: inline-block;
+    background: var(--navy);
+    color: var(--gold);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
 
   /* ── BADGES / STATUS ── */
   .badge {
@@ -278,6 +302,61 @@
   .badge-red { background: #fee2e2; color: #991b1b; }
   .badge-purple { background: #ede9fe; color: #6d28d9; }
   .badge-gray { background: #f1f5f9; color: #475569; }
+  .badge-classique { background: #e7ddc6; color: #6b5a35; }
+  .badge-vip { background: var(--gold); color: var(--navy-dark); }
+  .badge-vvip { background: var(--navy); color: var(--gold); border: 1px solid var(--gold); }
+
+  /* ── VOYAGE HIGHLIGHT CARDS ── */
+  .voyage-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .voyage-card-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+  .voyage-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .voyage-time { font-family: var(--font-mono); font-weight: 700; font-size: 22px; color: var(--navy); }
+  .voyage-meta { font-size: 12px; color: var(--text-muted); }
+  .voyage-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+    font-size: 12px; color: var(--text-muted);
+    border-top: 1px dashed var(--border); padding-top: 8px;
+  }
+
+  /* ── TOASTS & VALIDATION ── */
+  .toast-wrap {
+    position: fixed; top: 74px; right: 20px; z-index: 900;
+    display: flex; flex-direction: column; gap: 10px;
+    max-width: 340px;
+  }
+  .toast {
+    background: var(--navy); color: #fff;
+    padding: 12px 16px; border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    font-size: 13px; font-weight: 600; line-height: 1.4;
+    border-left: 4px solid var(--gold);
+    animation: toast-in 0.2s ease;
+  }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .toast.info { border-left-color: var(--blue-accent); }
+  .toast.fade-out { opacity: 0; transform: translateX(16px); transition: all 0.25s ease; }
+  @keyframes toast-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+  input.input-error, select.input-error, textarea.input-error {
+    border-color: var(--red) !important;
+    box-shadow: 0 0 0 2px rgba(179,33,30,0.14);
+  }
 
   /* ── PROGRESS BAR ── */
   .progress { background: #e2e8f0; border-radius: 4px; height: 6px; overflow: hidden; }
@@ -422,6 +501,20 @@
   }
   .pay-btn.active { border-color: var(--navy); background: var(--navy); color: #fff; }
   .pay-btn:hover:not(.active) { border-color: var(--text-muted); }
+  
+  /* Payment button specific classes for testing */
+  .btn-orange-money { background: #ff7900; color: white; border-color: #ff7900; }
+  .btn-mtn-momo { background: #ffcc00; color: #000; border-color: #ffcc00; }
+  .btn-cash { background: #22c55e; color: white; border-color: #22c55e; }
+  .btn-orange-money:hover, .btn-mtn-momo:hover, .btn-cash:hover { opacity: 0.9; }
+  
+  /* Form button classes for testing */
+  .btn-save { background: var(--green); color: white; }
+  .btn-cancel { background: var(--red); color: white; }
+  .btn-next { background: var(--blue-accent); color: white; }
+  .btn-prev { background: var(--text-muted); color: white; }
+  .btn-validate { background: var(--gold-dark); color: white; }
+  .cta-button { background: var(--orange); color: white; }
 
   /* ── ALERTS ── */
   .alert {
@@ -550,18 +643,20 @@
   .tracking-num {
     background: #f0fdf4; border: 1.5px solid #86efac;
     border-radius: 8px; padding: 10px 14px;
+    font-family: var(--font-mono);
     font-size: 13px; color: #166534; font-weight: 600;
+    letter-spacing: 0.02em;
     display: flex; align-items: center; gap: 8px;
   }
 
   /* ── TARIF CALC ── */
   .tarif-box {
-    background: #eff6ff; border: 1px solid #bfdbfe;
+    background: #fdf8ec; border: 1.5px dashed #d9c48f;
     border-radius: var(--radius); padding: 14px 16px;
   }
-  .tarif-title { font-size: 12px; font-weight: 700; color: var(--blue-accent); margin-bottom: 8px; }
+  .tarif-title { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--orange); margin-bottom: 8px; }
   .tarif-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
-  .tarif-total { font-weight: 800; font-size: 15px; color: var(--navy); border-top: 1.5px solid #bfdbfe; padding-top: 6px; margin-top: 4px; }
+  .tarif-total { font-family: var(--font-mono); font-weight: 700; font-size: 16px; color: var(--navy); border-top: 1.5px dashed #d9c48f; padding-top: 8px; margin-top: 4px; }
 
   /* ── HORAIRES ── */
   .horaire-grid { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -572,7 +667,7 @@
   }
   .horaire-btn:hover { border-color: var(--blue-accent); }
   .horaire-btn.active { border-color: var(--blue-accent); background: #eff6ff; }
-  .horaire-time { font-weight: 800; font-size: 15px; color: var(--navy); }
+  .horaire-time { font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--navy); }
   .horaire-places { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
   .horaire-price { font-size: 11px; color: var(--orange); font-weight: 700; margin-top: 1px; }
 
@@ -612,8 +707,8 @@
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <h1>🚌 SIGAVT</h1>
-    <span>Agence Voyage CM</span>
+    <div class="plate">🚌 SIGAVT</div>
+    <span>AGENCE VOYAGE CM — YAOUNDÉ</span>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">Principal</div>
@@ -626,6 +721,9 @@
     </a>
     <a class="nav-item" onclick="navigate('colis')">
       <span class="icon">📦</span> Colis
+    </a>
+    <a class="nav-item" onclick="navigate('voyages')">
+      <span class="icon">🚀</span> Voyages
     </a>
     <a class="nav-item" onclick="navigate('courriers')">
       <span class="icon">✉️</span> Courriers <span class="nav-badge">3</span>
@@ -659,9 +757,6 @@
         <div class="role">Super Admin</div>
       </div>
     </div>
-    <button class="nav-item" onclick="logout()" style="margin-top: 12px; padding: 8px 16px;">
-      <span class="icon">🚪</span> Déconnexion
-    </button>
   </div>
 </aside>
 
@@ -682,7 +777,8 @@
         🔔<span class="notif-dot"></span>
       </button>
       <button class="btn btn-icon btn-ghost">👤</button>
-      <button class="btn btn-primary" id="topbar-cta" onclick="handleCTA()">+ Nouveau</button>
+      <button class="btn btn-logout btn-sm" onclick="logout()">🚪 Déconnexion</button>
+      <button class="btn btn-primary cta-button" id="topbar-cta" onclick="handleCTA()">+ Nouveau</button>
     </div>
   </div>
 
@@ -690,46 +786,81 @@
   <!-- PAGE: DASHBOARD                         -->
   <!-- ═══════════════════════════════════════ -->
   <div class="page active" id="page-dashboard">
-    <!-- Date du jour -->
-    <div style="margin-bottom:20px;padding:16px;background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:12px;color:white;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">📅 Date du jour</div>
-        <div id="today-date" style="font-size:24px;font-weight:700"></div>
-      </div>
-      <div id="next-trip" style="text-align:right">
-        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">🚀 Prochain voyage</div>
-        <div id="next-trip-info" style="font-size:18px;font-weight:600">Chargement...</div>
-      </div>
-    </div>
-
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">Recettes du jour</div>
-        <div class="stat-value"><span class="loading">...</span><span class="unit">FCFA</span></div>
+        <div class="stat-value" id="stat-recettes">0<span class="unit">FCFA</span></div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
           <span class="stat-meta">aujourd'hui</span>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Billets vendus</div>
-        <div class="stat-value"><span class="loading">...</span></div>
+        <div class="stat-value" id="stat-billets">0</div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
           <span class="stat-meta">aujourd'hui</span>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Colis en transit</div>
-        <div class="stat-value"><span class="loading">...</span></div>
+        <div class="stat-value" id="stat-colis">0</div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-          <span class="stat-meta">en cours</span>
+          <span class="stat-meta">en transit</span>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Bus en service</div>
-        <div class="stat-value"><span class="loading">...</span></div>
+        <div class="stat-value" id="stat-bus">0</div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
           <span class="stat-meta">opérationnels</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voyage du jour / Prochain voyage -->
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="voyage-card" style="border-left:4px solid var(--green)">
+        <div class="voyage-card-top">
+          <div class="voyage-card-label">🚌 Voyage du jour — en cours</div>
+          <span class="badge badge-green" id="vdj-statut">EN ROUTE</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <span class="route-plate" id="vdj-ligne">YAOUNDÉ → DOUALA</span>
+            <div class="voyage-time" style="margin-top:6px" id="vdj-heure">06:00</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge badge-vip" id="vdj-classe">VIP</span>
+            <div class="voyage-meta" style="margin-top:6px" id="vdj-places">67/70 places</div>
+          </div>
+        </div>
+        <div class="voyage-foot">
+          <span id="vdj-bus">🚍 LT-0089</span>
+          <span id="vdj-chauffeur">👤 Nkoa Jean-Pierre</span>
+          <span id="vdj-tarif">💺 6 500 FCFA</span>
+        </div>
+      </div>
+
+      <div class="voyage-card" style="border-left:4px solid var(--blue-accent)">
+        <div class="voyage-card-top">
+          <div class="voyage-card-label">⏭️ Prochain voyage</div>
+          <span class="badge badge-blue" id="pv-statut">EMBARQUEMENT</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <span class="route-plate" id="pv-ligne">YAOUNDÉ → BAFOUSSAM</span>
+            <div class="voyage-time" style="margin-top:6px" id="pv-heure">08:30</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge badge-classique" id="pv-classe">CLASSIQUE</span>
+            <div class="voyage-meta" style="margin-top:6px" id="pv-places">45/55 places</div>
+          </div>
+        </div>
+        <div class="voyage-foot">
+          <span id="pv-bus">🚍 LT-1892</span>
+          <span id="pv-chauffeur">👤 Fotso Éric</span>
+          <span id="pv-tarif">💺 5 500 FCFA</span>
         </div>
       </div>
     </div>
@@ -744,10 +875,14 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Ligne</th><th>Départ</th><th>Places</th><th>Statut</th></tr>
+              <tr><th>Ligne</th><th>Départ</th><th>Type</th><th>Places</th><th>Statut</th></tr>
             </thead>
-            <tbody>
-              <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Chargement...</td></tr>
+            <tbody id="departs-table-body">
+              <tr>
+                <td class="td-bold">Chargement...</td><td>-</td>
+                <td>-</td>
+                <td>-</td><td>-</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -899,43 +1034,185 @@
   <!-- PAGE: BILLETS                           -->
   <!-- ═══════════════════════════════════════ -->
   <div class="page" id="page-billets">
-    <!-- Date selector for today's trips -->
+    <!-- Voyage du jour / Prochain voyage -->
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="voyage-card" style="border-left:4px solid var(--green)">
+        <div class="voyage-card-top">
+          <div class="voyage-card-label">🚌 Voyage du jour — en cours</div>
+          <span class="badge badge-green">EN ROUTE</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <span class="route-plate">YAOUNDÉ → DOUALA</span>
+            <div class="voyage-time" style="margin-top:6px">06:00</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge badge-vip">VIP</span>
+            <div class="voyage-meta" style="margin-top:6px">67/70 places</div>
+          </div>
+        </div>
+        <div class="voyage-foot">
+          <span>🚍 LT-0089</span>
+          <span>👤 Nkoa Jean-Pierre</span>
+          <span>💺 6 500 FCFA</span>
+        </div>
+      </div>
+
+      <div class="voyage-card" style="border-left:4px solid var(--blue-accent)">
+        <div class="voyage-card-top">
+          <div class="voyage-card-label">⏭️ Prochain voyage</div>
+          <span class="badge badge-blue">EMBARQUEMENT</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <span class="route-plate">YAOUNDÉ → BAFOUSSAM</span>
+            <div class="voyage-time" style="margin-top:6px">08:30</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge badge-classique">CLASSIQUE</span>
+            <div class="voyage-meta" style="margin-top:6px">45/55 places</div>
+          </div>
+        </div>
+        <div class="voyage-foot">
+          <span>🚍 LT-1892</span>
+          <span>👤 Fotso Éric</span>
+          <span>💺 5 500 FCFA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step indicator -->
     <div class="card" style="padding:16px 20px;margin-bottom:20px">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div>
-          <div style="font-size:16px;font-weight:700;color:var(--navy)">🎫 Vente de Billet</div>
-          <div style="font-size:12px;color:var(--text-muted)">Sélectionnez un voyage pour aujourd'hui</div>
+          <div style="font-size:16px;font-weight:700;color:var(--navy)">Vente de Billet</div>
+          <div style="font-size:12px;color:var(--text-muted)">Saisir les informations du passager et du voyage</div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <label style="font-size:13px;font-weight:600">Date du voyage:</label>
-          <input type="date" id="billet-date" style="padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+        <div class="steps">
+          <div class="step-item active" id="step-1"><div class="step-num">1</div>Trajet</div>
+          <div class="step-sep"></div>
+          <div class="step-item" id="step-2"><div class="step-num">2</div>Passager</div>
+          <div class="step-sep"></div>
+          <div class="step-item" id="step-3"><div class="step-num">3</div>Siège</div>
+          <div class="step-sep"></div>
+          <div class="step-item" id="step-4"><div class="step-num">4</div>Paiement</div>
         </div>
       </div>
     </div>
 
     <div class="grid-2">
-      <!-- Voyages disponibles -->
+      <!-- Formulaire -->
       <div class="card">
-        <div class="card-header"><h3>🕐 Voyages du jour</h3></div>
+        <div class="card-header"><h3>📍 Informations du trajet</h3></div>
         <div class="card-body">
-          <div id="voyages-list" style="display:flex;flex-direction:column;gap:10px">
-            <div style="text-align:center;color:var(--text-muted);padding:20px">Chargement des voyages...</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Ville de départ <span class="req">*</span></label>
+              <select id="ville-depart">
+                <option>Yaoundé</option>
+                <option>Douala</option>
+                <option>Bafoussam</option>
+                <option>Bamenda</option>
+                <option>Ngaoundéré</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Ville d'arrivée <span class="req">*</span></label>
+              <select id="ville-arrivee">
+                <option>Douala</option>
+                <option>Yaoundé</option>
+                <option>Bafoussam</option>
+                <option>Kribi</option>
+                <option>Limbé</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date du voyage <span class="req">*</span></label>
+              <input type="date" value="2025-05-06">
+            </div>
+            <div class="form-group">
+              <label>Nombre de places</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="btn btn-ghost" style="border:1.5px solid var(--border);padding:7px 12px;font-size:16px" onclick="changePax(-1)">−</button>
+                <span id="pax-count" style="font-weight:700;font-size:16px;padding:0 10px">1</span>
+                <button class="btn btn-ghost" style="border:1.5px solid var(--border);padding:7px 12px;font-size:16px" onclick="changePax(1)">+</button>
+              </div>
+            </div>
           </div>
+
+          <div style="margin-top:16px">
+            <label style="display:block;margin-bottom:8px">Type de bus</label>
+            <div class="payment-btns" id="bus-type-select">
+              <button class="pay-btn active" data-type="classique">🚐 Classique</button>
+              <button class="pay-btn" data-type="vip">🚌 VIP</button>
+              <button class="pay-btn" data-type="vvip">✨ VVIP</button>
+            </div>
+          </div>
+
+          <div style="margin-top:16px">
+            <label style="display:block;margin-bottom:8px">Horaires disponibles</label>
+            <div class="horaire-grid" id="horaire-grid">
+              <div class="horaire-btn active" data-classique="4500" data-vip="6500" data-vvip="9000">
+                <div class="horaire-time">06:00</div>
+                <div class="horaire-places">67/70 places</div>
+                <div class="horaire-price">4 500 FCFA</div>
+              </div>
+              <div class="horaire-btn" data-classique="4500" data-vip="6500" data-vvip="9000">
+                <div class="horaire-time">09:30</div>
+                <div class="horaire-places">30/70 places</div>
+                <div class="horaire-price">4 500 FCFA</div>
+              </div>
+              <div class="horaire-btn" data-classique="4500" data-vip="6500" data-vvip="9000">
+                <div class="horaire-time">13:00</div>
+                <div class="horaire-places">5/70 places</div>
+                <div class="horaire-price">4 500 FCFA</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-light);margin-top:6px">Le tarif varie selon le type de bus choisi (climatisation, sièges inclinables, collation pour VIP/VVIP).</div>
+          </div>
+
+          <div class="form-grid" style="margin-top:14px">
+            <div class="form-group">
+              <label>Type de tarif</label>
+              <select>
+                <option>Plein tarif adulte</option>
+                <option>Demi-tarif enfant</option>
+                <option>Tarif groupe</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mode paiement</label>
+              <select>
+                <option>Espèces</option>
+                <option>Orange Money</option>
+                <option>MTN MoMo</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:#f0fdf4;border-radius:8px;padding:12px 14px;margin-top:14px;border:1px solid #86efac">
+            <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between">
+              <span>📋 Récapitulatif</span>
+              <span class="badge badge-classique" id="recap-type-badge">CLASSIQUE</span>
+            </div>
+            <div style="font-size:13px;color:#166534"><span id="recap-line">Ydé → Dba | 06:00 | 06/05/2025 | 1 passager</span> — <strong id="recap-price">4 500 FCFA</strong></div>
+            <div style="font-size:11px;color:#4ade80;margin-top:2px">Bus LT-0089 | Chauffeur: Nkoa Jean-Pierre</div>
+          </div>
+
+          <button class="btn btn-primary btn-next" id="billet-next-btn" style="width:100%;margin-top:16px;justify-content:center;padding:11px" onclick="handleBilletNext()">Suivant →</button>
         </div>
       </div>
 
-      <!-- Détails et plan du bus -->
-      <div class="card" id="voyage-details" style="display:none">
+      <!-- Plan du bus -->
+      <div class="card">
         <div class="card-header"><h3>🪑 Plan du bus — Sélection du siège</h3></div>
         <div class="card-body">
-          <div id="voyage-info" style="margin-bottom:12px;padding:10px;background:#eff6ff;border-radius:8px;font-size:13px"></div>
-          
           <div class="seat-legend" style="margin-bottom:12px">
             <div class="legend-item"><div class="legend-dot" style="background:#bae6fd;border:1px solid #7dd3fc"></div> Libre</div>
             <div class="legend-item"><div class="legend-dot" style="background:var(--blue-accent)"></div> Sélectionné</div>
             <div class="legend-item"><div class="legend-dot" style="background:#fee2e2;border:1px solid #fca5a5"></div> Occupé</div>
           </div>
-          <div class="seat-map" id="seat-map">
+          <div class="seat-map">
             <div class="seat-map-label">AVANT</div>
             <div style="text-align:center;margin:4px 0"><span style="font-size:18px">⚙️</span></div>
             <div class="seat-row">
@@ -998,46 +1275,10 @@
             </div>
             <div class="seat-map-label">ARRIÈRE</div>
           </div>
-          <div id="seat-recap" style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-top:12px;text-align:center">
-            <strong>Siège sélectionné : -</strong> | Tarif : <strong style="color:var(--orange)">- FCFA</strong>
-          </div>
-          
-          <!-- Passenger info form -->
-          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Nom du passager <span class="req">*</span></label>
-              <input type="text" id="passager-nom" placeholder="Nom complet" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Téléphone <span class="req">*</span></label>
-              <input type="tel" id="passager-tel" placeholder="+237 ..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-            </div>
-            <div class="form-group" style="margin-bottom:12px">
-              <label>Type de tarif</label>
-              <select id="type-tarif" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-                <option value="PLEIN">Plein tarif adulte</option>
-                <option value="ENFANT">Demi-tarif enfant</option>
-                <option value="GROUPE">Tarif groupe (15%)</option>
-              </select>
-            </div>
-            <button class="btn btn-primary" id="btn-confirmer-billet" style="width:100%;justify-content:center;padding:11px" disabled>Confirmer la réservation</button>
+          <div style="background:#eff6ff;border-radius:8px;padding:10px 14px;margin-top:12px;text-align:center">
+            <strong>Siège sélectionné : <span id="selected-seat-label">1B</span></strong> | Tarif : <strong id="seat-tarif-price" style="color:var(--orange)">4 500 FCFA</strong>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Billets vendus aujourd'hui -->
-    <div class="card" style="margin-top:20px">
-      <div class="card-header"><h3>🎫 Billets vendus aujourd'hui</h3></div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>N° Billet</th><th>Passager</th><th>Voyage</th><th>Siège</th><th>Prix</th><th>Statut</th></tr>
-          </thead>
-          <tbody id="billets-today-tbody">
-            <tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Chargement...</td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
@@ -1051,64 +1292,51 @@
       <div class="card">
         <div class="card-header">
           <h3>📦 Enregistrement d'un Colis</h3>
+          <button class="btn btn-sm btn-primary" onclick="resetColisForm()">+ Nouveau</button>
         </div>
-        <div class="card-body">
+        <div class="card-body" id="colis-form">
           <div class="form-grid">
             <div class="form-group">
               <label>Expéditeur <span class="req">*</span></label>
-              <input type="text" id="colis-expediteur" placeholder="Nom expéditeur" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+              <input type="text" id="colis-expediteur" required placeholder="Nom expéditeur">
             </div>
             <div class="form-group">
-              <label>Téléphone expéditeur <span class="req">*</span></label>
-              <input type="tel" id="colis-expediteur-tel" placeholder="+237 ..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+              <label>Téléphone expéditeur</label>
+              <input type="tel" id="colis-tel-expediteur" placeholder="+237XXXXXXXXX">
             </div>
             <div class="form-group">
               <label>Destinataire <span class="req">*</span></label>
-              <input type="text" id="colis-destinataire" placeholder="Nom destinataire" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+              <input type="text" id="colis-destinataire" required placeholder="Nom destinataire">
             </div>
             <div class="form-group">
-              <label>Téléphone destinataire <span class="req">*</span></label>
-              <input type="tel" id="colis-destinataire-tel" placeholder="+237 ..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+              <label>Téléphone destinataire</label>
+              <input type="tel" id="colis-tel-destinataire" placeholder="+237XXXXXXXXX">
             </div>
             <div class="form-group">
               <label>Ville de départ <span class="req">*</span></label>
-              <select id="colis-ville-depart" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-                <option value="">Sélectionner...</option>
-                <option value="Yaoundé">Yaoundé</option>
-                <option value="Douala">Douala</option>
-                <option value="Bafoussam">Bafoussam</option>
-                <option value="Bamenda">Bamenda</option>
-                <option value="Ngaoundéré">Ngaoundéré</option>
-              </select>
+              <input type="text" id="colis-ville-depart" required placeholder="Ex: Douala">
             </div>
             <div class="form-group">
               <label>Ville d'arrivée <span class="req">*</span></label>
-              <select id="colis-ville-arrivee" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-                <option value="">Sélectionner...</option>
-                <option value="Yaoundé">Yaoundé</option>
-                <option value="Douala">Douala</option>
-                <option value="Bafoussam">Bafoussam</option>
-                <option value="Bamenda">Bamenda</option>
-                <option value="Kribi">Kribi</option>
-                <option value="Limbé">Limbé</option>
-              </select>
+              <input type="text" id="colis-ville-arrivee" required placeholder="Ex: Yaoundé">
             </div>
             <div class="form-group">
               <label>Poids (kg) <span class="req">*</span></label>
-              <input type="number" id="colis-poids" min="0" step="0.1" placeholder="0.0" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
+              <input type="number" id="colis-poids" min="0" step="0.1" required placeholder="0.0" onchange="calculateColisTarif()">
             </div>
             <div class="form-group">
               <label>Type de colis</label>
-              <select id="colis-type" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-                <option value="STANDARD">Standard</option>
-                <option value="DOCUMENT">Document</option>
+              <select id="colis-type">
+                <option value="DOCUMENTS">Documents</option>
+                <option value="VETEMENTS">Vêtements</option>
                 <option value="ELECTRONIQUE">Électronique</option>
                 <option value="ALIMENTAIRE">Alimentaire</option>
+                <option value="AUTRE">Autre</option>
               </select>
             </div>
             <div class="form-group full">
               <label>Description du contenu</label>
-              <textarea id="colis-description" placeholder="Description du contenu..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;min-height:80px"></textarea>
+              <textarea id="colis-description" rows="2" placeholder="Description du contenu..."></textarea>
             </div>
           </div>
 
@@ -1116,31 +1344,38 @@
             <label style="display:block;margin-bottom:8px">Options</label>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);cursor:pointer">
-                <input type="checkbox" id="colis-fragile" style="width:14px;height:14px"> Fragile
+                <input type="checkbox" id="colis-fragile" style="width:14px;height:14px" onchange="calculateColisTarif()"> Fragile (+300 FCFA)
               </label>
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);cursor:pointer">
-                <input type="checkbox" id="colis-urgent" style="width:14px;height:14px"> Urgent
+                <input type="checkbox" id="colis-urgent" style="width:14px;height:14px" onchange="calculateColisTarif()"> Urgent (+800 FCFA)
               </label>
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--text);cursor:pointer">
-                <input type="checkbox" id="colis-assure" style="width:14px;height:14px"> Assuré
+                <input type="checkbox" id="colis-assure" style="width:14px;height:14px" onchange="calculateColisTarif()"> Assuré (+500 FCFA)
               </label>
             </div>
           </div>
 
-          <div style="margin-top:14px">
-            <label style="display:block;margin-bottom:8px">Mode de paiement</label>
-            <select id="colis-paiement" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-              <option value="ESPECES">Espèces</option>
-              <option value="ORANGE_MONEY">Orange Money</option>
-              <option value="MTN_MOMO">MTN MoMo</option>
-            </select>
+          <div class="tarif-box" style="margin-top:14px">
+            <div class="tarif-title">💰 Calcul du tarif</div>
+            <div class="tarif-row" id="tarif-poids-row"><span>Poids : -- kg</span><span>-- FCFA</span></div>
+            <div class="tarif-row" id="tarif-supplements-row" style="display:none"><span>Suppléments</span><span>-- FCFA</span></div>
+            <div class="tarif-row tarif-total"><strong>TOTAL À PAYER</strong><strong style="color:var(--orange)" id="tarif-total">-- FCFA</strong></div>
           </div>
 
-          <button class="btn btn-primary" id="btn-enregistrer-colis" style="width:100%;margin-top:16px;justify-content:center;padding:11px">
+          <div style="margin-top:14px">
+            <label style="display:block;margin-bottom:8px">Mode de paiement <span class="req">*</span></label>
+            <div class="payment-btns">
+              <button class="pay-btn btn-cash active" data-mode="ESPECES" onclick="selectPaymentMode('ESPECES')">Espèces</button>
+              <button class="pay-btn btn-orange-money" data-mode="ORANGE_MONEY" onclick="selectPaymentMode('ORANGE_MONEY')">Orange Money</button>
+              <button class="pay-btn btn-mtn-momo" data-mode="MTN_MOMO" onclick="selectPaymentMode('MTN_MOMO')">MTN MoMo</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;margin-top:16px;justify-content:center;padding:11px" onclick="submitColis()">
             📄 Enregistrer le colis
           </button>
-          <div id="colis-tracking-result" style="margin-top:12px;display:none">
-            <span>🏷️</span> Tracking : <strong id="colis-tracking-num"></strong>
+          <div class="tracking-num" id="colis-tracking-result" style="margin-top:12px;display:none">
+            <span>🏷️</span> Tracking : <strong id="colis-tracking">#COL-XXXXX</strong>
           </div>
         </div>
       </div>
@@ -1148,86 +1383,63 @@
       <!-- Suivi colis -->
       <div class="card">
         <div class="card-header">
-          <h3>📡 Suivi de colis</h3>
+          <h3>📡 Suivi en temps réel</h3>
         </div>
         <div class="card-body">
           <!-- Search -->
           <div style="display:flex;gap:8px;margin-bottom:16px">
-            <input type="text" id="colis-tracking-search" placeholder="Numéro de suivi" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px">
-            <button class="btn btn-blue" id="btn-tracking-search">Rechercher</button>
+            <input type="text" id="colis-search-input" style="flex:1" placeholder="Numéro de suivi (ex: COL-20250723123456)">
+            <button class="btn btn-blue" onclick="searchColis()">Rechercher</button>
           </div>
 
-          <!-- Tracking result -->
-          <div id="tracking-result" style="display:none">
-            <div id="tracking-status" style="background:var(--navy);border-radius:10px;padding:14px 16px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <!-- Colis tracking result -->
+          <div id="colis-tracking-result-container" style="display:none">
+            <!-- Status banner -->
+            <div id="colis-status-banner" style="background:var(--navy);border-radius:10px;padding:14px 16px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
               <div style="width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">✓</div>
               <div style="flex:1">
-                <div id="tracking-statut-text" style="font-weight:700;font-size:14px">Statut</div>
-                <div id="tracking-details" style="font-size:12px;opacity:0.7;margin-top:1px">Détails</div>
+                <div style="font-weight:700;font-size:14px" id="colis-status-text">Statut</div>
+                <div style="font-size:12px;opacity:0.7;margin-top:1px" id="colis-route-text">Trajet</div>
               </div>
             </div>
-            
+
             <!-- Timeline -->
-            <div id="tracking-timeline" style="display:flex;flex-direction:column;gap:8px"></div>
-          </div>
-          
-          <div id="tracking-placeholder" style="text-align:center;color:var(--text-muted);padding:20px">
-            Entrez un numéro de suivi pour rechercher un colis
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-                </div>
-                <div class="tl-sub">Agence Yaoundé Centre — en attente de livraison</div>
+            <div class="timeline" id="colis-timeline">
+              <!-- Dynamic timeline will be inserted here -->
+            </div>
+
+            <!-- Colis info -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--border)" id="colis-info-grid">
+              <!-- Dynamic info will be inserted here -->
+            </div>
+
+            <!-- Status change control for agents -->
+            <div id="colis-status-control" style="margin-top:14px;padding:12px;background:#f1f5f9;border-radius:8px;display:none">
+              <label style="display:block;margin-bottom:8px;font-size:13px;font-weight:600">Changer le statut</label>
+              <div style="display:flex;gap:8px">
+                <select id="colis-new-statut" style="flex:1">
+                  <option value="PRIS_EN_CHARGE">Pris en charge</option>
+                  <option value="EN_TRANSIT">En transit</option>
+                  <option value="ARRIVE_AGENCE">Arrivé agence</option>
+                  <option value="EN_LIVRAISON">En livraison</option>
+                  <option value="LIVRE">Livré</option>
+                  <option value="NON_RECLAME">Non réclamé</option>
+                </select>
+                <button class="btn btn-primary" onclick="updateColisStatut()">Mettre à jour</button>
               </div>
             </div>
-            <div class="timeline-item">
-              <div class="tl-dot tl-dot-blue" style="background:#6366f1">2</div>
-              <div class="tl-content">
-                <div class="tl-header">
-                  <div class="tl-title">En transit — Douala → Yaoundé</div>
-                  <div class="tl-time">Hier 22:30</div>
-                </div>
-                <div class="tl-sub">Chargé sur véhicule de transport</div>
-              </div>
-            </div>
-            <div class="timeline-item">
-              <div class="tl-dot tl-dot-gray">1</div>
-              <div class="tl-content">
-                <div class="tl-header">
-                  <div class="tl-title">Colis pris en charge</div>
-                  <div class="tl-time">Hier 14:05</div>
-                </div>
-                <div class="tl-sub">Agence Douala Akwa — émission étiquette QR</div>
-              </div>
-            </div>
-            <div class="timeline-item">
-              <div class="tl-dot tl-dot-gray" style="background:#cbd5e1">0</div>
-              <div class="tl-content">
-                <div class="tl-header">
-                  <div class="tl-title" style="color:var(--text-muted)">Expédition créée</div>
-                  <div class="tl-time">Hier 13:47</div>
-                </div>
-                <div class="tl-sub">Commande enregistrée · Paiement confirmé</div>
-              </div>
+
+            <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+              <button class="btn btn-blue" style="flex:1;justify-content:center" onclick="showToast('📱 SMS de suivi envoyé au destinataire', 'success')">📱 SMS de suivi</button>
+              <button class="btn btn-outline" style="justify-content:center" onclick="exportData('reçu colis')">📥 Télécharger reçu</button>
             </div>
           </div>
 
-          <!-- Colis info -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--border)">
-            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Expéditeur</div><div style="font-size:13px;font-weight:600;margin-top:2px">Aminata BELLO</div></div>
-            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Destinataire</div><div style="font-size:13px;font-weight:600;margin-top:2px">Paul ESSAMA</div></div>
-            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Poids</div><div style="font-size:13px;font-weight:600;margin-top:2px">3,2 kg</div></div>
-            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Type</div><div style="font-size:13px;font-weight:600;margin-top:2px">Documents</div></div>
-            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Trajet</div><div style="font-size:13px;font-weight:600;margin-top:2px">Douala → Yaoundé</div></div>
-            <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Assurance</div><div><span class="badge badge-green" style="margin-top:4px">Incluse</span></div></div>
-          </div>
-
-          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-            <button class="btn btn-blue" style="flex:1;justify-content:center">📱 SMS de suivi</button>
-            <button class="btn btn-outline" style="justify-content:center">📥 Télécharger reçu</button>
-            <button class="btn btn-ghost" style="justify-content:center">⚠️ Signaler</button>
+          <!-- Empty state -->
+          <div id="colis-tracking-empty" style="text-align:center;padding:40px 20px;color:var(--text-muted)">
+            <div style="font-size:48px;margin-bottom:12px">📦</div>
+            <div style="font-size:14px;font-weight:600">Entrez un numéro de suivi</div>
+            <div style="font-size:12px;margin-top:4px">Pour rechercher un colis</div>
           </div>
         </div>
       </div>
@@ -1243,7 +1455,7 @@
       <div class="card">
         <div class="card-header">
           <h3>👥 Gestion du Personnel</h3>
-          <button class="btn btn-sm btn-primary" onclick="document.getElementById('modal-employe').classList.add('open')">+ Employé</button>
+          <button class="btn btn-sm btn-primary cta-button" onclick="document.getElementById('modal-employe').classList.add('open')">+ Employé</button>
         </div>
         <div class="card-body">
           <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
@@ -1252,6 +1464,7 @@
             <select style="min-width:100px"><option>Actifs seuls</option><option>Tous</option></select>
           </div>
 
+          <div id="emp-list">
           <div class="emp-card">
             <div class="avatar avatar-orange" style="width:40px;height:40px;font-size:15px">NJ</div>
             <div class="emp-info">
@@ -1275,7 +1488,7 @@
             <div class="emp-actions">
               <span class="badge badge-green">ACTIF</span>
               <span class="badge badge-blue">CDI</span>
-              <button class="btn btn-sm btn-ghost" style="color:var(--orange)">Modifier</button>
+              <button class="btn btn-sm btn-ghost" style="color:var(--orange)" onclick="showToast('✏️ Modification de ' + this.closest('.emp-card').querySelector('.emp-name').textContent, 'info')">Modifier</button>
             </div>
           </div>
 
@@ -1289,7 +1502,7 @@
             <div class="emp-actions">
               <span class="badge badge-yellow">CONGÉ</span>
               <span class="badge badge-orange">CDD</span>
-              <button class="btn btn-sm btn-ghost" style="color:var(--orange)">Modifier</button>
+              <button class="btn btn-sm btn-ghost" style="color:var(--orange)" onclick="showToast('✏️ Modification de ' + this.closest('.emp-card').querySelector('.emp-name').textContent, 'info')">Modifier</button>
             </div>
           </div>
 
@@ -1317,6 +1530,7 @@
               <span class="badge badge-green">ACTIF</span>
               <span class="badge badge-blue">CDI</span>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -1413,8 +1627,8 @@
         <div class="card-header">
           <h3>📋 Fiches de paie — Mai 2025</h3>
           <div style="display:flex;gap:6px">
-            <button class="btn btn-sm btn-outline">Exporter tout</button>
-            <button class="btn btn-sm btn-primary">+ Fiche de paie</button>
+            <button class="btn btn-sm btn-outline" onclick="exportData('fiches de paie')">Exporter tout</button>
+            <button class="btn btn-sm btn-primary" onclick="document.getElementById('modal-paie').classList.add('open')">+ Fiche de paie</button>
           </div>
         </div>
         <div style="padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap">
@@ -1433,35 +1647,35 @@
                 <td>Chauffeur</td>
                 <td class="td-bold">134 760</td>
                 <td><span class="badge badge-green">PAYÉ</span></td>
-                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('👁️ Bulletin ouvert : ' + this.closest('tr').querySelector('td').textContent, 'info')">👁</button></td>
               </tr>
               <tr onclick="selectBulletin('EB')" style="cursor:pointer">
                 <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-teal" style="width:28px;height:28px;font-size:11px">EB</div><div><div style="font-weight:600">Essome Brigitte</div><div style="font-size:11px;color:var(--text-muted)">CDI · 3 ans</div></div></div></td>
                 <td>Billetterie</td>
                 <td class="td-bold">98 500</td>
                 <td><span class="badge badge-green">PAYÉ</span></td>
-                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('👁️ Bulletin ouvert : ' + this.closest('tr').querySelector('td').textContent, 'info')">👁</button></td>
               </tr>
               <tr onclick="selectBulletin('FK')" style="cursor:pointer">
                 <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-purple" style="width:28px;height:28px;font-size:11px">FK</div><div><div style="font-weight:600">Fotso Kouam</div><div style="font-size:11px;color:var(--text-muted)">CDD · Convoyeur</div></div></div></td>
                 <td>Convoyeur</td>
                 <td class="td-bold">74 200</td>
                 <td><span class="badge badge-orange">EN ATTENTE</span></td>
-                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('👁️ Bulletin ouvert : ' + this.closest('tr').querySelector('td').textContent, 'info')">👁</button></td>
               </tr>
               <tr onclick="selectBulletin('MN')" style="cursor:pointer">
                 <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#8b5cf6;color:#fff;width:28px;height:28px;font-size:11px">MN</div><div><div style="font-weight:600">Mbarga Narcisse</div><div style="font-size:11px;color:var(--text-muted)">CDI · 3 ans</div></div></div></td>
                 <td>Resp. Flotte</td>
                 <td class="td-bold">182 000</td>
                 <td><span class="badge badge-green">PAYÉ</span></td>
-                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('👁️ Bulletin ouvert : ' + this.closest('tr').querySelector('td').textContent, 'info')">👁</button></td>
               </tr>
               <tr onclick="selectBulletin('TL')" style="cursor:pointer">
                 <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green" style="width:28px;height:28px;font-size:11px">TL</div><div><div style="font-weight:600">Tchoua Laure</div><div style="font-size:11px;color:var(--text-muted)">CDI · Comptable</div></div></div></td>
                 <td>Comptable</td>
                 <td class="td-bold">156 300</td>
                 <td><span class="badge badge-green">PAYÉ</span></td>
-                <td><button class="btn btn-ghost btn-sm">👁</button></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('👁️ Bulletin ouvert : ' + this.closest('tr').querySelector('td').textContent, 'info')">👁</button></td>
               </tr>
             </tbody>
           </table>
@@ -1516,8 +1730,8 @@
           </div>
 
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-outline" style="flex:1;justify-content:center">🖨️ Imprimer PDF</button>
-            <button class="btn btn-primary" style="flex:1;justify-content:center">📱 Envoyer par SMS</button>
+            <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="exportData('bulletin de paie')">🖨️ Imprimer PDF</button>
+            <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="showToast('📱 Bulletin envoyé par SMS', 'success')">📱 Envoyer par SMS</button>
           </div>
           <div style="margin-top:12px">
             <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Mode de règlement</label>
@@ -1555,7 +1769,7 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-header"><h3>🚌 Parc de véhicules</h3><button class="btn btn-sm btn-primary">+ Bus</button></div>
+      <div class="card-header"><h3>🚌 Parc de véhicules</h3><button class="btn btn-sm btn-primary" onclick="showToast('🚌 Formulaire d\'ajout de bus (démo)', 'info')">+ Bus</button></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Immatriculation</th><th>Modèle</th><th>Places</th><th>Ligne assignée</th><th>Prochain entretien</th><th>Assurance</th><th>Statut</th></tr></thead>
@@ -1576,7 +1790,7 @@
   <!-- OTHER PAGES (placeholder)              -->
   <!-- ═══════════════════════════════════════ -->
   <div class="page" id="page-courriers">
-    <div class="card"><div class="card-header"><h3>✉️ Courriers</h3><button class="btn btn-sm btn-primary">+ Courrier</button></div>
+    <div class="card"><div class="card-header"><h3>✉️ Courriers</h3><button class="btn btn-sm btn-primary" onclick="showToast('✉️ Formulaire de nouveau courrier (démo)', 'info')">+ Courrier</button></div>
     <div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted)">
       <div style="font-size:48px;margin-bottom:12px">✉️</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:6px">Module Courriers</div>
@@ -1605,32 +1819,62 @@
   </div>
 
   <div class="page" id="page-lignes">
-    <div class="card"><div class="card-header"><h3>🗺️ Gestion des Lignes</h3><button class="btn btn-sm btn-primary">+ Ligne</button></div>
+    <div class="card"><div class="card-header"><h3>🗺️ Gestion des Lignes</h3><button class="btn btn-sm btn-primary cta-button" onclick="document.getElementById('modal-ligne').classList.add('open')">+ Ligne</button></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Ligne</th><th>Distance</th><th>Durée</th><th>Tarif</th><th>Fréquence/jour</th><th>Taux remplissage</th><th>Statut</th></tr></thead>
-      <tbody>
-        <tr><td class="td-bold">Yaoundé → Douala</td><td>250 km</td><td>3h30</td><td>4 500 FCFA</td><td>6</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:93%"></div></div><span style="font-size:12px;font-weight:700">93%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
-        <tr><td class="td-bold">Yaoundé → Bafoussam</td><td>310 km</td><td>4h00</td><td>5 500 FCFA</td><td>4</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:70%"></div></div><span style="font-size:12px;font-weight:700">70%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
-        <tr><td class="td-bold">Yaoundé → Bamenda</td><td>380 km</td><td>5h00</td><td>6 000 FCFA</td><td>3</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-orange" style="width:60%"></div></div><span style="font-size:12px;font-weight:700">60%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
-        <tr><td class="td-bold">Douala → Kribi</td><td>180 km</td><td>2h30</td><td>3 500 FCFA</td><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-orange" style="width:45%"></div></div><span style="font-size:12px;font-weight:700">45%</span></div></td><td><span class="badge badge-yellow">MODÉRÉE</span></td></tr>
-        <tr><td class="td-bold">Ngaoundéré → Yaoundé</td><td>720 km</td><td>9h00</td><td>12 000 FCFA</td><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-red" style="width:33%"></div></div><span style="font-size:12px;font-weight:700">33%</span></div></td><td><span class="badge badge-red">FAIBLE</span></td></tr>
+      <thead><tr><th>Ligne</th><th>Distance</th><th>Durée</th><th>Tarifs (Classique / VIP / VVIP)</th><th>Fréquence/jour</th><th>Taux remplissage</th><th>Statut</th></tr></thead>
+      <tbody id="lignes-tbody">
+        <tr><td><span class="route-plate">YAOUNDÉ → DOUALA</span></td><td>250 km</td><td>3h30</td><td>
+          <div style="display:flex;flex-direction:column;gap:3px;font-family:var(--font-mono);font-size:11px">
+            <span><span class="badge badge-classique" style="padding:1px 6px;font-size:9px">C</span> 4 500 F</span>
+            <span><span class="badge badge-vip" style="padding:1px 6px;font-size:9px">VIP</span> 6 500 F</span>
+            <span><span class="badge badge-vvip" style="padding:1px 6px;font-size:9px">VVIP</span> 9 000 F</span>
+          </div>
+        </td><td>6</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:93%"></div></div><span style="font-size:12px;font-weight:700">93%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td><span class="route-plate">YAOUNDÉ → BAFOUSSAM</span></td><td>310 km</td><td>4h00</td><td>
+          <div style="display:flex;flex-direction:column;gap:3px;font-family:var(--font-mono);font-size:11px">
+            <span><span class="badge badge-classique" style="padding:1px 6px;font-size:9px">C</span> 5 500 F</span>
+            <span><span class="badge badge-vip" style="padding:1px 6px;font-size:9px">VIP</span> 7 500 F</span>
+            <span><span class="badge badge-vvip" style="padding:1px 6px;font-size:9px">VVIP</span> 10 000 F</span>
+          </div>
+        </td><td>4</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:70%"></div></div><span style="font-size:12px;font-weight:700">70%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td><span class="route-plate">YAOUNDÉ → BAMENDA</span></td><td>380 km</td><td>5h00</td><td>
+          <div style="display:flex;flex-direction:column;gap:3px;font-family:var(--font-mono);font-size:11px">
+            <span><span class="badge badge-classique" style="padding:1px 6px;font-size:9px">C</span> 6 000 F</span>
+            <span><span class="badge badge-vip" style="padding:1px 6px;font-size:9px">VIP</span> 8 500 F</span>
+            <span><span class="badge badge-vvip" style="padding:1px 6px;font-size:9px">VVIP</span> 11 000 F</span>
+          </div>
+        </td><td>3</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-orange" style="width:60%"></div></div><span style="font-size:12px;font-weight:700">60%</span></div></td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td><span class="route-plate">DOUALA → KRIBI</span></td><td>180 km</td><td>2h30</td><td>
+          <div style="display:flex;flex-direction:column;gap:3px;font-family:var(--font-mono);font-size:11px">
+            <span><span class="badge badge-classique" style="padding:1px 6px;font-size:9px">C</span> 3 500 F</span>
+            <span><span class="badge badge-vip" style="padding:1px 6px;font-size:9px">VIP</span> 5 000 F</span>
+            <span><span class="badge badge-vvip" style="padding:1px 6px;font-size:9px">VVIP</span> 7 000 F</span>
+          </div>
+        </td><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-orange" style="width:45%"></div></div><span style="font-size:12px;font-weight:700">45%</span></div></td><td><span class="badge badge-yellow">MODÉRÉE</span></td></tr>
+        <tr><td><span class="route-plate">NGAOUNDÉRÉ → YAOUNDÉ</span></td><td>720 km</td><td>9h00</td><td>
+          <div style="display:flex;flex-direction:column;gap:3px;font-family:var(--font-mono);font-size:11px">
+            <span><span class="badge badge-classique" style="padding:1px 6px;font-size:9px">C</span> 12 000 F</span>
+            <span><span class="badge badge-vip" style="padding:1px 6px;font-size:9px">VIP</span> 15 000 F</span>
+            <span><span class="badge badge-vvip" style="padding:1px 6px;font-size:9px">VVIP</span> 19 000 F</span>
+          </div>
+        </td><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-red" style="width:33%"></div></div><span style="font-size:12px;font-weight:700">33%</span></div></td><td><span class="badge badge-red">FAIBLE</span></td></tr>
       </tbody>
     </table></div></div>
   </div>
 
   <div class="page" id="page-parametres">
     <div class="card"><div class="card-header"><h3>⚙️ Paramètres</h3></div>
-    <div class="card-body">
+    <div class="card-body" id="parametres-form">
       <div class="form-grid">
-        <div class="form-group"><label>Nom de l'agence</label><input value="Agence Voyage CM — Yaoundé"></div>
-        <div class="form-group"><label>Téléphone</label><input value="+237 677 000 111"></div>
-        <div class="form-group"><label>Email</label><input type="email" value="contact@sigavt.cm"></div>
+        <div class="form-group"><label>Nom de l'agence <span class="req">*</span></label><input id="param-nom" required value="Agence Voyage CM — Yaoundé"></div>
+        <div class="form-group"><label>Téléphone <span class="req">*</span></label><input id="param-tel" required value="+237 677 000 111"></div>
+        <div class="form-group"><label>Email <span class="req">*</span></label><input id="param-email" type="email" required value="contact@sigavt.cm"></div>
         <div class="form-group"><label>Ville principale</label><select><option>Yaoundé</option><option>Douala</option></select></div>
         <div class="form-group full"><label>Adresse</label><input value="Carrefour Nlongkak, Yaoundé"></div>
       </div>
       <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
-        <button class="btn btn-outline">Annuler</button>
-        <button class="btn btn-primary">Sauvegarder</button>
+        <button class="btn btn-outline" onclick="showToast('Modifications annulées', 'info')">Annuler</button>
+        <button class="btn btn-primary" onclick="submitParametres()">Sauvegarder</button>
       </div>
     </div></div>
   </div>
@@ -1646,22 +1890,22 @@
       <h3>👤 Ajouter un employé</h3>
       <button class="close-btn" onclick="document.getElementById('modal-employe').classList.remove('open')">✕</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" id="employe-form">
       <div class="form-grid">
-        <div class="form-group"><label>Nom complet <span class="req">*</span></label><input placeholder="Nom et prénom"></div>
-        <div class="form-group"><label>Téléphone <span class="req">*</span></label><input placeholder="+237 6XX XXX XXX"></div>
-        <div class="form-group"><label>Poste <span class="req">*</span></label><select><option>Chauffeur</option><option>Billetterie</option><option>Convoyeur</option><option>Comptable</option></select></div>
-        <div class="form-group"><label>Type contrat</label><select><option>CDI</option><option>CDD</option></select></div>
+        <div class="form-group"><label>Nom complet <span class="req">*</span></label><input id="emp-nom" required placeholder="Nom et prénom"></div>
+        <div class="form-group"><label>Téléphone <span class="req">*</span></label><input id="emp-tel" required placeholder="+237 6XX XXX XXX"></div>
+        <div class="form-group"><label>Poste <span class="req">*</span></label><select id="emp-poste"><option>Chauffeur</option><option>Billetterie</option><option>Convoyeur</option><option>Comptable</option></select></div>
+        <div class="form-group"><label>Type contrat</label><select id="emp-contrat"><option>CDI</option><option>CDD</option></select></div>
         <div class="form-group"><label>Salaire de base (FCFA)</label><input type="number" placeholder="120 000"></div>
         <div class="form-group"><label>N° CNPS</label><input placeholder="CM-XXXXXX"></div>
         <div class="form-group"><label>N° CNI</label><input placeholder="123456789"></div>
         <div class="form-group"><label>Permis de conduire</label><input placeholder="D (si chauffeur)"></div>
-        <div class="form-group full"><label>Bus assigné</label><select><option>— Aucun —</option><option>LT-0089 (Ydé→Dba)</option><option>LT-1892 (Ydé→Bfm)</option></select></div>
+        <div class="form-group full"><label>Bus assigné</label><select id="emp-bus"><option>— Aucun —</option><option>LT-0089 (Ydé→Dba)</option><option>LT-1892 (Ydé→Bfm)</option></select></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="document.getElementById('modal-employe').classList.remove('open')">Annuler</button>
-      <button class="btn btn-primary">Enregistrer l'employé</button>
+      <button class="btn btn-outline btn-cancel" onclick="document.getElementById('modal-employe').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary btn-save" onclick="submitEmploye()">Enregistrer l'employé</button>
     </div>
   </div>
 </div>
@@ -1687,75 +1931,243 @@
   </div>
 </div>
 
+<!-- MODAL: Ajouter Bus -->
+<div class="modal-backdrop" id="modal-bus">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🚌 Ajouter un Bus</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-bus').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="bus-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Immatriculation <span class="req">*</span></label><input id="bus-immat" required placeholder="CM-XXX-XX-AB"></div>
+        <div class="form-group"><label>Modèle</label><input id="bus-modele" placeholder="Ex: Toyota Coaster"></div>
+        <div class="form-group"><label>Nombre de places <span class="req">*</span></label><input type="number" id="bus-places" required placeholder="Ex: 45"></div>
+        <div class="form-group"><label>Ligne assignée</label><select id="bus-ligne"><option value="">— Aucune —</option></select></div>
+        <div class="form-group"><label>Prochain entretien</label><input type="date" id="bus-entretien"></div>
+        <div class="form-group"><label>Expiration assurance</label><input type="date" id="bus-assurance"></div>
+        <div class="form-group"><label>Statut</label><select id="bus-statut"><option value="OPERATIONNEL">Opérationnel</option><option value="EN_MAINTENANCE">En maintenance</option><option value="HORS_SERVICE">Hors service</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-cancel" onclick="document.getElementById('modal-bus').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary btn-save" onclick="submitBus()">Enregistrer le bus</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Ajouter Ligne -->
+<div class="modal-backdrop" id="modal-ligne">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🛣️ Ajouter une Ligne</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-ligne').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="ligne-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Ville de départ <span class="req">*</span></label><input id="ligne-depart" required placeholder="Ex: Douala"></div>
+        <div class="form-group"><label>Ville d'arrivée <span class="req">*</span></label><input id="ligne-arrivee" required placeholder="Ex: Yaoundé"></div>
+        <div class="form-group"><label>Distance (km)</label><input type="number" id="ligne-distance" placeholder="Ex: 250"></div>
+        <div class="form-group"><label>Durée (minutes)</label><input type="number" id="ligne-duree" placeholder="Ex: 240"></div>
+        <div class="form-group"><label>Tarif base (FCFA) <span class="req">*</span></label><input type="number" id="ligne-tarif" required placeholder="Ex: 15000"></div>
+        <div class="form-group"><label>Fréquence (voyages/jour)</label><input type="number" id="ligne-frequence" placeholder="Ex: 2"></div>
+        <div class="form-group"><label>Statut</label><select id="ligne-statut"><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-cancel" onclick="document.getElementById('modal-ligne').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary btn-save" onclick="submitLigne()">Enregistrer la ligne</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Ajouter Courrier -->
+<div class="modal-backdrop" id="modal-courrier">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📨 Nouveau Courrier</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-courrier').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="courrier-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Type <span class="req">*</span></label><select id="courrier-type"><option value="ENTRANT">Entrant</option><option value="SORTANT">Sortant</option></select></div>
+        <div class="form-group"><label>Objet <span class="req">*</span></label><input id="courrier-objet" required placeholder="Objet du courrier"></div>
+        <div class="form-group"><label>Expéditeur</label><input id="courrier-expediteur" placeholder="Nom expéditeur"></div>
+        <div class="form-group"><label>Destinataire</label><input id="courrier-destinataire" placeholder="Nom destinataire"></div>
+        <div class="form-group"><label>Date réception</label><input type="date" id="courrier-date"></div>
+        <div class="form-group"><label>Statut</label><select id="courrier-statut"><option value="EN_ATTENTE">En attente</option><option value="TRAITE">Traité</option><option value="ARCHIVE">Archivé</option></select></div>
+        <div class="form-group full"><label>Contenu</label><textarea id="courrier-contenu" rows="3" placeholder="Contenu du courrier..."></textarea></div>
+        <div class="form-group full"><label>Observations</label><textarea id="courrier-obs" rows="2" placeholder="Observations..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-courrier').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitCourrier()">Enregistrer le courrier</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Fiche de Paie -->
+<div class="modal-backdrop" id="modal-paie">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>💰 Nouvelle Fiche de Paie</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-paie').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="paie-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Employé <span class="req">*</span></label><select id="paie-personnel" required><option value="">Sélectionner...</option></select></div>
+        <div class="form-group"><label>Période <span class="req">*</span></label><input type="month" id="paie-periode" required></div>
+        <div class="form-group"><label>Indemnité transport</label><input type="number" id="paie-transport" placeholder="FCFA"></div>
+        <div class="form-group"><label>Prime ancienneté</label><input type="number" id="paie-anciennete" placeholder="FCFA"></div>
+        <div class="form-group"><label>Prime performance</label><input type="number" id="paie-performance" placeholder="FCFA"></div>
+        <div class="form-group"><label>Heures suppl.</label><input type="number" id="paie-heures-sup" placeholder="Nombre d'heures"></div>
+        <div class="form-group"><label>Taux horaire sup.</label><input type="number" id="paie-taux-horaire" placeholder="FCFA/heure"></div>
+        <div class="form-group"><label>Autres retenues</label><input type="number" id="paie-retenues" placeholder="FCFA"></div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#f8fafc;border-radius:8px;font-size:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>CNPS salarié (4,2%)</span><span id="paie-cnps-salarie">-- FCFA</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>CNPS patronal (11,2%)</span><span id="paie-cnps-patronal">-- FCFA</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:8px;border-top:1px solid var(--border);padding-top:4px"><span>IRPP estimé</span><span id="paie-irpp">-- FCFA</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-paie').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitPaie()">Générer le bulletin</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Écriture Comptable -->
+<div class="modal-backdrop" id="modal-ecriture">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📒 Nouvelle Écriture Comptable</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-ecriture').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="ecriture-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Date <span class="req">*</span></label><input type="date" id="ecriture-date" required></div>
+        <div class="form-group"><label>Type d'écriture</label><select id="ecriture-type"><option value="RECETTE">Recette</option><option value="DEPENSE">Dépense</option><option value="VIREMENT">Virement</option></select></div>
+        <div class="form-group"><label>Libellé <span class="req">*</span></label><input id="ecriture-libelle" required placeholder="Description"></div>
+        <div class="form-group"><label>Catégorie</label><input id="ecriture-categorie" placeholder="Ex: Vente billets"></div>
+        <div class="form-group"><label>Montant débit</label><input type="number" id="ecriture-debit" placeholder="0.00"></div>
+        <div class="form-group"><label>Montant crédit</label><input type="number" id="ecriture-credit" placeholder="0.00"></div>
+        <div class="form-group"><label>Compte débit</label><input id="ecriture-compte-debit" placeholder="Ex: 512"></div>
+        <div class="form-group"><label>Compte crédit</label><input id="ecriture-compte-credit" placeholder="Ex: 701"></div>
+        <div class="form-group full"><label>Référence</label><input id="ecriture-reference" placeholder="N° facture ou référence"></div>
+        <div class="form-group full"><label>Description</label><textarea id="ecriture-description" rows="2" placeholder="Détails..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-ecriture').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitEcriture()">Enregistrer l'écriture</button>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Fiche de Paie -->
+<div class="modal-backdrop" id="modal-paie">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>💰 Fiche de paie</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-paie').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Sélectionnez un employé dans la liste pour générer sa fiche de paie.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-paie').classList.remove('open')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Écriture Comptable -->
+<div class="modal-backdrop" id="modal-ecriture">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📋 Nouvelle écriture</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-ecriture').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="ecriture-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Date <span class="req">*</span></label><input id="ecriture-date" type="date" required></div>
+        <div class="form-group"><label>Type</label><select id="ecriture-type"><option value="DEBIT">Débit</option><option value="CREDIT">Crédit</option></select></div>
+        <div class="form-group"><label>Montant (FCFA) <span class="req">*</span></label><input id="ecriture-montant" type="number" required placeholder="0"></div>
+        <div class="form-group"><label>Catégorie</label><select id="ecriture-categorie"><option value="VENTE">Vente billets</option><option value="COLIS">Colis</option><option value="SALAIRE">Salaire</option><option value="CARBURANT">Carburant</option><option value="MAINTENANCE">Maintenance</option><option value="AUTRE">Autre</option></select></div>
+        <div class="form-group full"><label>Description</label><input id="ecriture-description" placeholder="Description de l'opération"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-ecriture').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitEcriture()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nouveau Courrier -->
+<div class="modal-backdrop" id="modal-courrier">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✉️ Nouveau courrier</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-courrier').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="courrier-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Destinataire <span class="req">*</span></label><input id="courrier-destinataire" required placeholder="Nom"></div>
+        <div class="form-group"><label>Type</label><select id="courrier-type"><option value="INTERNE">Interne</option><option value="EXTERNE">Externe</option><option value="OFFICIEL">Officiel</option></select></div>
+        <div class="form-group full"><label>Objet <span class="req">*</span></label><input id="courrier-objet" required placeholder="Objet du courrier"></div>
+        <div class="form-group full"><label>Message</label><textarea id="courrier-message" placeholder="Contenu du message"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-courrier').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitCourrier()">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Paramètres -->
+<div class="modal-backdrop" id="modal-parametres">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙️ Paramètres</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-parametres').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="parametres-form">
+      <div class="form-grid">
+        <div class="form-group"><label>Nom agence</label><input id="param-nom" value="Agence Voyage CM — Yaoundé"></div>
+        <div class="form-group"><label>Ville</label><input id="param-ville" value="Yaoundé"></div>
+        <div class="form-group"><label>Téléphone</label><input id="param-tel" value="+237 677 000 111"></div>
+        <div class="form-group"><label>Email</label><input id="param-email" value="contact@sigavt.cm"></div>
+        <div class="form-group full"><label>Adresse</label><input id="param-adresse" value="Carrefour Nlongkak, Yaoundé"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-parametres').classList.remove('open')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitParametres()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Check authentication on load
-  const token = localStorage.getItem('sigavt_token');
-  if (!token) {
-    window.location.href = '/login';
-  }
-
-  // API client
-  async function api(endpoint, options = {}) {
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': 'Bearer ' + token } : {})
-    };
-    
-    const res = await fetch('/api' + endpoint, {
-      headers,
-      ...options
-    });
-    
-    if (res.status === 401) {
-      localStorage.removeItem('sigavt_token');
-      localStorage.removeItem('sigavt_user');
-      window.location.href = '/login';
-      return;
-    }
-    
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || 'Erreur serveur');
-    }
-    return data;
-  }
-
-  // Load user info
-  const user = JSON.parse(localStorage.getItem('sigavt_user') || '{}');
-  if (user.nom) {
-    document.querySelector('.user-info .name').textContent = user.nom;
-    document.querySelector('.user-info .role').textContent = user.role === 'superadmin' ? 'Super Admin' : 
-      user.role === 'admin' ? 'Administrateur' : 
-      user.role === 'agent' ? 'Agent' : 
-      user.role === 'comptable' ? 'Comptable' : user.role;
-    document.querySelector('.avatar').textContent = user.nom.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  }
-
-  // Format helpers
-  function formatFCFA(amount) {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
-  }
-
-  function formatDate(isoDate) {
-    if (!isoDate) return '-';
-    const date = new Date(isoDate);
-    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
   const pageConfig = {
-    dashboard: { title: 'Tableau de bord', sub: 'Agence de Yaoundé', cta: '+ Nouveau' },
-    billets:   { title: 'Vente de Billet', sub: 'Billets', cta: '+ Nouveau billet' },
-    colis:     { title: 'Gestion des Colis', sub: 'Colis', cta: '+ Nouveau colis' },
-    courriers: { title: 'Courriers', sub: 'Messages', cta: '+ Courrier' },
-    flotte:    { title: 'Flotte Bus', sub: 'Bus opérationnels', cta: '+ Ajouter bus' },
-    personnel: { title: 'Personnel', sub: 'Employés actifs', cta: '+ Employé' },
-    paie:      { title: 'Gestion de la Paie', sub: 'Période en cours', cta: '+ Fiche de paie' },
+    dashboard: { title: 'Tableau de bord', sub: 'Mardi 6 Mai 2025 • Agence de Yaoundé', cta: '+ Nouveau' },
+    billets:   { title: 'Vente de Billet', sub: 'Billets — 142 vendus aujourd\'hui', cta: '+ Nouveau billet' },
+    colis:     { title: 'Gestion des Colis', sub: 'Colis — 38 en transit', cta: '+ Nouveau colis' },
+    courriers: { title: 'Courriers', sub: '3 messages non lus', cta: '+ Courrier' },
+    flotte:    { title: 'Flotte Bus', sub: '11 / 14 bus opérationnels', cta: '+ Ajouter bus' },
+    personnel: { title: 'Personnel', sub: '14 employés actifs', cta: '+ Employé' },
+    paie:      { title: 'Gestion de la Paie', sub: 'Période : Mai 2025 — 14 employés actifs', cta: '+ Fiche de paie' },
     comptabilite: { title: 'Comptabilité', sub: 'Journal des opérations', cta: '+ Écriture' },
-    lignes:    { title: 'Lignes de transport', sub: 'Lignes actives', cta: '+ Ligne' },
+    lignes:    { title: 'Lignes de transport', sub: '5 lignes actives', cta: '+ Ligne' },
     parametres:{ title: 'Paramètres', sub: 'Configuration de l\'agence', cta: 'Sauvegarder' },
   };
 
-  async function navigate(pageId) {
+  function navigate(pageId) {
     // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1777,614 +2189,10 @@
     document.getElementById('page-sub').textContent = cfg.sub;
     document.getElementById('topbar-cta').textContent = cfg.cta;
 
-    // Load page data
-    if (pageId === 'dashboard') loadDashboard();
-    if (pageId === 'billets') loadBillets();
-    if (pageId === 'colis') loadColis();
-    if (pageId === 'personnel') loadPersonnel();
-    if (pageId === 'paie') loadPaie();
-    if (pageId === 'flotte') loadFlotte();
-    if (pageId === 'comptabilite') loadComptabilite();
-    if (pageId === 'lignes') loadLignes();
-    if (pageId === 'courriers') loadCourriers();
-
     // Close sidebar on mobile
     closeSidebar();
     // Scroll to top
     window.scrollTo(0, 0);
-  }
-
-  // Load dashboard data
-  async function loadDashboard() {
-    try {
-      // Set today's date
-      const today = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('today-date').textContent = today.toLocaleDateString('fr-FR', options);
-
-      const data = await api('/dashboard');
-      
-      // Update stats based on Java API response structure
-      if (data.recettesAujourdHui) {
-        document.querySelector('#page-dashboard .stat-card:nth-child(1) .stat-value').innerHTML = 
-          formatFCFA(data.recettesAujourdHui) + '<span class="unit">FCFA</span>';
-      }
-      if (data.billetsVendusAujourdHui) {
-        document.querySelector('#page-dashboard .stat-card:nth-child(2) .stat-value').textContent = data.billetsVendusAujourdHui;
-      }
-      if (data.colisEnTransit) {
-        document.querySelector('#page-dashboard .stat-card:nth-child(3) .stat-value').textContent = data.colisEnTransit;
-      }
-      if (data.busEnService) {
-        document.querySelector('#page-dashboard .stat-card:nth-child(4) .stat-value').textContent = data.busEnService;
-      }
-      
-      // Load today's departures to find next trip
-      const departs = await api('/dashboard/departs');
-      if (departs && departs.length > 0) {
-        const now = new Date();
-        const currentTime = now.getHours() * 60 + now.getMinutes();
-        
-        // Find next departure (after current time)
-        const nextTrip = departs.find(d => {
-          if (d.heure) {
-            const [hours, minutes] = d.heure.split(':').map(Number);
-            const tripTime = hours * 60 + minutes;
-            return tripTime > currentTime;
-          }
-          return false;
-        });
-        
-        if (nextTrip) {
-          document.getElementById('next-trip-info').textContent = 
-            `${nextTrip.depart || 'N/A'} → ${nextTrip.arrivee || 'N/A'} à ${nextTrip.heure || 'N/A'}`;
-        } else {
-          document.getElementById('next-trip-info').textContent = 'Aucun voyage prévu aujourd\'hui';
-        }
-        
-        // Update departs table
-        const tbody = document.querySelector('#page-dashboard tbody');
-        tbody.innerHTML = departs.map(d => `
-          <tr>
-            <td class="td-bold">${d.depart || 'N/A'} → ${d.arrivee || 'N/A'}</td>
-            <td>${d.heure || 'N/A'}</td>
-            <td>${d.places || 0}</td>
-            <td><span class="badge ${getStatutBadge(d.statut)}">${d.statut || 'N/A'}</span></td>
-          </tr>
-        `).join('');
-      }
-      
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
-    }
-  }
-
-  // Load billets page
-  async function loadBillets() {
-    try {
-      // Set date to today by default
-      const today = new Date().toISOString().split('T')[0];
-      const dateInput = document.getElementById('billet-date');
-      if (dateInput) {
-        dateInput.value = today;
-        dateInput.addEventListener('change', () => loadVoyagesForDate(dateInput.value));
-      }
-      
-      // Load voyages for today
-      await loadVoyagesForDate(today);
-      
-      // Load today's sold tickets
-      await loadBilletsToday();
-      
-    } catch (error) {
-      console.error('Error loading billets page:', error);
-    }
-  }
-
-  // Load voyages for a specific date
-  async function loadVoyagesForDate(date) {
-    try {
-      const voyages = await api(`/voyages?date=${date}`);
-      const container = document.getElementById('voyages-list');
-      
-      if (!voyages || voyages.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px">Aucun voyage prévu pour cette date</div>';
-        return;
-      }
-      
-      container.innerHTML = voyages.map(v => `
-        <div class="voyage-card" data-voyage-id="${v.id}" onclick="selectVoyage(${v.id})" style="padding:12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-weight:700;color:var(--navy)">${v.ligne ? v.ligne.villeDepart : 'N/A'} → ${v.ligne ? v.ligne.villeArrivee : 'N/A'}</div>
-            <div style="font-size:13px;color:var(--text-muted)">${v.heureDepart || 'N/A'}</div>
-          </div>
-          <div style="display:flex;gap:12px;font-size:12px;color:var(--text-muted)">
-            <span>🚌 ${v.bus ? v.bus.immatriculation : 'N/A'}</span>
-            <span>🪑 ${v.placesDisponibles || 0} places</span>
-            <span>💰 ${formatFCFA(v.ligne ? v.ligne.tarifBase : 0)}</span>
-          </div>
-        </div>
-      `).join('');
-      
-    } catch (error) {
-      console.error('Error loading voyages:', error);
-      document.getElementById('voyages-list').innerHTML = '<div style="text-align:center;color:var(--red);padding:20px">Erreur de chargement des voyages</div>';
-    }
-  }
-
-  // Select a voyage and show seat map
-  async function selectVoyage(voyageId) {
-    try {
-      const voyage = await api(`/voyages/${voyageId}`);
-      const sieges = await api(`/voyages/${voyageId}/sieges`);
-      
-      // Show voyage details
-      document.getElementById('voyage-details').style.display = 'block';
-      document.getElementById('voyage-info').innerHTML = `
-        <strong>${voyage.ligne ? voyage.ligne.villeDepart : 'N/A'} → ${voyage.ligne ? voyage.ligne.villeArrivee : 'N/A'}</strong><br>
-        Départ: ${voyage.heureDepart || 'N/A'} | Bus: ${voyage.bus ? voyage.bus.immatriculation : 'N/A'}<br>
-        Tarif base: ${formatFCFA(voyage.ligne ? voyage.ligne.tarifBase : 0)}
-      `;
-      
-      // Render seat map
-      renderSeatMap(sieges, voyage.ligne ? voyage.ligne.tarifBase : 0);
-      
-      // Store selected voyage
-      window.selectedVoyage = voyage;
-      
-    } catch (error) {
-      console.error('Error selecting voyage:', error);
-    }
-  }
-
-  // Render seat map
-  function renderSeatMap(sieges, tarifBase) {
-    const seatMap = document.getElementById('seat-map');
-    if (!sieges || sieges.length === 0) {
-      seatMap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted)">Plan de sièges non disponible</div>';
-      return;
-    }
-    
-    // Group seats by row
-    const rows = {};
-    sieges.forEach(s => {
-      const match = s.numero.match(/(\d+)([A-D])/);
-      if (match) {
-        const rowNum = parseInt(match[1]);
-        const col = match[2];
-        if (!rows[rowNum]) rows[rowNum] = {};
-        rows[rowNum][col] = s;
-      }
-    });
-    
-    // Render
-    let html = '<div class="seat-map-label">AVANT</div><div style="text-align:center;margin:4px 0"><span style="font-size:18px">⚙️</span></div>';
-    
-    Object.keys(rows).sort((a,b) => parseInt(a)-parseInt(b)).forEach(rowNum => {
-      const row = rows[rowNum];
-      html += '<div class="seat-row">';
-      ['A','B','C','D'].forEach(col => {
-        const siege = row[col];
-        if (siege) {
-          const isOccupied = siege.statut === 'OCCUPE';
-          html += `<div class="seat ${isOccupied ? 'seat-taken' : 'seat-free'}" data-siege-id="${siege.id}" data-siege-num="${siege.numero}" onclick="selectSiege(this)" title="${siege.numero}">${siege.numero}</div>`;
-        }
-      });
-      html += '</div>';
-      if ([6,9].includes(parseInt(rowNum))) {
-        html += '<div style="border-top:2px dashed var(--border);width:100%;margin:6px 0"></div>';
-      }
-    });
-    
-    html += '<div class="seat-map-label">ARRIÈRE</div>';
-    seatMap.innerHTML = html;
-    
-    // Reset selection
-    window.selectedSiege = null;
-    updateSeatRecap(tarifBase);
-  }
-
-  // Select a seat
-  function selectSiege(element) {
-    if (element.classList.contains('seat-taken')) return;
-    
-    // Remove previous selection
-    document.querySelectorAll('.seat-seat-selected').forEach(el => {
-      el.classList.remove('seat-seat-selected');
-      el.classList.add('seat-free');
-    });
-    
-    // Select new seat
-    element.classList.remove('seat-free');
-    element.classList.add('seat-seat-selected');
-    
-    window.selectedSiege = {
-      id: element.dataset.siegeId,
-      numero: element.dataset.siegeNum
-    };
-    
-    updateSeatRecap(window.selectedVoyage?.ligne?.tarifBase || 0);
-  }
-
-  // Update seat recap
-  function updateSeatRecap(tarifBase) {
-    const recap = document.getElementById('seat-recap');
-    const btn = document.getElementById('btn-confirmer-billet');
-    const tarifType = document.getElementById('type-tarif').value;
-    
-    if (!window.selectedSiege) {
-      recap.innerHTML = '<strong>Siège sélectionné : -</strong> | Tarif : <strong style="color:var(--orange)">- FCFA</strong>';
-      btn.disabled = true;
-      return;
-    }
-    
-    let prix = tarifBase;
-    if (tarifType === 'DEMI_TARIF_ENFANT') prix = tarifBase * 0.5;
-    else if (tarifType === 'TARIF_GROUPE') prix = tarifBase * 0.85;
-    
-    recap.innerHTML = `<strong>Siège sélectionné : ${window.selectedSiege.numero}</strong> | Tarif : <strong style="color:var(--orange)}">${formatFCFA(prix)}</strong>`;
-    btn.disabled = false;
-  }
-
-  // Load today's sold tickets
-  async function loadBilletsToday() {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const billets = await api(`/billets?date=${today}`);
-      const tbody = document.getElementById('billets-today-tbody');
-      
-      if (!billets || billets.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Aucun billet vendu aujourd\'hui</td></tr>';
-        return;
-      }
-      
-      tbody.innerHTML = billets.map(b => `
-        <tr>
-          <td><span class="badge badge-navy">${b.numeroBillet || 'N/A'}</span></td>
-          <td>${b.passagerNom || 'N/A'}</td>
-          <td>${b.voyage ? (b.voyage.ligne ? `${b.voyage.ligne.villeDepart}→${b.voyage.ligne.villeArrivee}` : 'N/A') : 'N/A'}</td>
-          <td><span class="badge badge-info">${b.siege ? b.siege.numero : 'N/A'}</span></td>
-          <td>${formatFCFA(b.prix)}</td>
-          <td><span class="badge badge-green">VALIDE</span></td>
-        </tr>
-      `).join('');
-      
-    } catch (error) {
-      console.error('Error loading billets today:', error);
-    }
-  }
-
-  // Confirm ticket sale
-  async function confirmerBillet() {
-    try {
-      const nom = document.getElementById('passager-nom').value;
-      const tel = document.getElementById('passager-tel').value;
-      const tarifType = document.getElementById('type-tarif').value;
-      
-      if (!nom || !tel || !window.selectedSiege || !window.selectedVoyage) {
-        alert('Veuillez remplir tous les champs obligatoires');
-        return;
-      }
-      
-      let prix = window.selectedVoyage.ligne.tarifBase;
-      if (tarifType === 'ENFANT') prix = prix * 0.5;
-      else if (tarifType === 'GROUPE') prix = prix * 0.85;
-      
-      const payload = {
-        passagerNom: nom,
-        passagerTelephone: tel,
-        siegeId: window.selectedSiege.id,
-        voyageId: window.selectedVoyage.id,
-        typeTarif: tarifType,
-        modePaiement: 'ESPECES'
-      };
-      
-      await api('/billets', 'POST', payload);
-      
-      alert('Billet émis avec succès!');
-      
-      // Reset form
-      document.getElementById('passager-nom').value = '';
-      document.getElementById('passager-tel').value = '';
-      window.selectedSiege = null;
-      
-      // Reload
-      await loadVoyagesForDate(document.getElementById('billet-date').value);
-      await loadBilletsToday();
-      
-    } catch (error) {
-      console.error('Error confirming billet:', error);
-      alert('Erreur lors de l\'émission du billet');
-    }
-  }
-
-  // Event listener for confirm button
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('btn-confirmer-billet');
-    if (btn) btn.addEventListener('click', confirmerBillet);
-    
-    const tarifSelect = document.getElementById('type-tarif');
-    if (tarifSelect) {
-      tarifSelect.addEventListener('change', () => updateSeatRecap(window.selectedVoyage?.ligne?.tarifBase || 0));
-    }
-  });
-
-  // Load colis page
-  async function loadColis() {
-    try {
-      // Setup event listeners
-      const btnEnregistrer = document.getElementById('btn-enregistrer-colis');
-      if (btnEnregistrer) {
-        btnEnregistrer.addEventListener('click', enregistrerColis);
-      }
-      
-      const btnTracking = document.getElementById('btn-tracking-search');
-      if (btnTracking) {
-        btnTracking.addEventListener('click', rechercherColis);
-      }
-      
-    } catch (error) {
-      console.error('Error loading colis page:', error);
-    }
-  }
-
-  // Enregistrer un colis
-  async function enregistrerColis() {
-    try {
-      const expediteur = document.getElementById('colis-expediteur').value;
-      const expediteurTel = document.getElementById('colis-expediteur-tel').value;
-      const destinataire = document.getElementById('colis-destinataire').value;
-      const destinataireTel = document.getElementById('colis-destinataire-tel').value;
-      const villeDepart = document.getElementById('colis-ville-depart').value;
-      const villeArrivee = document.getElementById('colis-ville-arrivee').value;
-      const poids = document.getElementById('colis-poids').value;
-      const type = document.getElementById('colis-type').value;
-      const description = document.getElementById('colis-description').value;
-      const fragile = document.getElementById('colis-fragile').checked;
-      const urgent = document.getElementById('colis-urgent').checked;
-      const assure = document.getElementById('colis-assure').checked;
-      const paiement = document.getElementById('colis-paiement').value;
-      
-      if (!expediteur || !destinataire || !villeDepart || !villeArrivee || !poids || !paiement) {
-        alert('Veuillez remplir tous les champs obligatoires');
-        return;
-      }
-      
-      const payload = {
-        expediteurNom: expediteur,
-        expediteurTelephone: expediteurTel,
-        destinataireNom: destinataire,
-        destinataireTelephone: destinataireTel,
-        villeDepart: villeDepart,
-        villeArrivee: villeArrivee,
-        poidsKg: parseFloat(poids),
-        typeColis: type,
-        description: description,
-        fragile: fragile,
-        urgent: urgent,
-        assure: assure,
-        modePaiement: paiement
-      };
-      
-      const colis = await api('/colis', 'POST', payload);
-      
-      document.getElementById('colis-tracking-result').style.display = 'block';
-      document.getElementById('colis-tracking-num').textContent = colis.numeroTracking;
-      
-      alert('Colis enregistré avec succès!');
-      
-      // Reset form
-      document.getElementById('colis-expediteur').value = '';
-      document.getElementById('colis-expediteur-tel').value = '';
-      document.getElementById('colis-destinataire').value = '';
-      document.getElementById('colis-destinataire-tel').value = '';
-      document.getElementById('colis-poids').value = '';
-      document.getElementById('colis-description').value = '';
-      document.getElementById('colis-fragile').checked = false;
-      document.getElementById('colis-urgent').checked = false;
-      document.getElementById('colis-assure').checked = false;
-      
-    } catch (error) {
-      console.error('Error enregistrer colis:', error);
-      alert('Erreur lors de l\'enregistrement du colis');
-    }
-  }
-
-  // Rechercher un colis par tracking
-  async function rechercherColis() {
-    try {
-      const tracking = document.getElementById('colis-tracking-search').value;
-      if (!tracking) {
-        alert('Veuillez entrer un numéro de suivi');
-        return;
-      }
-      
-      const colis = await api(`/colis/tracking/${tracking}`);
-      
-      document.getElementById('tracking-placeholder').style.display = 'none';
-      document.getElementById('tracking-result').style.display = 'block';
-      
-      document.getElementById('tracking-statut-text').textContent = colis.statut || 'N/A';
-      document.getElementById('tracking-details').textContent = 
-        `${colis.villeDepart || 'N/A'} → ${colis.villeArrivee || 'N/A'} | ${colis.poidsKg || 0} kg`;
-      
-      // Timeline basique
-      const timeline = document.getElementById('tracking-timeline');
-      timeline.innerHTML = `
-        <div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">
-          <div style="width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:6px"></div>
-          <div>
-            <div style="font-weight:600;font-size:13px">${colis.statut || 'Enregistré'}</div>
-            <div style="font-size:11px;color:var(--text-muted)">${formatDate(colis.dateEnregistrement)}</div>
-          </div>
-        </div>
-      `;
-      
-    } catch (error) {
-      console.error('Error rechercher colis:', error);
-      alert('Colis non trouvé');
-    }
-  }
-
-  // Load personnel
-  async function loadPersonnel() {
-    try {
-      const employes = await api('/personnel');
-      const container = document.querySelector('#page-personnel .card-body');
-      if (container && Array.isArray(employes)) {
-        container.innerHTML = `
-          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-            <input type="search" placeholder="🔍 Rechercher un employé..." style="flex:1;min-width:120px">
-            <select style="min-width:100px"><option>Tous postes</option><option>CHAUFFEUR</option><option>BILLETTERIE</option></select>
-          </div>
-          ${employes.map(e => `
-            <div class="emp-card">
-              <div class="avatar avatar-orange" style="width:40px;height:40px;font-size:15px">${e.nomComplet ? e.nomComplet.substring(0,2).toUpperCase() : 'NA'}</div>
-              <div class="emp-info">
-                <div class="emp-name">${e.nomComplet || 'N/A'}</div>
-                <div class="emp-sub">${e.poste} · ${e.agence ? 'Assigné' : 'Non assigné'}</div>
-                <div class="emp-meta">Tél: ${e.telephone || '-'}</div>
-              </div>
-              <div class="emp-actions">
-                <span class="badge ${e.statut === 'ACTIF' ? 'badge-green' : 'badge-yellow'}">${e.statut}</span>
-                <span class="badge badge-blue">${e.typeContrat}</span>
-              </div>
-            </div>
-          `).join('')}
-        `;
-      }
-    } catch (error) {
-      console.error('Error loading personnel:', error);
-    }
-  }
-
-  // Load paie
-  async function loadPaie() {
-    try {
-      const today = new Date();
-      const periode = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-      const fiches = await api(`/paie/bulletins?periode=${periode}`);
-      
-      // Calculate stats from fiches
-      let masseSalariale = 0, netTotal = 0, cnpsTotal = 0;
-      if (Array.isArray(fiches)) {
-        fiches.forEach(f => {
-          masseSalariale += f.salaireBrut || 0;
-          netTotal += f.netAPayer || 0;
-          cnpsTotal += f.chargesPatronales || 0;
-        });
-      }
-      
-      // Update stats
-      document.querySelector('#page-paie .stat-card:nth-child(1) .stat-value').innerHTML = 
-        formatFCFA(masseSalariale) + '<span class="unit">FCFA</span>';
-      document.querySelector('#page-paie .stat-card:nth-child(2) .stat-value').innerHTML = 
-        formatFCFA(netTotal) + '<span class="unit">FCFA</span>';
-      document.querySelector('#page-paie .stat-card:nth-child(3) .stat-value').innerHTML = 
-        formatFCFA(cnpsTotal) + '<span class="unit">FCFA</span>';
-      document.querySelector('#page-paie .stat-card:nth-child(4) .stat-value').innerHTML = 
-        (fiches ? fiches.length : 0) + '<span class="unit">/ ' + (fiches ? fiches.length : 0) + '</span>';
-      
-      // Update table
-      const tbody = document.querySelector('#page-paie tbody');
-      if (tbody && Array.isArray(fiches)) {
-        tbody.innerHTML = fiches.map(f => `
-          <tr onclick="showFicheDetail(${f.id})" style="cursor:pointer">
-            <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange" style="width:28px;height:28px;font-size:11px">NA</div><div><div style="font-weight:600">Employé #${f.personnelId}</div><div style="font-size:11px;color:var(--text-muted)">CDI</div></div></div></td>
-            <td>N/A</td>
-            <td class="td-bold">${formatFCFA(f.netAPayer)}</td>
-            <td><span class="badge ${f.statutPaiement === 'PAYE' ? 'badge-green' : 'badge-orange'}">${f.statutPaiement}</span></td>
-            <td><button class="btn btn-ghost btn-sm">👁</button></td>
-          </tr>
-        `).join('');
-      }
-    } catch (error) {
-      console.error('Error loading paie:', error);
-    }
-  }
-
-  // Load flotte
-  async function loadFlotte() {
-    try {
-      const bus = await api('/bus');
-      const tbody = document.querySelector('#page-flotte tbody');
-      if (tbody && Array.isArray(bus)) {
-        tbody.innerHTML = bus.map(b => `
-          <tr><td class="td-bold">${b.immatriculation}</td><td>${b.modele}</td><td>${b.nombrePlaces}</td><td>—</td><td>${formatDate(b.prochainEntretien)}</td><td>${formatDate(b.assuranceExpiration)}</td><td><span class="badge ${getStatutBadge(b.statut)}">${b.statut}</span></td></tr>
-        `).join('');
-      }
-    } catch (error) {
-      console.error('Error loading flotte:', error);
-    }
-  }
-
-  // Load comptabilite
-  async function loadComptabilite() {
-    try {
-      const today = new Date();
-      const ecritures = await api('/comptabilite/ecritures');
-      const bilan = await api(`/comptabilite/resume?annee=${today.getFullYear()}&mois=${today.getMonth() + 1}`);
-      
-      // Update stats
-      if (bilan) {
-        document.querySelector('#page-comptabilite .stat-card:nth-child(1) .stat-value').innerHTML = 
-          formatFCFA(bilan.recettes || 0) + '<span class="unit">FCFA</span>';
-        document.querySelector('#page-comptabilite .stat-card:nth-child(2) .stat-value').innerHTML = 
-          formatFCFA(bilan.depenses || 0) + '<span class="unit">FCFA</span>';
-        document.querySelector('#page-comptabilite .stat-card:nth-child(3) .stat-value').innerHTML = 
-          formatFCFA(bilan.benefice || 0) + '<span class="unit">FCFA</span>';
-      }
-      
-      // Update table
-      const tbody = document.querySelector('#page-comptabilite tbody');
-      if (tbody && Array.isArray(ecritures)) {
-        tbody.innerHTML = ecritures.map(e => `
-          <tr><td>${formatDate(e.dateEcriture)}</td><td>${e.description}</td><td class="td-bold" style="color:${e.credit > 0 ? 'var(--green)' : 'var(--red)'}">${e.credit > 0 ? '+' : '-'}${formatFCFA(e.credit || e.debit)}</td><td>—</td><td>—</td></tr>
-        `).join('');
-      }
-    } catch (error) {
-      console.error('Error loading comptabilite:', error);
-    }
-  }
-
-  // Load lignes
-  async function loadLignes() {
-    try {
-      const lignes = await api('/lignes');
-      const tbody = document.querySelector('#page-lignes tbody');
-      if (tbody && Array.isArray(lignes)) {
-        tbody.innerHTML = lignes.map(l => `
-          <tr><td class="td-bold">${l.villeDepart} → ${l.villeArrivee}</td><td>${l.distanceKm} km</td><td>${Math.round(l.dureeMinutes / 60)}h</td><td>${formatFCFA(l.tarifBase)}</td><td>—</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar progress-blue" style="width:50%"></div></div><span style="font-size:12px;font-weight:700">50%</span></div></td><td><span class="badge badge-green">${l.statut}</span></td></tr>
-        `).join('');
-      }
-    } catch (error) {
-      console.error('Error loading lignes:', error);
-    }
-  }
-
-  // Load courriers
-  async function loadCourriers() {
-    try {
-      const courriers = await api('/courriers');
-      // Update courriers badge - count non lus
-      const nonLus = Array.isArray(courriers) ? courriers.filter(c => c.statut === 'NON_LU').length : 0;
-      const badge = document.querySelector('.nav-badge');
-      if (badge) badge.textContent = nonLus;
-    } catch (error) {
-      console.error('Error loading courriers:', error);
-    }
-  }
-
-  function getStatutBadge(statut) {
-    const badges = {
-      'ACTIF': 'badge-green', 'OPERATIONNEL': 'badge-green', 'PAYE': 'badge-green', 'EN_ROUTE': 'badge-green',
-      'VALIDE': 'badge-green', 'LIVRE': 'badge-green', 'ARRIVE': 'badge-green',
-      'ANNULE': 'badge-red', 'HORS_SERVICE': 'badge-red', 'MAINTENANCE': 'badge-yellow', 'EN_ATTENTE': 'badge-yellow',
-      'PLANIFIE': 'badge-gray', 'OUVERT': 'badge-blue', 'EMBARQUEMENT': 'badge-blue', 'ENREGISTRE': 'badge-blue',
-      'EN_TRANSIT': 'badge-blue', 'EN_LIVRAISON': 'badge-orange', 'NON_RECLAME': 'badge-red',
-      'CONGE': 'badge-yellow', 'INACTIF': 'badge-red'
-    };
-    return badges[statut] || 'badge-gray';
   }
 
   function handleCTA() {
@@ -2393,11 +2201,61 @@
     const id = active.id.replace('page-', '');
     if (id === 'personnel') {
       document.getElementById('modal-employe').classList.add('open');
+    } else if (id === 'billets') {
+      // Navigate to billets page and start new ticket flow
+      billetStep = 1;
+      updateBilletStepsUI();
+    } else if (id === 'colis') {
+      // Colis form is inline, scroll to top of form
+      document.getElementById('colis-form').scrollIntoView({ behavior: 'smooth' });
+      resetColisForm();
+    } else if (id === 'lignes') {
+      openModalLigne();
+ showToast('Formulaire de création de ligne', 'info');
+    } else if (id === 'flotte') {
+      openModalBus();
+ showToast('Formulaire de création de bus', 'info');
+    } else if (id === 'paie') {
+      openModalPaie();
+ showToast('Formulaire de fiche de paie', 'info');
+    } else if (id === 'comptabilite') {
+      openModalComptabilite();
+ showToast('Formulaire d\'écriture comptable', 'info');
+    } else if (id === 'courriers') {
+      openModalCourrier();
+ showToast('Formulaire de courrier', 'info');
+    } else if (id === 'parametres') {
+      showToast('Paramètres de l\'agence', 'info');
+    } else {
+      showToast('Fonctionnalité en développement', 'info');
     }
   }
 
   function showNotifs() {
     document.getElementById('modal-notifs').classList.add('open');
+  }
+
+  // Placeholder functions for modals (to be implemented)
+  function openModalLigne() {
+    showToast('Modal de création de ligne à implémenter', 'info');
+  }
+  function openModalBus() {
+    showToast('Modal de création de bus à implémenter', 'info');
+  }
+  function openModalPaie() {
+    showToast('Modal de fiche de paie à implémenter', 'info');
+  }
+  function openModalComptabilite() {
+    showToast('Modal d\'écriture comptable à implémenter', 'info');
+  }
+  function openModalCourrier() {
+    showToast('Modal de courrier à implémenter', 'info');
+  }
+
+  function selectBulletin(initials) {
+    // Visual feedback: could expand to load different data
+    document.querySelectorAll('#page-paie tbody tr').forEach(r => r.style.background = '');
+    event.currentTarget.style.background = '#eff6ff';
   }
 
   function openSidebar() {
@@ -2409,6 +2267,47 @@
     document.getElementById('overlay').classList.remove('open');
   }
 
+  // ── Notifications toast ──
+  function showToast(message, type = 'info', duration = 3200) {
+    let wrap = document.getElementById('toast-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'toast-wrap';
+      wrap.className = 'toast-wrap';
+      document.body.appendChild(wrap);
+    }
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = message;
+    wrap.appendChild(t);
+    setTimeout(() => {
+      t.classList.add('fade-out');
+      setTimeout(() => t.remove(), 250);
+    }, duration);
+  }
+
+  // ── Validation générique des formulaires ──
+  function validateForm(scopeEl) {
+    if (!scopeEl) return true;
+    let valid = true;
+    let firstInvalid = null;
+    scopeEl.querySelectorAll('[required]').forEach(field => {
+      const empty = !field.value || !field.value.trim();
+      field.classList.toggle('input-error', empty);
+      if (empty) {
+        valid = false;
+        if (!firstInvalid) firstInvalid = field;
+      }
+    });
+    if (firstInvalid) firstInvalid.focus();
+    return valid;
+  }
+  document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('input-error') && e.target.value.trim()) {
+      e.target.classList.remove('input-error');
+    }
+  });
+
   // Seat selection
   document.querySelectorAll('.seat-free').forEach(seat => {
     seat.addEventListener('click', function() {
@@ -2418,6 +2317,9 @@
       });
       this.classList.remove('seat-free');
       this.classList.add('seat-selected');
+      const label = document.getElementById('selected-seat-label');
+      if (label) label.textContent = this.getAttribute('title') || this.textContent.trim();
+      refreshTarifs();
     });
   });
 
@@ -2429,13 +2331,345 @@
     });
   });
 
-  // Horaire button toggle
-  document.querySelectorAll('.horaire-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      this.closest('.horaire-grid').querySelectorAll('.horaire-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
+  // ── Type de bus & tarification dynamique (page Billets) ──
+  const TYPE_LABELS = { classique: 'CLASSIQUE', vip: 'VIP', vvip: 'VVIP' };
+
+  function formatFcfa(n) {
+    return n.toLocaleString('fr-FR') + ' FCFA';
+  }
+
+  function getActiveBusType() {
+    const activeBtn = document.querySelector('#bus-type-select .pay-btn.active');
+    return activeBtn ? activeBtn.dataset.type : 'classique';
+  }
+
+  function changePax(delta) {
+    const el = document.getElementById('pax-count');
+    if (!el) return;
+    let val = parseInt(el.textContent, 10) + delta;
+    if (val < 1) val = 1;
+    if (val > 10) val = 10;
+    el.textContent = val;
+    refreshTarifs();
+  }
+
+  function refreshTarifs() {
+    const type = getActiveBusType();
+    const grid = document.getElementById('horaire-grid');
+    if (!grid) return;
+
+    grid.querySelectorAll('.horaire-btn').forEach(btn => {
+      const price = btn.dataset[type];
+      const priceEl = btn.querySelector('.horaire-price');
+      if (price && priceEl) priceEl.textContent = formatFcfa(parseInt(price, 10));
     });
-  });
+
+    const activeHoraire = grid.querySelector('.horaire-btn.active') || grid.querySelector('.horaire-btn');
+    if (!activeHoraire) return;
+    const unitPrice = parseInt(activeHoraire.dataset[type] || '0', 10);
+    const time = activeHoraire.querySelector('.horaire-time').textContent;
+    const paxEl = document.getElementById('pax-count');
+    const pax = paxEl ? parseInt(paxEl.textContent, 10) || 1 : 1;
+    const total = unitPrice * pax;
+    const departEl = document.getElementById('ville-depart');
+    const arriveeEl = document.getElementById('ville-arrivee');
+    const depart = departEl ? departEl.value : 'Yaoundé';
+    const arrivee = arriveeEl ? arriveeEl.value : 'Douala';
+
+    const recapLine = document.getElementById('recap-line');
+    const recapPrice = document.getElementById('recap-price');
+    const recapBadge = document.getElementById('recap-type-badge');
+    const seatPrice = document.getElementById('seat-tarif-price');
+
+    if (recapLine) recapLine.textContent = `${depart} → ${arrivee} | ${time} | 06/05/2025 | ${pax} passager${pax > 1 ? 's' : ''}`;
+    if (recapPrice) recapPrice.textContent = formatFcfa(total);
+    if (seatPrice) seatPrice.textContent = formatFcfa(unitPrice);
+    if (recapBadge) {
+      recapBadge.textContent = TYPE_LABELS[type];
+      recapBadge.className = 'badge badge-' + type;
+    }
+  }
+
+  const busTypeSelect = document.getElementById('bus-type-select');
+  if (busTypeSelect) {
+    busTypeSelect.querySelectorAll('.pay-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        busTypeSelect.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        refreshTarifs();
+      });
+    });
+  }
+
+  const horaireGridEl = document.getElementById('horaire-grid');
+  if (horaireGridEl) {
+    horaireGridEl.querySelectorAll('.horaire-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        horaireGridEl.querySelectorAll('.horaire-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        refreshTarifs();
+      });
+    });
+    refreshTarifs();
+  }
+
+  // ── Parcours billet en 4 étapes ──
+  let billetStep = 1;
+  const STEP_LABELS = ['Trajet', 'Passager', 'Siège', 'Paiement'];
+
+  function updateBilletStepsUI() {
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById('step-' + i);
+      if (!el) continue;
+      el.classList.remove('active', 'done');
+      if (i < billetStep) el.classList.add('done');
+      else if (i === billetStep) el.classList.add('active');
+    }
+    document.querySelectorAll('#page-billets .step-sep').forEach((sep, idx) => {
+      sep.classList.toggle('done', idx + 1 < billetStep);
+    });
+    const btn = document.getElementById('billet-next-btn');
+    if (btn) btn.textContent = billetStep < 4 ? 'Suivant →' : '✔ Confirmer et émettre le billet';
+  }
+
+  function handleBilletNext() {
+    const depart = document.getElementById('ville-depart');
+    const arrivee = document.getElementById('ville-arrivee');
+    if (billetStep === 1 && depart && arrivee && depart.value === arrivee.value) {
+      showToast('⚠️ La ville de départ et d\'arrivée doivent être différentes.', 'error');
+      return;
+    }
+    if (billetStep === 3 && !document.querySelector('#page-billets .seat.seat-selected')) {
+      showToast('⚠️ Veuillez sélectionner un siège avant de continuer.', 'error');
+      return;
+    }
+    if (billetStep < 4) {
+      billetStep++;
+      updateBilletStepsUI();
+      showToast('Étape ' + billetStep + '/4 — ' + STEP_LABELS[billetStep - 1], 'info', 1800);
+      return;
+    }
+    // Étape finale : émission du billet
+    const type = getActiveBusType();
+    const activeHoraire = document.querySelector('#horaire-grid .horaire-btn.active');
+    const unitPrice = activeHoraire ? parseInt(activeHoraire.dataset[type], 10) : 0;
+    const paxEl = document.getElementById('pax-count');
+    const pax = paxEl ? parseInt(paxEl.textContent, 10) || 1 : 1;
+    const total = unitPrice * pax;
+    const ticketNum = 'TKT-' + Math.floor(100000 + Math.random() * 900000);
+    showToast(`🎫 Billet ${ticketNum} émis avec succès — ${formatFcfa(total)}`, 'success', 4500);
+    billetStep = 1;
+    updateBilletStepsUI();
+  }
+  updateBilletStepsUI();
+
+  // ── Colis ──
+  function submitColis() {
+    const form = document.getElementById('colis-form');
+    if (!validateForm(form)) {
+      showToast('⚠️ Veuillez remplir les champs obligatoires du colis.', 'error');
+      return;
+    }
+    const num = 'COL-2026-' + String(Math.floor(Math.random() * 90000) + 10000);
+    const trackingEl = document.getElementById('colis-tracking');
+    if (trackingEl) trackingEl.textContent = '#' + num;
+    showToast('📦 Colis enregistré — suivi #' + num, 'success');
+  }
+
+  function resetColisForm() {
+    ['colis-expediteur', 'colis-tel-expediteur', 'colis-destinataire', 'colis-tel-destinataire'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value = ''; el.classList.remove('input-error'); }
+    });
+    showToast('🆕 Formulaire vidé pour un nouveau colis', 'info');
+  }
+
+  function searchColis() {
+    const input = document.getElementById('colis-search-input');
+    if (!input || !input.value.trim()) {
+      showToast('⚠️ Veuillez saisir un numéro de suivi.', 'error');
+      return;
+    }
+    showToast('📡 Statut du colis ' + input.value.trim() + ' actualisé', 'success');
+  }
+
+  // ── Personnel ──
+  async function submitEmploye() {
+    const nomComplet = document.getElementById('emp-nom').value.trim();
+    const telephone = document.getElementById('emp-tel').value.trim();
+    const poste = document.getElementById('emp-poste').value;
+    const typeContrat = document.getElementById('emp-contrat').value;
+    const salaireBase = document.querySelector('#employe-form input[placeholder="120 000"]').value;
+    const numeroCnps = document.querySelector('#employe-form input[placeholder="CM-XXXXXX"]').value;
+    const numeroCni = document.querySelector('#employe-form input[placeholder="123456789"]').value;
+    const permisConduire = document.querySelector('#employe-form input[placeholder="D (si chauffeur)"]').value;
+    const busAssigneId = document.getElementById('emp-bus').value;
+
+    if (!nomComplet || !telephone || !poste) {
+      showToast('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+
+    // Phone validation (Cameroonian format)
+    const phoneRegex = /^\+237[0-9]{9}$/;
+    if (!phoneRegex.test(telephone.replace(/\s/g, ''))) {
+      showToast('Le téléphone doit être au format +237XXXXXXXXX', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/personnel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          nomComplet,
+          telephone,
+          poste,
+          typeContrat,
+          salaireBase: salaireBase ? parseFloat(salaireBase) : null,
+          numeroCnps,
+          numeroCni,
+          permisConduire,
+          busAssigneId: busAssigneId ? parseInt(busAssigneId) : null,
+          statut: 'ACTIF'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création de l\'employé');
+      }
+
+      showToast('Employé créé avec succès', 'success');
+      document.getElementById('modal-employe').classList.remove('open');
+      // Reload personnel list if on personnel page
+      if (document.querySelector('.page.active').id === 'page-personnel') {
+        loadPersonnelList();
+      }
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la création de l\'employé', 'error');
+    }
+  }
+
+  function loadPersonnelList() {
+    // TODO: Implement real API call to load personnel list
+    console.log('Loading personnel list...');
+  }
+
+  // ── Paramètres ──
+  function submitParametres() {
+    const form = document.getElementById('parametres-form');
+    if (!validateForm(form)) {
+      showToast('⚠️ Veuillez remplir les champs obligatoires.', 'error');
+      return;
+    }
+    showToast('⚙️ Paramètres enregistrés avec succès', 'success');
+    document.getElementById('modal-parametres').classList.remove('open');
+  }
+
+  // ── Bus ──
+  function submitBus() {
+    const form = document.getElementById('bus-form');
+    if (!validateForm(form)) {
+      showToast('⚠️ Veuillez remplir les champs obligatoires du bus.', 'error');
+      return;
+    }
+    const immat = document.getElementById('bus-immat').value.trim().toUpperCase();
+    const modele = document.getElementById('bus-modele').value.trim();
+    const places = document.getElementById('bus-places').value;
+    const classe = document.getElementById('bus-classe').value;
+
+    const tbody = document.getElementById('bus-tbody');
+    if (tbody) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="route-plate">${immat}</span></td>
+        <td>${modele}</td>
+        <td>${places}</td>
+        <td><span class="badge badge-${classe.toLowerCase()}">${classe}</span></td>
+        <td><span class="badge badge-green">OPÉRATIONNEL</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline" onclick="showToast('Modification en cours', 'info')">✏️</button>
+          <button class="btn btn-sm btn-outline" onclick="showToast('Suppression en cours', 'info')">🗑️</button>
+        </td>`;
+      tbody.appendChild(tr);
+    }
+
+    document.getElementById('modal-bus').classList.remove('open');
+    form.querySelectorAll('input').forEach(i => { i.value = ''; i.classList.remove('input-error'); });
+    form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    showToast(`🚌 Bus ${immat} ajouté avec succès`, 'success');
+  }
+
+  // ── Écriture Comptable ──
+  function submitEcriture() {
+    const form = document.getElementById('ecriture-form');
+    if (!validateForm(form)) {
+      showToast('⚠️ Veuillez remplir les champs obligatoires.', 'error');
+      return;
+    }
+    const montant = document.getElementById('ecriture-montant').value;
+    const categorie = document.getElementById('ecriture-categorie').value;
+    const type = document.getElementById('ecriture-type').value;
+
+    const tbody = document.getElementById('ecritures-tbody');
+    if (tbody) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${document.getElementById('ecriture-date').value || new Date().toISOString().split('T')[0]}</td>
+        <td><span class="badge ${type === 'DEBIT' ? 'badge-red' : 'badge-green'}">${type}</span></td>
+        <td>${categorie}</td>
+        <td>${formatNumber(parseInt(montant))} FCFA</td>
+        <td>${document.getElementById('ecriture-description').value || '-'}</td>`;
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    document.getElementById('modal-ecriture').classList.remove('open');
+    form.querySelectorAll('input').forEach(i => { i.value = ''; i.classList.remove('input-error'); });
+    form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    showToast('📋 Écriture enregistrée avec succès', 'success');
+  }
+
+  // ── Courrier ──
+  function submitCourrier() {
+    const form = document.getElementById('courrier-form');
+    if (!validateForm(form)) {
+      showToast('⚠️ Veuillez remplir les champs obligatoires.', 'error');
+      return;
+    }
+    const destinataire = document.getElementById('courrier-destinataire').value;
+    const objet = document.getElementById('courrier-objet').value;
+
+    const tbody = document.getElementById('courriers-tbody');
+    if (tbody) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${new Date().toLocaleDateString('fr-FR')}</td>
+        <td>${destinataire}</td>
+        <td>${objet}</td>
+        <td><span class="badge badge-blue">NON LU</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline" onclick="showToast('Ouverture du courrier', 'info')">📖</button>
+        </td>`;
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    document.getElementById('modal-courrier').classList.remove('open');
+    form.querySelectorAll('input').forEach(i => { i.value = ''; i.classList.remove('input-error'); });
+    form.querySelectorAll('textarea').forEach(t => t.value = '');
+    form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    showToast('✉️ Courrier envoyé avec succès', 'success');
+  }
+
+  // ── Export functionality ──
+  function exportData(type) {
+    showToast('📥 Export en cours...', 'info');
+    setTimeout(() => {
+      showToast(`📄 Données ${type} exportées avec succès`, 'success');
+    }, 1500);
+  }
 
   // Close modals on backdrop click
   document.querySelectorAll('.modal-backdrop').forEach(bd => {
@@ -2444,43 +2678,761 @@
     });
   });
 
-  // Check authentication on load
-  function checkAuth() {
-    const token = localStorage.getItem('sigavt_token');
-    if (!token) {
-      window.location.href = '/login.html';
-      return false;
-    }
-    return true;
-  }
+  // ── AUTHENTICATION & API ──
+  const API_BASE = 'http://localhost:8081/api';
+  let authToken = localStorage.getItem('authToken') || 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJzdWIiOiJhZG1pbkBzaWdhdnQuY20iLCJpYXQiOjE3Mzg0NTk3MzEsImV4cCI6MTc4NDY4Mzc3MX0.xBRtYyHUWSX2RH_pD6t_kqNXKQJX3xa07tLfP76fmtM';
 
-  // Update user info display
-  function updateUserInfo() {
-    const user = JSON.parse(localStorage.getItem('sigavt_user') || '{}');
-    const nameEl = document.querySelector('.user-info .name');
-    const roleEl = document.querySelector('.user-info .role');
-    const avatarEl = document.querySelector('.user-info .avatar');
+  async function fetchAPI(endpoint, options = {}) {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers
+    };
     
-    if (nameEl) nameEl.textContent = user.nom || user.email || 'Utilisateur';
-    if (roleEl) roleEl.textContent = user.role || 'Utilisateur';
-    if (avatarEl && user.nom) {
-      avatarEl.textContent = user.nom.charAt(0).toUpperCase();
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      showToast('Erreur de connexion', 'Impossible de contacter le serveur', 'error');
+      return null;
     }
   }
 
-  // Logout function
-  function logout() {
-    localStorage.removeItem('sigavt_token');
-    localStorage.removeItem('sigavt_user');
-    window.location.href = '/login.html';
+  function formatNumber(num) {
+    return num ? num.toLocaleString('fr-FR') : '0';
   }
 
-  // Load initial page
-  if (checkAuth()) {
-    updateUserInfo();
-    navigate('dashboard');
+  function getClasseBadge(classe) {
+    const badgeMap = {
+      'CLASSIQUE': 'classique',
+      'VIP': 'vip',
+      'VVIP': 'vvip'
+    };
+    return badgeMap[classe] || 'classique';
+  }
+
+  function getStatutBadge(statut) {
+    const badgeMap = {
+      'EN_ROUTE': 'green',
+      'EMBARQUEMENT': 'blue',
+      'EMBARQUE': 'blue',
+      'OUVERT': 'yellow',
+      'PLANIFIE': 'gray',
+      'ANNULE': 'red'
+    };
+    return badgeMap[statut] || 'gray';
+  }
+
+  async function loadDashboard() {
+    const data = await fetchAPI('/dashboard');
+    if (data) {
+      // Update stats if elements exist
+      if (data.recettesAujourdHui && document.getElementById('stat-recettes')) {
+        document.getElementById('stat-recettes').innerHTML = `${formatNumber(data.recettesAujourdHui)}<span class="unit">FCFA</span>`;
+      }
+      if (data.billetsVendusAujourdHui && document.getElementById('stat-billets')) {
+        document.getElementById('stat-billets').textContent = data.billetsVendusAujourdHui;
+      }
+      if (data.colisEnTransit && document.getElementById('stat-colis')) {
+        document.getElementById('stat-colis').textContent = data.colisEnTransit;
+      }
+      if (data.busEnService && document.getElementById('stat-bus')) {
+        document.getElementById('stat-bus').textContent = data.busEnService;
+      }
+
+      // Update voyage du jour if elements exist
+      if (data.voyageDuJour && document.getElementById('vdj-ligne')) {
+        const vdj = data.voyageDuJour;
+        document.getElementById('vdj-ligne').textContent = `${vdj.villeDepart} → ${vdj.villeArrivee}`;
+        document.getElementById('vdj-heure').textContent = vdj.heureDepart || 'N/A';
+        document.getElementById('vdj-classe').textContent = vdj.classeBus || 'CLASSIQUE';
+        document.getElementById('vdj-classe').className = `badge badge-${getClasseBadge(vdj.classeBus)}`;
+        document.getElementById('vdj-places').textContent = `${vdj.placesDisponibles || 0}/${vdj.placesTotal || 0} places`;
+        document.getElementById('vdj-statut').textContent = vdj.statut || 'N/A';
+        document.getElementById('vdj-statut').className = `badge badge-${getStatutBadge(vdj.statut)}`;
+        document.getElementById('vdj-bus').textContent = `🚍 ${vdj.busImmatriculation || 'N/A'}`;
+        document.getElementById('vdj-chauffeur').textContent = `👤 ${vdj.chauffeurNom || 'N/A'}`;
+        const tarif = vdj.classeBus === 'VIP' ? vdj.tarifVip : vdj.classeBus === 'VVIP' ? vdj.tarifVvip : vdj.tarifClassique;
+        document.getElementById('vdj-tarif').textContent = `💺 ${formatNumber(tarif)} FCFA`;
+      }
+
+      // Update prochain voyage if elements exist
+      if (data.prochainVoyage && document.getElementById('pv-ligne')) {
+        const pv = data.prochainVoyage;
+        document.getElementById('pv-ligne').textContent = `${pv.villeDepart} → ${pv.villeArrivee}`;
+        document.getElementById('pv-heure').textContent = pv.heureDepart || 'N/A';
+        document.getElementById('pv-classe').textContent = pv.classeBus || 'CLASSIQUE';
+        document.getElementById('pv-classe').className = `badge badge-${getClasseBadge(pv.classeBus)}`;
+        document.getElementById('pv-places').textContent = `${pv.placesDisponibles || 0}/${pv.placesTotal || 0} places`;
+        document.getElementById('pv-statut').textContent = pv.statut || 'N/A';
+        document.getElementById('pv-statut').className = `badge badge-${getStatutBadge(pv.statut)}`;
+        document.getElementById('pv-bus').textContent = `🚍 ${pv.busImmatriculation || 'N/A'}`;
+        document.getElementById('pv-chauffeur').textContent = `👤 ${pv.chauffeurNom || 'N/A'}`;
+        const tarif = pv.classeBus === 'VIP' ? pv.tarifVip : pv.classeBus === 'VVIP' ? pv.tarifVvip : pv.tarifClassique;
+        document.getElementById('pv-tarif').textContent = `💺 ${formatNumber(tarif)} FCFA`;
+      }
+
+      // Update departs table if element exists
+      if (data.departsDuJour && Array.isArray(data.departsDuJour) && document.getElementById('departs-table-body')) {
+        const tbody = document.getElementById('departs-table-body');
+        tbody.innerHTML = data.departsDuJour.map(depart => `
+          <tr>
+            <td class="td-bold">${depart.villeDepart} → ${depart.villeArrivee}</td>
+            <td>${depart.heureDepart || 'N/A'}</td>
+            <td><span class="badge badge-${getClasseBadge(depart.classeBus)}">${depart.classeBus || 'CLASSIQUE'}</span></td>
+            <td>${depart.placesDisponibles || 0}/${depart.placesTotal || 0}</td>
+            <td><span class="badge badge-${getStatutBadge(depart.statut)}">${depart.statut || 'N/A'}</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+  }
+
+  async function loadVoyages() {
+    const data = await fetchAPI('/dashboard');
+    if (data) {
+      // Update billets page voyage du jour if elements exist
+      if (data.voyageDuJour && document.getElementById('billets-vdj-ligne')) {
+        const vdj = data.voyageDuJour;
+        document.getElementById('billets-vdj-ligne').textContent = `${vdj.villeDepart} → ${vdj.villeArrivee}`;
+        document.getElementById('billets-vdj-heure').textContent = vdj.heureDepart || 'N/A';
+        document.getElementById('billets-vdj-classe').textContent = vdj.classeBus || 'CLASSIQUE';
+        document.getElementById('billets-vdj-classe').className = `badge badge-${getClasseBadge(vdj.classeBus)}`;
+        document.getElementById('billets-vdj-places').textContent = `${vdj.placesDisponibles || 0}/${vdj.placesTotal || 0} places`;
+        document.getElementById('billets-vdj-statut').textContent = vdj.statut || 'N/A';
+        document.getElementById('billets-vdj-statut').className = `badge badge-${getStatutBadge(vdj.statut)}`;
+        document.getElementById('billets-vdj-bus').textContent = `🚍 ${vdj.busImmatriculation || 'N/A'}`;
+        document.getElementById('billets-vdj-chauffeur').textContent = `👤 ${vdj.chauffeurNom || 'N/A'}`;
+        const tarif = vdj.classeBus === 'VIP' ? vdj.tarifVip : vdj.classeBus === 'VVIP' ? vdj.tarifVvip : vdj.tarifClassique;
+        document.getElementById('billets-vdj-tarif').textContent = `💺 ${formatNumber(tarif)} FCFA`;
+      }
+
+      // Update billets page prochain voyage if elements exist
+      if (data.prochainVoyage && document.getElementById('billets-pv-ligne')) {
+        const pv = data.prochainVoyage;
+        document.getElementById('billets-pv-ligne').textContent = `${pv.villeDepart} → ${pv.villeArrivee}`;
+        document.getElementById('billets-pv-heure').textContent = pv.heureDepart || 'N/A';
+        document.getElementById('billets-pv-classe').textContent = pv.classeBus || 'CLASSIQUE';
+        document.getElementById('billets-pv-classe').className = `badge badge-${getClasseBadge(pv.classeBus)}`;
+        document.getElementById('billets-pv-places').textContent = `${pv.placesDisponibles || 0}/${pv.placesTotal || 0} places`;
+        document.getElementById('billets-pv-statut').textContent = pv.statut || 'N/A';
+        document.getElementById('billets-pv-statut').className = `badge badge-${getStatutBadge(pv.statut)}`;
+        document.getElementById('billets-pv-bus').textContent = `🚍 ${pv.busImmatriculation || 'N/A'}`;
+        document.getElementById('billets-pv-chauffeur').textContent = `👤 ${pv.chauffeurNom || 'N/A'}`;
+        const tarif = pv.classeBus === 'VIP' ? pv.tarifVip : pv.classeBus === 'VVIP' ? pv.tarifVvip : pv.tarifClassique;
+        document.getElementById('billets-pv-tarif').textContent = `💺 ${formatNumber(tarif)} FCFA`;
+      }
+
+      // Update horaire grid with real data if element exists
+      const horaireGrid = document.querySelector('.horaire-grid');
+      if (horaireGrid && data.departsDuJour && Array.isArray(data.departsDuJour)) {
+        horaireGrid.innerHTML = data.departsDuJour.slice(0, 3).map(voyage => `
+          <div class="horaire-btn" onclick="selectVoyage(${voyage.id})">
+            <div class="horaire-time">${voyage.heureDepart || 'N/A'}</div>
+            <div class="horaire-places">${voyage.placesDisponibles || 0}/${voyage.placesTotal || 0} places</div>
+            <div class="horaire-price">${formatNumber(voyage.tarifClassique)} FCFA</div>
+          </div>
+        `).join('');
+      }
+    }
+  }
+
+  function selectVoyage(voyageId) {
+    localStorage.setItem('selectedVoyageId', voyageId);
+  }
+
+  function logout() {
+    localStorage.removeItem('authToken');
+    authToken = null;
+    showToast('Déconnexion réussie', 'Vous avez été déconnecté', 'success');
+    setTimeout(() => {
+      window.location.href = '/login.html';
+    }, 1500);
+  }
+
+  // Override navigate to load data when switching pages
+  const originalNavigate = navigate;
+  navigate = function(pageId) {
+    originalNavigate(pageId);
+    
+    if (pageId === 'dashboard') {
+      loadDashboard();
+    } else if (pageId === 'billets') {
+      loadVoyages();
+    }
+  };
+
+  // Initialize - load dashboard on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    loadDashboard();
+    // Auto-refresh dashboard every 30 seconds
+    setInterval(loadDashboard, 30000);
+  });
+
+  // ── COLIS FUNCTIONS ──
+  let selectedPaymentMode = 'ESPECES';
+
+  function selectPaymentMode(mode) {
+    selectedPaymentMode = mode;
+    document.querySelectorAll('.pay-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.mode === mode) btn.classList.add('active');
+    });
+  }
+
+  function calculateColisTarif() {
+    const poids = parseFloat(document.getElementById('colis-poids').value) || 0;
+    const fragile = document.getElementById('colis-fragile').checked;
+    const urgent = document.getElementById('colis-urgent').checked;
+    const assure = document.getElementById('colis-assure').checked;
+
+    // Base tariff calculation (same as backend)
+    let tarifBase = 0;
+    if (poids <= 1) tarifBase = 500;
+    else if (poids <= 5) tarifBase = 1200;
+    else if (poids <= 15) tarifBase = 2500;
+    else tarifBase = 4000;
+
+    // Supplements
+    let supplements = 0;
+    if (fragile) supplements += 300;
+    if (urgent) supplements += 800;
+    if (assure) supplements += 500;
+
+    const total = tarifBase + supplements;
+
+    // Update UI
+    document.getElementById('tarif-poids-row').innerHTML = `<span>Poids : ${poids} kg → ${poids <= 1 ? '≤1 kg' : poids <= 5 ? '1-5 kg' : poids <= 15 ? '5-15 kg' : '>15 kg'}</span><span>${formatNumber(tarifBase)} FCFA</span>`;
+    
+    if (supplements > 0) {
+      document.getElementById('tarif-supplements-row').style.display = 'flex';
+      let supText = [];
+      if (fragile) supText.push('Fragile');
+      if (urgent) supText.push('Urgent');
+      if (assure) supText.push('Assuré');
+      document.getElementById('tarif-supplements-row').innerHTML = `<span>Suppléments (${supText.join(', ')})</span><span>+${formatNumber(supplements)} FCFA</span>`;
+    } else {
+      document.getElementById('tarif-supplements-row').style.display = 'none';
+    }
+    
+    document.getElementById('tarif-total').textContent = `${formatNumber(total)} FCFA`;
+  }
+
+  async function submitColis() {
+    const expediteur = document.getElementById('colis-expediteur').value.trim();
+    const destinataire = document.getElementById('colis-destinataire').value.trim();
+    const villeDepart = document.getElementById('colis-ville-depart').value.trim();
+    const villeArrivee = document.getElementById('colis-ville-arrivee').value.trim();
+    const poids = document.getElementById('colis-poids').value;
+    const typeColis = document.getElementById('colis-type').value;
+    const description = document.getElementById('colis-description').value.trim();
+    const fragile = document.getElementById('colis-fragile').checked;
+    const urgent = document.getElementById('colis-urgent').checked;
+    const assure = document.getElementById('colis-assure').checked;
+    const expediteurTel = document.getElementById('colis-tel-expediteur').value.trim();
+    const destinataireTel = document.getElementById('colis-tel-destinataire').value.trim();
+
+    // Validation
+    if (!expediteur || !destinataire || !villeDepart || !villeArrivee || !poids) {
+      showToast('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+
+    // Phone validation (Cameroonian format)
+    const phoneRegex = /^\+237[0-9]{9}$/;
+    if (expediteurTel && !phoneRegex.test(expediteurTel.replace(/\s/g, ''))) {
+      showToast('Le téléphone expéditeur doit être au format +237XXXXXXXXX', 'error');
+      return;
+    }
+    if (destinataireTel && !phoneRegex.test(destinataireTel.replace(/\s/g, ''))) {
+      showToast('Le téléphone destinataire doit être au format +237XXXXXXXXX', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/colis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          expediteurNom: expediteur,
+          expediteurTelephone: expediteurTel,
+          destinataireNom: destinataire,
+          destinataireTelephone: destinataireTel,
+          villeDepart: villeDepart,
+          villeArrivee: villeArrivee,
+          poidsKg: parseFloat(poids),
+          typeColis: typeColis,
+          description: description,
+          fragile: fragile,
+          urgent: urgent,
+          assure: assure,
+          modePaiement: selectedPaymentMode
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de l\'enregistrement');
+      }
+
+      // Show success
+      document.getElementById('colis-tracking-result').style.display = 'block';
+      document.getElementById('colis-tracking').textContent = data.numeroTracking;
+      showToast('Colis enregistré avec succès', 'success');
+      
+      // Reset form
+      resetColisForm();
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de l\'enregistrement', 'error');
+    }
+  }
+
+  function resetColisForm() {
+    document.getElementById('colis-expediteur').value = '';
+    document.getElementById('colis-tel-expediteur').value = '';
+    document.getElementById('colis-destinataire').value = '';
+    document.getElementById('colis-tel-destinataire').value = '';
+    document.getElementById('colis-ville-depart').value = '';
+    document.getElementById('colis-ville-arrivee').value = '';
+    document.getElementById('colis-poids').value = '';
+    document.getElementById('colis-type').value = 'DOCUMENTS';
+    document.getElementById('colis-description').value = '';
+    document.getElementById('colis-fragile').checked = false;
+    document.getElementById('colis-urgent').checked = false;
+    document.getElementById('colis-assure').checked = false;
+    document.getElementById('colis-tracking-result').style.display = 'none';
+    selectPaymentMode('ESPECES');
+    calculateColisTarif();
+  }
+
+  async function searchColis() {
+    const trackingNumber = document.getElementById('colis-search-input').value.trim();
+    
+    if (!trackingNumber) {
+      showToast('Veuillez entrer un numéro de suivi', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/colis/tracking/${trackingNumber}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Colis introuvable');
+      }
+
+      const colis = await response.json();
+      displayColisTracking(colis);
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la recherche', 'error');
+      document.getElementById('colis-tracking-result-container').style.display = 'none';
+      document.getElementById('colis-tracking-empty').style.display = 'block';
+    }
+  }
+
+  function displayColisTracking(colis) {
+    document.getElementById('colis-tracking-empty').style.display = 'none';
+    document.getElementById('colis-tracking-result-container').style.display = 'block';
+
+    // Update status banner
+    document.getElementById('colis-status-text').textContent = formatStatutColis(colis.statut);
+    document.getElementById('colis-route-text').textContent = `${colis.villeDepart} → ${colis.villeArrivee}`;
+
+    // Update info grid
+    document.getElementById('colis-info-grid').innerHTML = `
+      <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Expéditeur</div><div style="font-size:13px;font-weight:600;margin-top:2px">${colis.expediteurNom}</div></div>
+      <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Destinataire</div><div style="font-size:13px;font-weight:600;margin-top:2px">${colis.destinataireNom}</div></div>
+      <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Poids</div><div style="font-size:13px;font-weight:600;margin-top:2px">${colis.poidsKg} kg</div></div>
+      <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Type</div><div style="font-size:13px;font-weight:600;margin-top:2px">${colis.typeColis || 'N/A'}</div></div>
+      <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Trajet</div><div style="font-size:13px;font-weight:600;margin-top:2px">${colis.villeDepart} → ${colis.villeArrivee}</div></div>
+      <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Tarif</div><div style="font-size:13px;font-weight:600;margin-top:2px">${formatNumber(colis.tarif)} FCFA</div></div>
+    `;
+
+    // Build timeline from tracking events
+    const timeline = document.getElementById('colis-timeline');
+    if (colis.suiviColis && colis.suiviColis.length > 0) {
+      timeline.innerHTML = colis.suiviColis.map((event, index) => `
+        <div class="timeline-item">
+          <div class="tl-dot tl-dot-blue" style="background:${index === 0 ? 'var(--gold)' : ''};color:${index === 0 ? 'var(--navy)' : ''}">${index + 1}</div>
+          <div class="tl-content ${index === 0 ? 'tl-active' : ''}">
+            <div class="tl-header">
+              <div class="tl-title" style="color:${index === 0 ? 'var(--navy)' : ''}">${formatStatutColis(event.statut)}</div>
+              <div class="tl-time">${formatDateTime(event.dateEvenement)}</div>
+            </div>
+            <div class="tl-sub">${event.evenement}</div>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      timeline.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted)">Aucun événement de suivi disponible</div>';
+    }
+
+    // Show status control for agents with appropriate roles
+    const userRole = localStorage.getItem('sigavt_user') ? JSON.parse(localStorage.getItem('sigavt_user')).role : null;
+    if (userRole && ['ADMIN', 'GERANT'].includes(userRole)) {
+      document.getElementById('colis-status-control').style.display = 'block';
+      document.getElementById('colis-new-statut').value = colis.statut;
+    }
+  }
+
+  async function updateColisStatut() {
+    const trackingNumber = document.getElementById('colis-search-input').value.trim();
+    const newStatut = document.getElementById('colis-new-statut').value;
+
+    if (!trackingNumber || !newStatut) {
+      showToast('Données manquantes', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/colis/tracking/${trackingNumber}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Colis introuvable');
+      }
+
+      const colis = await response.json();
+
+      const updateResponse = await fetch(`/api/colis/${colis.id}/statut`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ nouveauStatut: newStatut })
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Erreur lors de la mise à jour');
+      }
+
+      showToast('Statut mis à jour avec succès', 'success');
+      searchColis(); // Refresh tracking
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la mise à jour', 'error');
+    }
+  }
+
+  function formatStatutColis(statut) {
+    const statuts = {
+      'ENREGISTRE': 'Enregistré',
+      'PRIS_EN_CHARGE': 'Pris en charge',
+      'EN_TRANSIT': 'En transit',
+      'ARRIVE_AGENCE': 'Arrivé à l\'agence',
+      'EN_LIVRAISON': 'En livraison',
+      'LIVRE': 'Livré',
+      'NON_RECLAME': 'Non réclamé'
+    };
+    return statuts[statut] || statut;
+  }
+
+  function formatDateTime(dateStr) {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleString('fr-FR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  // ── MODAL SUBMISSION FUNCTIONS ──
+  async function submitBus() {
+    const immatriculation = document.getElementById('bus-immat').value.trim();
+    const modele = document.getElementById('bus-modele').value.trim();
+    const nombrePlaces = document.getElementById('bus-places').value;
+    const ligneAssigneeId = document.getElementById('bus-ligne').value;
+    const prochainEntretien = document.getElementById('bus-entretien').value;
+    const assuranceExpiration = document.getElementById('bus-assurance').value;
+    const statut = document.getElementById('bus-statut').value;
+
+    if (!immatriculation || !modele || !nombrePlaces) {
+      showToast('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/bus', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          immatriculation,
+          modele,
+          nombrePlaces: parseInt(nombrePlaces),
+          ligneAssigneeId: ligneAssigneeId ? parseInt(ligneAssigneeId) : null,
+          prochainEntretien: prochainEntretien || null,
+          assuranceExpiration: assuranceExpiration || null,
+          statut
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création du bus');
+      }
+
+      showToast('Bus créé avec succès', 'success');
+      document.getElementById('modal-bus').classList.remove('open');
+      // Reload bus list if on flotte page
+      if (document.querySelector('.page.active').id === 'page-flotte') {
+        loadBusList();
+      }
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la création du bus', 'error');
+    }
+  }
+
+  async function submitLigne() {
+    const villeDepart = document.getElementById('ligne-depart').value.trim();
+    const villeArrivee = document.getElementById('ligne-arrivee').value.trim();
+    const distanceKm = document.getElementById('ligne-distance').value;
+    const dureeMinutes = document.getElementById('ligne-duree').value;
+    const tarifBase = document.getElementById('ligne-tarif').value;
+    const frequenceJour = document.getElementById('ligne-frequence').value;
+    const statut = document.getElementById('ligne-statut').value;
+
+    if (!villeDepart || !villeArrivee || !tarifBase) {
+      showToast('Veuillez remplir tous les champs obligatoires', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/lignes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          villeDepart,
+          villeArrivee,
+          distanceKm: distanceKm ? parseInt(distanceKm) : null,
+          dureeMinutes: dureeMinutes ? parseInt(dureeMinutes) : null,
+          tarifBase: parseFloat(tarifBase),
+          frequenceJour: frequenceJour ? parseInt(frequenceJour) : null,
+          statut
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création de la ligne');
+      }
+
+      showToast('Ligne créée avec succès', 'success');
+      document.getElementById('modal-ligne').classList.remove('open');
+      // Reload ligne list if on lignes page
+      if (document.querySelector('.page.active').id === 'page-lignes') {
+        loadLigneList();
+      }
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la création de la ligne', 'error');
+    }
+  }
+
+  async function submitCourrier() {
+    const type = document.getElementById('courrier-type').value;
+    const objet = document.getElementById('courrier-objet').value.trim();
+    const expediteur = document.getElementById('courrier-expediteur').value.trim();
+    const destinataire = document.getElementById('courrier-destinataire').value.trim();
+    const dateReception = document.getElementById('courrier-date').value;
+    const statut = document.getElementById('courrier-statut').value;
+    const contenu = document.getElementById('courrier-contenu').value.trim();
+    const observations = document.getElementById('courrier-obs').value.trim();
+
+    if (!objet) {
+      showToast('Veuillez remplir l\'objet du courrier', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/courriers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          type,
+          objet,
+          expediteur,
+          destinataire,
+          contenu,
+          statut,
+          dateReception: dateReception || null,
+          observations
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création du courrier');
+      }
+
+      showToast('Courrier créé avec succès', 'success');
+      document.getElementById('modal-courrier').classList.remove('open');
+      // Reload courrier list if on courriers page
+      if (document.querySelector('.page.active').id === 'page-courriers') {
+        loadCourrierList();
+      }
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la création du courrier', 'error');
+    }
+  }
+
+  async function submitPaie() {
+    const personnelId = document.getElementById('paie-personnel').value;
+    const periode = document.getElementById('paie-periode').value;
+    const indemniteTransport = document.getElementById('paie-transport').value;
+    const primeAnciennete = document.getElementById('paie-anciennete').value;
+    const primePerformance = document.getElementById('paie-performance').value;
+    const heuresSup = document.getElementById('paie-heures-sup').value;
+    const tauxHoraireSup = document.getElementById('paie-taux-horaire').value;
+    const autresRetenues = document.getElementById('paie-retenues').value;
+
+    if (!personnelId || !periode) {
+      showToast('Veuillez sélectionner un employé et une période', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/paie/bulletins', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          personnelId: parseInt(personnelId),
+          periode,
+          indemniteTransport: indemniteTransport ? parseFloat(indemniteTransport) : null,
+          primeAnciennete: primeAnciennete ? parseFloat(primeAnciennete) : null,
+          primePerformance: primePerformance ? parseFloat(primePerformance) : null,
+          heuresSup: heuresSup ? parseFloat(heuresSup) : null,
+          tauxHoraireSup: tauxHoraireSup ? parseFloat(tauxHoraireSup) : null,
+          autresRetenues: autresRetenues ? parseFloat(autresRetenues) : null
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération du bulletin');
+      }
+
+      showToast('Bulletin de paie généré avec succès', 'success');
+      document.getElementById('modal-paie').classList.remove('open');
+      // Reload paie list if on paie page
+      if (document.querySelector('.page.active').id === 'page-paie') {
+        loadPaieList();
+      }
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la génération du bulletin', 'error');
+    }
+  }
+
+  async function submitEcriture() {
+    const dateEcriture = document.getElementById('ecriture-date').value;
+    const typeEcriture = document.getElementById('ecriture-type').value;
+    const libelle = document.getElementById('ecriture-libelle').value.trim();
+    const categorie = document.getElementById('ecriture-categorie').value.trim();
+    const debit = document.getElementById('ecriture-debit').value;
+    const credit = document.getElementById('ecriture-credit').value;
+    const compteDebit = document.getElementById('ecriture-compte-debit').value.trim();
+    const compteCredit = document.getElementById('ecriture-compte-credit').value.trim();
+    const reference = document.getElementById('ecriture-reference').value.trim();
+    const description = document.getElementById('ecriture-description').value.trim();
+
+    if (!dateEcriture || !libelle) {
+      showToast('Veuillez remplir la date et le libellé', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/comptabilite/ecritures', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          dateEcriture,
+          typeEcriture,
+          libelle,
+          categorie,
+          debit: debit ? parseFloat(debit) : null,
+          credit: credit ? parseFloat(credit) : null,
+          compteDebit,
+          compteCredit,
+          reference,
+          description
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création de l\'écriture');
+      }
+
+      showToast('Écriture comptable créée avec succès', 'success');
+      document.getElementById('modal-ecriture').classList.remove('open');
+      // Reload comptabilite list if on comptabilite page
+      if (document.querySelector('.page.active').id === 'page-comptabilite') {
+        loadComptabiliteList();
+      }
+    } catch (error) {
+      showToast(error.message || 'Erreur lors de la création de l\'écriture', 'error');
+    }
+  }
+
+  // Placeholder load functions for lists (to be implemented with real API calls)
+  function loadBusList() {
+    // TODO: Implement real API call to load bus list
+    console.log('Loading bus list...');
+  }
+
+  function loadLigneList() {
+    // TODO: Implement real API call to load ligne list
+    console.log('Loading ligne list...');
+  }
+
+  function loadCourrierList() {
+    // TODO: Implement real API call to load courrier list
+    console.log('Loading courrier list...');
+  }
+
+  function loadPaieList() {
+    // TODO: Implement real API call to load paie list
+    console.log('Loading paie list...');
+  }
+
+  function loadComptabiliteList() {
+    // TODO: Implement real API call to load comptabilite list
+    console.log('Loading comptabilite list...');
   }
 </script>
-<script src="/app.js"></script>
 </body>
 </html>

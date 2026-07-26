@@ -19,7 +19,6 @@ public class UtilisateurRequest {
     @Pattern(regexp = "\\+237[0-9]{9}", message = "Le téléphone doit être au format camerounais: +237XXXXXXXXX")
     private String telephone;
 
-    @NotBlank
     private String role; // ADMIN, GERANT, BILLETTERIE, ...
 
     private Long agenceId;

@@ -2,12 +2,15 @@ package com.sigavt.service.impl;
 
 import com.sigavt.dto.response.AlerteResponse;
 import com.sigavt.dto.response.DashboardResponse;
+import com.sigavt.dto.response.VoyageResponse;
 import com.sigavt.entity.Billet;
 import com.sigavt.entity.Bus;
 import com.sigavt.entity.Colis;
+import com.sigavt.entity.ConfigurationMetier;
 import com.sigavt.entity.Voyage;
 import com.sigavt.enums.StatutBus;
 import com.sigavt.enums.StatutColis;
+import com.sigavt.enums.StatutVoyage;
 import com.sigavt.repository.*;
 import com.sigavt.service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +34,12 @@ public class DashboardServiceImpl implements DashboardService {
     private final BusRepository busRepository;
     private final ColisRepository colisRepository;
     private final BilletRepository billetRepository;
+    private final ConfigurationMetierRepository configurationMetierRepository;
 
     @Override
     public DashboardResponse obtenirTableauDeBord() {
         LocalDate aujourdHui = LocalDate.now();
+        LocalTime maintenant = LocalTime.now();
         List<Voyage> voyagesDuJour = voyageRepository.findByDateVoyage(aujourdHui);
 
         long busEnService = busRepository.findByStatut(StatutBus.OPERATIONNEL).size()
@@ -53,6 +61,30 @@ public class DashboardServiceImpl implements DashboardService {
 
         List<AlerteResponse> alertes = construireAlertes();
 
+        // Voyage du jour: voyage EN_ROUTE ou le plus récent EMBARQUEMENT
+        VoyageResponse voyageDuJour = voyagesDuJour.stream()
+                .filter(v -> v.getStatut() == StatutVoyage.EN_ROUTE)
+                .findFirst()
+                .map(this::mapToVoyageResponse)
+                .orElseGet(() -> voyagesDuJour.stream()
+                        .filter(v -> v.getStatut() == StatutVoyage.EMBARQUEMENT)
+                        .findFirst()
+                        .map(this::mapToVoyageResponse)
+                        .orElse(null));
+
+        // Prochain voyage: voyage PLANIFIE ou OUVERT avec heure > maintenant
+        VoyageResponse prochainVoyage = voyagesDuJour.stream()
+                .filter(v -> (v.getStatut() == StatutVoyage.PLANIFIE || v.getStatut() == StatutVoyage.OUVERT) 
+                        && v.getHeureDepart().isAfter(maintenant))
+                .min(Comparator.comparing(Voyage::getHeureDepart))
+                .map(this::mapToVoyageResponse)
+                .orElse(null);
+
+        // Departs du jour: tous les voyages du jour
+        List<VoyageResponse> departsDuJour = voyagesDuJour.stream()
+                .map(this::mapToVoyageResponse)
+                .collect(Collectors.toList());
+
         return DashboardResponse.builder()
                 .voyagesAujourdHui(voyagesDuJour.size())
                 .busEnService(busEnService)
@@ -61,12 +93,41 @@ public class DashboardServiceImpl implements DashboardService {
                 .billetsVendusAujourdHui(billetsAujourdHui)
                 .recettesAujourdHui(recettesAujourdHui)
                 .alertes(alertes)
+                .voyageDuJour(voyageDuJour)
+                .prochainVoyage(prochainVoyage)
+                .departsDuJour(departsDuJour)
+                .build();
+    }
+
+    private VoyageResponse mapToVoyageResponse(Voyage v) {
+        return VoyageResponse.builder()
+                .id(v.getId())
+                .villeDepart(v.getLigne() != null ? v.getLigne().getVilleDepart() : "N/A")
+                .villeArrivee(v.getLigne() != null ? v.getLigne().getVilleArrivee() : "N/A")
+                .dateVoyage(v.getDateVoyage())
+                .heureDepart(v.getHeureDepart())
+                .placesDisponibles(v.getPlacesDisponibles())
+                .placesTotal(v.getBus() != null ? v.getBus().getNombrePlaces() : 55)
+                .tarifBase(v.getLigne() != null ? v.getLigne().getTarifBase() : BigDecimal.ZERO)
+                .tarifClassique(v.getLigne() != null ? v.getLigne().getTarifBase() : BigDecimal.ZERO)
+                .tarifVip(v.getLigne() != null ? v.getLigne().getTarifBase().multiply(new BigDecimal("1.25")) : BigDecimal.ZERO)
+                .tarifVvip(v.getLigne() != null ? v.getLigne().getTarifBase().multiply(new BigDecimal("1.5")) : BigDecimal.ZERO)
+                .statut(v.getStatut())
+                .busImmatriculation(v.getBus() != null ? v.getBus().getImmatriculation() : "N/A")
+                .chauffeurNom(v.getChauffeur() != null ? v.getChauffeur().getNomComplet() : "N/A")
+                .classeBus(v.getBus() != null && v.getBus().getClasseBus() != null ? v.getBus().getClasseBus() : com.sigavt.enums.ClasseSiege.CLASSIQUE)
                 .build();
     }
 
     private List<AlerteResponse> construireAlertes() {
         List<AlerteResponse> alertes = new ArrayList<>();
-        LocalDate seuilEntretien = LocalDate.now().plusDays(10);
+        
+        // Get configurable thresholds
+        int joursAlerteEntretien = getConfigurationInt("ALERTE_VISITE_TECHNIQUE_JOURS", 15);
+        int joursAlerteColis = getConfigurationInt("ALERTE_COLIS_NON_RECLAMES_JOURS", 7);
+        
+        LocalDate seuilEntretien = LocalDate.now().plusDays(joursAlerteEntretien);
+        LocalDate seuilColis = LocalDate.now().minusDays(joursAlerteColis);
 
         for (Bus bus : busRepository.findAll()) {
             if (bus.getProchainEntretien() != null && bus.getProchainEntretien().isBefore(seuilEntretien)) {
@@ -87,16 +148,29 @@ public class DashboardServiceImpl implements DashboardService {
             }
         }
 
-        long colisNonReclames = colisRepository.findByStatut(StatutColis.NON_RECLAME).size();
+        // Check for unclaimed packages (ARRIVE_AGENCE status for more than threshold days)
+        long colisNonReclames = colisRepository.findByStatutAndDateLivraisonBefore(StatutColis.ARRIVE_AGENCE, seuilColis.atStartOfDay(), java.time.LocalDateTime.of(1970, 1, 1, 0, 0)).size();
         if (colisNonReclames > 0) {
             alertes.add(AlerteResponse.builder()
                     .type("COLIS_NON_RECLAME")
                     .titre("Colis non reclames")
-                    .details(colisNonReclames + " colis en attente depuis plus de 7 jours")
+                    .details(colisNonReclames + " colis en attente depuis plus de " + joursAlerteColis + " jours")
                     .niveau("BLEU")
                     .build());
         }
         return alertes;
+    }
+
+    private int getConfigurationInt(String cle, int valeurDefaut) {
+        return configurationMetierRepository.findByCle(cle)
+                .map(config -> {
+                    try {
+                        return Integer.parseInt(config.getValeur());
+                    } catch (NumberFormatException e) {
+                        return valeurDefaut;
+                    }
+                })
+                .orElse(valeurDefaut);
     }
 
     @Override

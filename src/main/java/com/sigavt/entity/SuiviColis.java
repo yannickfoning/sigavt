@@ -33,6 +33,6 @@ public class SuiviColis {
     private LocalDateTime dateEvenement;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agent_id")
+    @JoinColumn(name = "agent_id", nullable = true)
     private Utilisateur agent;
 }

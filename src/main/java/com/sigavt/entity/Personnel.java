@@ -48,12 +48,12 @@ public class Personnel {
     @Column(name = "permis_conduire", length = 10)
     private String permisConduire;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bus_assigne_id")
     @JsonIgnore
     private Bus busAssigne;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agence_id")
     @JsonIgnore
     private Agence agence;

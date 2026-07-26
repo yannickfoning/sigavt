@@ -1,5 +1,7 @@
 package com.sigavt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sigavt.enums.ModePaiement;
 import com.sigavt.enums.StatutBillet;
 import com.sigavt.enums.TypeTarif;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "billets")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Billet {
 
     @Id
@@ -21,12 +24,14 @@ public class Billet {
     @Column(name = "numero_billet", nullable = false, unique = true, length = 30)
     private String numeroBillet;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "voyage_id", nullable = false)
+    @JsonIgnore
     private Voyage voyage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "siege_id")
+    @JsonIgnore
     private Siege siege;
 
     @Column(name = "passager_nom", nullable = false, length = 150)
@@ -51,8 +56,9 @@ public class Billet {
     @Column(nullable = false, length = 20)
     private StatutBillet statut = StatutBillet.VALIDE;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agent_vente_id")
+    @JsonIgnore
     private Utilisateur agentVente;
 
     @Builder.Default

@@ -3,6 +3,7 @@ package com.sigavt.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,9 +46,22 @@ public class GlobalExceptionHandler {
         return construire(HttpStatus.BAD_REQUEST, "Erreur de validation", details);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErreurReponse> handleAccessDenied(AccessDeniedException ex) {
+        return construire(HttpStatus.FORBIDDEN, "Accès refusé : vous n'avez pas les droits nécessaires", null);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErreurReponse> handleIllegalArgument(IllegalArgumentException ex) {
+        return construire(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErreurReponse> handleGeneric(Exception ex) {
-        return construire(HttpStatus.INTERNAL_SERVER_ERROR, "Une erreur interne est survenue. Veuillez contacter l'administrateur.", null);
+        Map<String, String> details = new HashMap<>();
+        details.put("exception", ex.getClass().getSimpleName());
+        details.put("message", ex.getMessage());
+        return construire(HttpStatus.INTERNAL_SERVER_ERROR, "Une erreur interne est survenue. Veuillez contacter l'administrateur.", details);
     }
 
     private ResponseEntity<ErreurReponse> construire(HttpStatus statut, String message, Map<String, String> details) {

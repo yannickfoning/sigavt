@@ -31,6 +31,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         "/index.html",
         "/login",
         "/login.html",
+        "/sigavt",
+        "/sigavt.html",
         "/dashboard",
         "/dashboard.html",
         "/accueil",
@@ -52,8 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         "/api/auth/",
         "/api/colis/tracking/",
         "/swagger-ui/",
-        "/api-docs/",
-        "/h2-console/"
+        "/api-docs/"
     );
 
     @Override

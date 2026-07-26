@@ -82,9 +82,16 @@ public class BusServiceImpl implements BusService {
     @Override
     public void supprimer(Long id) {
         Bus bus = obtenirParId(id);
-        List<Voyage> voyagesActifs = voyageRepository.findByBus_Id(id);
-        if (!voyagesActifs.isEmpty()) {
-            throw new RegleMetierException("Impossible de supprimer ce bus : " + voyagesActifs.size() + " voyage(s) actif(s) le référence");
+        List<Voyage> voyages = voyageRepository.findByBus_Id(id);
+        List<Voyage> voyagesBloquants = voyages.stream()
+                .filter(v -> v.getStatut() == StatutVoyage.PLANIFIE
+                        || v.getStatut() == StatutVoyage.EN_COURS
+                        || v.getStatut() == StatutVoyage.EN_ROUTE)
+                .toList();
+        if (!voyagesBloquants.isEmpty()) {
+            throw new RegleMetierException("Impossible de supprimer ce bus : "
+                    + voyagesBloquants.size()
+                    + " voyage(s) actif(s) (PLANIFIE ou EN_COURS) le référence encore.");
         }
         busRepository.delete(bus);
     }

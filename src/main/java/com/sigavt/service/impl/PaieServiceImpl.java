@@ -2,11 +2,14 @@ package com.sigavt.service.impl;
 
 import com.sigavt.dto.request.BulletinPaieRequest;
 import com.sigavt.entity.BulletinPaie;
+import com.sigavt.entity.ConfigurationMetier;
 import com.sigavt.entity.Personnel;
+import com.sigavt.enums.CategorieConfiguration;
 import com.sigavt.enums.StatutPaiement;
 import com.sigavt.exception.RegleMetierException;
 import com.sigavt.exception.RessourceIntrouvableException;
 import com.sigavt.repository.BulletinPaieRepository;
+import com.sigavt.repository.ConfigurationMetierRepository;
 import com.sigavt.repository.PersonnelRepository;
 import com.sigavt.service.PaieService;
 import lombok.RequiredArgsConstructor;
@@ -19,20 +22,19 @@ import java.util.List;
 
 /**
  * Calcul de paie adapte au contexte camerounais.
- * NB : les regles CNPS (4,2% salarie / 11,2% employeur) et le bareme IRPP
- * simplifie ci-dessous sont indicatifs. Ils doivent etre ajustes/valides
- * avec un expert comptable / la legislation en vigueur (CGI, CNPS) avant
- * une mise en production reelle.
+ * Les taux CNPS et le bareme IRPP sont maintenant configurables via ConfigurationMetier.
+ * Valeurs par defaut : CNPS salarie 4,2%, CNPS employeur 11,2%
  */
 @Service
 @RequiredArgsConstructor
 public class PaieServiceImpl implements PaieService {
 
-    private static final BigDecimal TAUX_CNPS_SALARIE = BigDecimal.valueOf(0.042);
-    private static final BigDecimal TAUX_CNPS_EMPLOYEUR = BigDecimal.valueOf(0.112);
+    private static final BigDecimal TAUX_CNPS_SALARIE_DEFAUT = BigDecimal.valueOf(0.042);
+    private static final BigDecimal TAUX_CNPS_EMPLOYEUR_DEFAUT = BigDecimal.valueOf(0.112);
 
     private final BulletinPaieRepository bulletinPaieRepository;
     private final PersonnelRepository personnelRepository;
+    private final ConfigurationMetierRepository configurationMetierRepository;
 
     @Override
     public BulletinPaie generer(BulletinPaieRequest r) {
@@ -53,8 +55,11 @@ public class PaieServiceImpl implements PaieService {
         BigDecimal montantHeuresSup = heuresSup.multiply(tauxHoraireSup).setScale(0, RoundingMode.HALF_UP);
         BigDecimal salaireBrut = salaireBase.add(indemniteTransport).add(primeAnciennete).add(primePerformance).add(montantHeuresSup);
 
-        BigDecimal cnpsSalarie = salaireBrut.multiply(TAUX_CNPS_SALARIE).setScale(0, RoundingMode.HALF_UP);
-        BigDecimal cnpsPatronal = salaireBrut.multiply(TAUX_CNPS_EMPLOYEUR).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal tauxCnpsSalarie = getConfigurationDecimal("TAUX_CNPS_SALARIE_PCT", TAUX_CNPS_SALARIE_DEFAUT).divide(BigDecimal.valueOf(100));
+        BigDecimal tauxCnpsEmployeur = getConfigurationDecimal("TAUX_CNPS_PATRONAL_PCT", TAUX_CNPS_EMPLOYEUR_DEFAUT).divide(BigDecimal.valueOf(100));
+        
+        BigDecimal cnpsSalarie = salaireBrut.multiply(tauxCnpsSalarie).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal cnpsPatronal = salaireBrut.multiply(tauxCnpsEmployeur).setScale(0, RoundingMode.HALF_UP);
         BigDecimal irpp = calculerIrpp(salaireBrut, cnpsSalarie);
         BigDecimal autresRetenues = valeurOuZero(r.getAutresRetenues());
 
@@ -65,12 +70,12 @@ public class PaieServiceImpl implements PaieService {
                 .periode(r.getPeriode())
                 .salaireBase(salaireBase)
                 .indemniteTransport(indemniteTransport)
-                .heuresSup(heuresSup)
+                .heuresSupplementaires(heuresSup)
                 .tauxHoraireSup(tauxHoraireSup)
                 .primeAnciennete(primeAnciennete)
                 .primePerformance(primePerformance)
-                .cnpsSalarie(cnpsSalarie)
-                .cnpsPatronal(cnpsPatronal)
+                .cotisationCnps(cnpsSalarie)
+                .chargesPatronales(cnpsPatronal)
                 .irpp(irpp)
                 .autresRetenues(autresRetenues)
                 .netAPayer(netAPayer)
@@ -123,6 +128,18 @@ public class PaieServiceImpl implements PaieService {
 
     private BigDecimal valeurOuZero(BigDecimal valeur) {
         return valeur != null ? valeur : BigDecimal.ZERO;
+    }
+
+    private BigDecimal getConfigurationDecimal(String cle, BigDecimal valeurDefaut) {
+        return configurationMetierRepository.findByCle(cle)
+                .map(config -> {
+                    try {
+                        return new BigDecimal(config.getValeur());
+                    } catch (NumberFormatException e) {
+                        return valeurDefaut;
+                    }
+                })
+                .orElse(valeurDefaut);
     }
 
     @Override

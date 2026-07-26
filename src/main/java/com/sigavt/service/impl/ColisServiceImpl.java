@@ -1,14 +1,19 @@
 package com.sigavt.service.impl;
 
 import com.sigavt.dto.request.ColisRequest;
+import com.sigavt.entity.BaremeTarifColis;
 import com.sigavt.entity.Colis;
+import com.sigavt.entity.SupplementColis;
 import com.sigavt.entity.SuiviColis;
 import com.sigavt.entity.Utilisateur;
 import com.sigavt.enums.ModePaiement;
 import com.sigavt.enums.StatutColis;
 import com.sigavt.enums.TypeColis;
+import com.sigavt.enums.TypeSupplementColis;
 import com.sigavt.exception.RessourceIntrouvableException;
+import com.sigavt.repository.BaremeTarifColisRepository;
 import com.sigavt.repository.ColisRepository;
+import com.sigavt.repository.SupplementColisRepository;
 import com.sigavt.repository.SuiviColisRepository;
 import com.sigavt.repository.UtilisateurRepository;
 import com.sigavt.service.ColisService;
@@ -31,6 +36,8 @@ public class ColisServiceImpl implements ColisService {
     private final ColisRepository colisRepository;
     private final SuiviColisRepository suiviColisRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final BaremeTarifColisRepository baremeTarifColisRepository;
+    private final SupplementColisRepository supplementColisRepository;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
@@ -55,10 +62,10 @@ public class ColisServiceImpl implements ColisService {
                 .fragile(r.isFragile())
                 .urgent(r.isUrgent())
                 .assure(r.isAssure())
-                .montant(tarif)
+                .tarif(tarif)
                 .modePaiement(ModePaiement.valueOf(r.getModePaiement().toUpperCase()))
                 .statut(StatutColis.ENREGISTRE)
-                .agence(agent != null ? agent.getAgence() : null)
+                .agence(null)
                 .agent(agent)
                 .dateCreation(LocalDateTime.now())
                 .build();
@@ -134,23 +141,45 @@ public class ColisServiceImpl implements ColisService {
     }
 
     private BigDecimal calculerTarif(BigDecimal poidsKg, boolean fragile, boolean urgent, boolean assure) {
-        // Tarif de base par tranche de poids (FCFA)
-        BigDecimal tarifBase;
-        if (poidsKg.compareTo(BigDecimal.ONE) <= 0) {
-            tarifBase = BigDecimal.valueOf(500);
-        } else if (poidsKg.compareTo(BigDecimal.valueOf(5)) <= 0) {
-            tarifBase = BigDecimal.valueOf(1200);
-        } else if (poidsKg.compareTo(BigDecimal.valueOf(15)) <= 0) {
-            tarifBase = BigDecimal.valueOf(2500);
-        } else {
-            tarifBase = BigDecimal.valueOf(4000);
-        }
+        // Get base tariff from database configuration
+        BigDecimal tarifBase = baremeTarifColisRepository.findByPoids(poidsKg)
+                .map(BaremeTarifColis::getTarifBase)
+                .orElseGet(() -> {
+                    // Fallback to hardcoded values if no configuration found
+                    if (poidsKg.compareTo(BigDecimal.ONE) <= 0) {
+                        return BigDecimal.valueOf(500);
+                    } else if (poidsKg.compareTo(BigDecimal.valueOf(5)) <= 0) {
+                        return BigDecimal.valueOf(1200);
+                    } else if (poidsKg.compareTo(BigDecimal.valueOf(15)) <= 0) {
+                        return BigDecimal.valueOf(2500);
+                    } else {
+                        return BigDecimal.valueOf(4000);
+                    }
+                });
 
-        // Options supplementaires
+        // Get supplements from database configuration
         BigDecimal supplement = BigDecimal.ZERO;
-        if (fragile) supplement = supplement.add(BigDecimal.valueOf(300));
-        if (urgent) supplement = supplement.add(BigDecimal.valueOf(800));
-        if (assure) supplement = supplement.add(BigDecimal.valueOf(500));
+        if (fragile) {
+            supplement = supplement.add(
+                    supplementColisRepository.findByTypeSupplementAndActifTrue(TypeSupplementColis.FRAGILE)
+                            .map(SupplementColis::getMontant)
+                            .orElse(BigDecimal.valueOf(300))
+            );
+        }
+        if (urgent) {
+            supplement = supplement.add(
+                    supplementColisRepository.findByTypeSupplementAndActifTrue(TypeSupplementColis.URGENT)
+                            .map(SupplementColis::getMontant)
+                            .orElse(BigDecimal.valueOf(800))
+            );
+        }
+        if (assure) {
+            supplement = supplement.add(
+                    supplementColisRepository.findByTypeSupplementAndActifTrue(TypeSupplementColis.ASSURE)
+                            .map(SupplementColis::getMontant)
+                            .orElse(BigDecimal.valueOf(500))
+            );
+        }
 
         return tarifBase.add(supplement);
     }

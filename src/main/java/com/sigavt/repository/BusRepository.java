@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface BusRepository extends JpaRepository<Bus, Long> {
     Optional<Bus> findByImmatriculation(String immatriculation);
     List<Bus> findByStatut(StatutBus statut);
+    List<Bus> findByLigneAssignee_Id(Long ligneId);
 
     Page<Bus> findAll(Pageable pageable);
     Page<Bus> findByStatut(StatutBus statut, Pageable pageable);

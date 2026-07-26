@@ -1,6 +1,7 @@
 package com.sigavt.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sigavt.enums.StatutVoyage;
 import javax.persistence.*;
 import lombok.*;
@@ -11,23 +12,24 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "voyages")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Voyage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ligne_id", nullable = false)
     @JsonIgnore
     private Ligne ligne;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bus_id")
     @JsonIgnore
     private Bus bus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "chauffeur_id")
     @JsonIgnore
     private Personnel chauffeur;

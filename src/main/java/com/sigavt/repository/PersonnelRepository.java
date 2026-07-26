@@ -13,6 +13,7 @@ public interface PersonnelRepository extends JpaRepository<Personnel, Long> {
     List<Personnel> findByPoste(Poste poste);
     List<Personnel> findByStatut(StatutEmploye statut);
     List<Personnel> findByNomCompletContainingIgnoreCase(String nom);
+    List<Personnel> findByAgence_Id(Long agenceId);
 
     Page<Personnel> findAll(Pageable pageable);
     Page<Personnel> findByPoste(Poste poste, Pageable pageable);

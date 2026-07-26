@@ -52,8 +52,8 @@ public class VoyageController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','GERANT','BILLETTERIE','CONVOYEUR','COMPTABLE','RESP_FLOTTE')")
-    public ResponseEntity<Voyage> obtenir(@PathVariable Long id) {
-        return ResponseEntity.ok(voyageService.obtenirParId(id));
+    public ResponseEntity<VoyageResponse> obtenir(@PathVariable Long id) {
+        return ResponseEntity.ok(toResponse(voyageService.obtenirParId(id)));
     }
 
     @GetMapping("/{id}/sieges")
@@ -83,6 +83,7 @@ public class VoyageController {
                 .dateVoyage(voyage.getDateVoyage())
                 .heureDepart(voyage.getHeureDepart())
                 .placesDisponibles(voyage.getPlacesDisponibles())
+                .tarifBase(voyage.getLigne() != null ? voyage.getLigne().getTarifBase() : null)
                 .statut(voyage.getStatut())
                 .busImmatriculation(voyage.getBus() != null ? voyage.getBus().getImmatriculation() : null)
                 .chauffeurNom(voyage.getChauffeur() != null ? voyage.getChauffeur().getNomComplet() : null)
