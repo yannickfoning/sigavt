@@ -12,7 +12,7 @@ spring:
   application:
     name: sigavt
   profiles:
-    active: disabled
+    active: dev-legacy
 
   datasource:
     url: jdbc:mysql://localhost:3306/sigavt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Africa/Douala&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true

@@ -21,6 +21,9 @@ public class JwtUtil {
     private long expirationMs;
 
     private Key getSigningKey() {
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new IllegalStateException("JWT_SECRET non défini. Veuillez définir la variable d'environnement JWT_SECRET avec une valeur d'au moins 64 caractères.");
+        }
         return Keys.hmacShaKeyFor(java.util.Base64.getDecoder().decode(secret));
     }
 
