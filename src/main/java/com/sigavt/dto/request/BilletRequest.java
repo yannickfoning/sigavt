@@ -15,4 +15,9 @@ public class BilletRequest {
     private String passagerTelephone;
     @NotBlank private String typeTarif;
     @NotBlank private String modePaiement;
+    
+    // Assouplir la validation du téléphone pour accepter les formats avec espaces
+    public void setPassagerTelephone(String passagerTelephone) {
+        this.passagerTelephone = passagerTelephone != null ? passagerTelephone.replaceAll("\\s", "") : null;
+    }
 }

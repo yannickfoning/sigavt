@@ -1138,18 +1138,18 @@
           <div class="form-grid" style="margin-top:14px">
             <div class="form-group">
               <label>Type de tarif</label>
-              <select>
-                <option>Plein tarif adulte</option>
-                <option>Demi-tarif enfant</option>
-                <option>Tarif groupe</option>
+              <select id="billet-type-tarif">
+                <option value="PLEIN_TARIF_ADULTE">Plein tarif adulte</option>
+                <option value="DEMI_TARIF_ENFANT">Demi-tarif enfant</option>
+                <option value="TARIF_GROUPE">Tarif groupe</option>
               </select>
             </div>
             <div class="form-group">
               <label>Mode paiement</label>
-              <select>
-                <option>Espèces</option>
-                <option>Orange Money</option>
-                <option>MTN MoMo</option>
+              <select id="billet-mode-paiement">
+                <option value="ESPECES">Espèces</option>
+                <option value="ORANGE_MONEY">Orange Money</option>
+                <option value="MTN_MOMO">MTN MoMo</option>
               </select>
             </div>
           </div>
@@ -2289,10 +2289,82 @@
     const paxEl = document.getElementById('pax-count');
     const pax = paxEl ? parseInt(paxEl.textContent, 10) || 1 : 1;
     const total = unitPrice * pax;
-    const ticketNum = 'TKT-' + Math.floor(100000 + Math.random() * 900000);
-    showToast(`🎫 Billet ${ticketNum} émis avec succès — ${formatFcfa(total)}`, 'success', 4500);
-    billetStep = 1;
-    updateBilletStepsUI();
+    
+    // Récupérer les champs de paiement
+    const typeTarif = document.getElementById('billet-type-tarif')?.value || 'PLEIN_TARIF_ADULTE';
+    const modePaiement = document.getElementById('billet-mode-paiement')?.value || 'ESPECES';
+    
+    // Récupérer les infos du passager (étape 2)
+    const passagerNom = document.getElementById('passager-nom')?.value || '';
+    const passagerTelephone = document.getElementById('passager-tel')?.value || '';
+    
+    // Récupérer le siège sélectionné (étape 3)
+    const selectedSeat = document.querySelector('#page-billets .seat.seat-selected');
+    const numeroSiege = selectedSeat?.dataset?.seat || '';
+    
+    // Récupérer l'ID du voyage sélectionné
+    const selectedVoyageId = localStorage.getItem('selectedVoyageId');
+    
+    if (!selectedVoyageId) {
+      showToast('⚠️ Veuillez sélectionner un voyage', 'error');
+      return;
+    }
+    
+    if (!passagerNom || !passagerTelephone) {
+      showToast('⚠️ Veuillez remplir les informations du passager', 'error');
+      billetStep = 2;
+      updateBilletStepsUI();
+      return;
+    }
+    
+    if (!numeroSiege) {
+      showToast('⚠️ Veuillez sélectionner un siège', 'error');
+      billetStep = 3;
+      updateBilletStepsUI();
+      return;
+    }
+    
+    // Construire le payload pour l'API
+    const billetPayload = {
+      voyageId: parseInt(selectedVoyageId),
+      passagerNom: passagerNom,
+      passagerTelephone: passagerTelephone,
+      numeroSiege: numeroSiege,
+      typeTarif: typeTarif,
+      modePaiement: modePaiement
+    };
+    
+    // Appeler l'API pour créer le billet
+    try {
+      const response = await fetch(`${API_BASE}/billets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(billetPayload)
+      });
+      
+      if (response.ok) {
+        const billet = await response.json();
+        const ticketNum = billet.numeroBillet || 'TKT-' + Math.floor(100000 + Math.random() * 900000);
+        showToast(`🎫 Billet ${ticketNum} émis avec succès — ${formatFcfa(total)}`, 'success', 4500);
+        
+        // Réinitialiser le formulaire
+        billetStep = 1;
+        updateBilletStepsUI();
+        
+        // Recharger la liste des billets
+        loadBilletList();
+      } else {
+        const errorData = await response.json();
+        const errorMessage = errorData.message || errorData.erreur || 'Erreur lors de la création du billet';
+        showToast(`❌ ${errorMessage}`, 'error', 5000);
+      }
+    } catch (error) {
+      console.error('Erreur création billet:', error);
+      showToast('❌ Erreur de connexion au serveur', 'error', 5000);
+    }
   }
   updateBilletStepsUI();
 
@@ -2343,16 +2415,22 @@
       return;
     }
 
-    // Phone validation (Cameroonian format)
     const phoneRegex = /^\+237[0-9]{9}$/;
     if (!phoneRegex.test(telephone.replace(/\s/g, ''))) {
       showToast('Le téléphone doit être au format +237XXXXXXXXX', 'error');
       return;
     }
 
+    const modal = document.getElementById('modal-employe');
+    const editId = modal.dataset.editId;
+    const isEdit = !!editId;
+
     try {
-      const response = await fetch('/api/personnel', {
-        method: 'POST',
+      const url = isEdit ? `/api/personnel/${editId}` : '/api/personnel';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
@@ -2372,23 +2450,91 @@
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la création de l\'employé');
+        throw new Error(isEdit ? 'Erreur lors de la modification de l\'employé' : 'Erreur lors de la création de l\'employé');
       }
 
-      showToast('Employé créé avec succès', 'success');
-      document.getElementById('modal-employe').classList.remove('open');
-      // Reload personnel list if on personnel page
+      showToast(isEdit ? 'Employé modifié avec succès' : 'Employé créé avec succès', 'success');
+      modal.classList.remove('open');
+      delete modal.dataset.editId;
+      
       if (document.querySelector('.page.active').id === 'page-personnel') {
         loadPersonnelList();
       }
     } catch (error) {
-      showToast(error.message || 'Erreur lors de la création de l\'employé', 'error');
+      showToast(error.message || 'Erreur lors de l\'opération', 'error');
     }
   }
 
   function loadPersonnelList() {
-    // TODO: Implement real API call to load personnel list
-    console.log('Loading personnel list...');
+    try {
+      const data = await fetchAPI('/personnel');
+      if (data && data.content) {
+        const tbody = document.getElementById('emp-list');
+        if (tbody) {
+          tbody.innerHTML = data.content.map(pers => `
+            <div class="emp-card">
+              <div class="emp-info">
+                <div class="emp-name">${pers.nomComplet}</div>
+                <div class="emp-role">${pers.poste}</div>
+                <div class="emp-contact">${pers.telephone}</div>
+              </div>
+              <div class="emp-actions">
+                <button class="btn btn-sm btn-outline" onclick="editPersonnel(${pers.id})">✏️</button>
+                <button class="btn btn-sm btn-outline" onclick="deletePersonnel(${pers.id})">🗑️</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading personnel list:', error);
+    }
+  }
+
+  async function editPersonnel(persId) {
+    try {
+      const pers = await fetchAPI(`/personnel/${persId}`);
+      if (!pers) return;
+
+      document.getElementById('emp-nom').value = pers.nomComplet;
+      document.getElementById('emp-tel').value = pers.telephone;
+      document.getElementById('emp-poste').value = pers.poste;
+      document.getElementById('emp-contrat').value = pers.typeContrat;
+      document.querySelector('#employe-form input[placeholder="120 000"]').value = pers.salaireBase;
+      document.querySelector('#employe-form input[placeholder="CM-XXXXXX"]').value = pers.numeroCnps;
+      document.querySelector('#employe-form input[placeholder="123456789"]').value = pers.numeroCni;
+      document.querySelector('#employe-form input[placeholder="D (si chauffeur)"]').value = pers.permisConduire;
+      document.getElementById('emp-bus').value = pers.busAssigne ? pers.busAssigne.id : '';
+
+      document.getElementById('modal-employe').dataset.editId = persId;
+      document.getElementById('modal-employe').classList.add('open');
+    } catch (error) {
+      console.error('Error loading personnel for edit:', error);
+      showToast('Erreur lors du chargement de l\'employé', 'error');
+    }
+  }
+
+  async function deletePersonnel(persId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')) return;
+
+    try {
+      const response = await fetch(`/api/personnel/${persId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression de l\'employé');
+      }
+
+      showToast('Employé supprimé avec succès', 'success');
+      loadPersonnelList();
+    } catch (error) {
+      console.error('Error deleting personnel:', error);
+      showToast(error.message || 'Erreur lors de la suppression', 'error');
+    }
   }
 
   // ── Paramètres ──
@@ -2513,7 +2659,12 @@
 
   // ── AUTHENTICATION & API ──
   const API_BASE = 'http://localhost:8081/api';
-  let authToken = localStorage.getItem('authToken') || 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJzdWIiOiJhZG1pbkBzaWdhdnQuY20iLCJpYXQiOjE3Mzg0NTk3MzEsImV4cCI6MTc4NDY4Mzc3MX0.xBRtYyHUWSX2RH_pD6t_kqNXKQJX3xa07tLfP76fmtM';
+  let authToken = localStorage.getItem('authToken');
+
+  // Redirect to login if no token
+  if (!authToken) {
+    window.location.href = '/login.html';
+  }
 
   async function fetchAPI(endpoint, options = {}) {
     const headers = {
@@ -3010,9 +3161,16 @@
       return;
     }
 
+    const modal = document.getElementById('modal-bus');
+    const editId = modal.dataset.editId;
+    const isEdit = !!editId;
+
     try {
-      const response = await fetch('/api/bus', {
-        method: 'POST',
+      const url = isEdit ? `/api/bus/${editId}` : '/api/bus';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
@@ -3029,17 +3187,18 @@
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la création du bus');
+        throw new Error(isEdit ? 'Erreur lors de la modification du bus' : 'Erreur lors de la création du bus');
       }
 
-      showToast('Bus créé avec succès', 'success');
-      document.getElementById('modal-bus').classList.remove('open');
-      // Reload bus list if on flotte page
+      showToast(isEdit ? 'Bus modifié avec succès' : 'Bus créé avec succès', 'success');
+      modal.classList.remove('open');
+      delete modal.dataset.editId;
+      
       if (document.querySelector('.page.active').id === 'page-flotte') {
         loadBusList();
       }
     } catch (error) {
-      showToast(error.message || 'Erreur lors de la création du bus', 'error');
+      showToast(error.message || 'Erreur lors de l\'opération', 'error');
     }
   }
 
@@ -3057,9 +3216,16 @@
       return;
     }
 
+    const modal = document.getElementById('modal-ligne');
+    const editId = modal.dataset.editId;
+    const isEdit = !!editId;
+
     try {
-      const response = await fetch('/api/lignes', {
-        method: 'POST',
+      const url = isEdit ? `/api/lignes/${editId}` : '/api/lignes';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
@@ -3076,17 +3242,18 @@
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la création de la ligne');
+        throw new Error(isEdit ? 'Erreur lors de la modification de la ligne' : 'Erreur lors de la création de la ligne');
       }
 
-      showToast('Ligne créée avec succès', 'success');
-      document.getElementById('modal-ligne').classList.remove('open');
-      // Reload ligne list if on lignes page
+      showToast(isEdit ? 'Ligne modifiée avec succès' : 'Ligne créée avec succès', 'success');
+      modal.classList.remove('open');
+      delete modal.dataset.editId;
+      
       if (document.querySelector('.page.active').id === 'page-lignes') {
         loadLigneList();
       }
     } catch (error) {
-      showToast(error.message || 'Erreur lors de la création de la ligne', 'error');
+      showToast(error.message || 'Erreur lors de l\'opération', 'error');
     }
   }
 
@@ -3241,30 +3408,244 @@
     }
   }
 
-  // Placeholder load functions for lists (to be implemented with real API calls)
-  function loadBusList() {
-    // TODO: Implement real API call to load bus list
-    console.log('Loading bus list...');
+  // Load functions for lists with real API calls
+  async function loadBusList() {
+    try {
+      const data = await fetchAPI('/bus');
+      if (data && data.content) {
+        const tbody = document.getElementById('bus-tbody');
+        if (tbody) {
+          tbody.innerHTML = data.content.map(bus => `
+            <tr>
+              <td><span class="badge badge-navy">${bus.immatriculation}</span></td>
+              <td>${bus.modele}</td>
+              <td>${bus.nombrePlaces}</td>
+              <td><span class="badge badge-${bus.statut === 'OPERATIONNEL' ? 'green' : 'red'}">${bus.statut}</span></td>
+              <td>${bus.ligneAssignee ? bus.ligneAssignee.villeDepart + ' → ' + bus.ligneAssignee.villeArrivee : 'Non assigné'}</td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="editBus(${bus.id})">✏️</button>
+                <button class="btn btn-sm btn-outline" onclick="deleteBus(${bus.id})">🗑️</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading bus list:', error);
+    }
   }
 
-  function loadLigneList() {
-    // TODO: Implement real API call to load ligne list
-    console.log('Loading ligne list...');
+  async function editBus(busId) {
+    try {
+      const bus = await fetchAPI(`/bus/${busId}`);
+      if (!bus) return;
+
+      // Pre-fill the modal
+      document.getElementById('bus-immat').value = bus.immatriculation;
+      document.getElementById('bus-modele').value = bus.modele;
+      document.getElementById('bus-places').value = bus.nombrePlaces;
+      document.getElementById('bus-ligne').value = bus.ligneAssignee ? bus.ligneAssignee.id : '';
+      document.getElementById('bus-entretien').value = bus.prochainEntretien || '';
+      document.getElementById('bus-assurance').value = bus.assuranceExpiration || '';
+      document.getElementById('bus-statut').value = bus.statut;
+
+      // Store the ID for update
+      document.getElementById('modal-bus').dataset.editId = busId;
+
+      // Open modal
+      document.getElementById('modal-bus').classList.add('open');
+    } catch (error) {
+      console.error('Error loading bus for edit:', error);
+      showToast('Erreur lors du chargement du bus', 'error');
+    }
   }
 
-  function loadCourrierList() {
-    // TODO: Implement real API call to load courrier list
-    console.log('Loading courrier list...');
+  async function deleteBus(busId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce bus ?')) return;
+
+    try {
+      const response = await fetch(`/api/bus/${busId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression du bus');
+      }
+
+      showToast('Bus supprimé avec succès', 'success');
+      loadBusList();
+    } catch (error) {
+      console.error('Error deleting bus:', error);
+      showToast(error.message || 'Erreur lors de la suppression', 'error');
+    }
   }
 
-  function loadPaieList() {
-    // TODO: Implement real API call to load paie list
-    console.log('Loading paie list...');
+  async function loadLigneList() {
+    try {
+      const data = await fetchAPI('/lignes');
+      if (data && data.content) {
+        const tbody = document.getElementById('ligne-tbody');
+        if (tbody) {
+          tbody.innerHTML = data.content.map(ligne => `
+            <tr>
+              <td><span class="badge badge-blue">${ligne.villeDepart} → ${ligne.villeArrivee}</span></td>
+              <td>${ligne.distanceKm} km</td>
+              <td>${ligne.dureeMinutes} min</td>
+              <td>${formatNumber(ligne.tarifBase)} FCFA</td>
+              <td><span class="badge badge-${ligne.statut === 'ACTIVE' ? 'green' : 'red'}">${ligne.statut}</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="editLigne(${ligne.id})">✏️</button>
+                <button class="btn btn-sm btn-outline" onclick="deleteLigne(${ligne.id})">🗑️</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading ligne list:', error);
+    }
   }
 
-  function loadComptabiliteList() {
-    // TODO: Implement real API call to load comptabilite list
-    console.log('Loading comptabilite list...');
+  async function editLigne(ligneId) {
+    try {
+      const ligne = await fetchAPI(`/lignes/${ligneId}`);
+      if (!ligne) return;
+
+      document.getElementById('ligne-depart').value = ligne.villeDepart;
+      document.getElementById('ligne-arrivee').value = ligne.villeArrivee;
+      document.getElementById('ligne-distance').value = ligne.distanceKm;
+      document.getElementById('ligne-duree').value = ligne.dureeMinutes;
+      document.getElementById('ligne-tarif').value = ligne.tarifBase;
+      document.getElementById('ligne-frequence').value = ligne.frequenceJour;
+      document.getElementById('ligne-statut').value = ligne.statut;
+
+      document.getElementById('modal-ligne').dataset.editId = ligneId;
+      document.getElementById('modal-ligne').classList.add('open');
+    } catch (error) {
+      console.error('Error loading ligne for edit:', error);
+      showToast('Erreur lors du chargement de la ligne', 'error');
+    }
+  }
+
+  async function deleteLigne(ligneId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette ligne ?')) return;
+
+    try {
+      const response = await fetch(`/api/lignes/${ligneId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression de la ligne');
+      }
+
+      showToast('Ligne supprimée avec succès', 'success');
+      loadLigneList();
+    } catch (error) {
+      console.error('Error deleting ligne:', error);
+      showToast(error.message || 'Erreur lors de la suppression', 'error');
+    }
+  }
+
+  async function loadCourrierList() {
+    try {
+      const data = await fetchAPI('/courriers');
+      if (data && data.content) {
+        const tbody = document.getElementById('courriers-tbody');
+        if (tbody) {
+          tbody.innerHTML = data.content.map(courrier => `
+            <tr>
+              <td>${new Date(courrier.dateReception).toLocaleDateString('fr-FR')}</td>
+              <td>${courrier.expediteur}</td>
+              <td>${courrier.destinataire}</td>
+              <td>${courrier.sujet}</td>
+              <td><span class="badge badge-${courrier.statut === 'NON_LU' ? 'orange' : 'green'}">${courrier.statut}</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="viewCourrier(${courrier.id})">📖</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading courrier list:', error);
+    }
+  }
+
+  async function loadPaieList() {
+    try {
+      const data = await fetchAPI('/paie');
+      if (data && data.content) {
+        const tbody = document.getElementById('paie-tbody');
+        if (tbody) {
+          tbody.innerHTML = data.content.map(paie => `
+            <tr>
+              <td>${paie.personnel ? paie.personnel.nomComplet : 'N/A'}</td>
+              <td>${formatNumber(paie.salaireNet)} FCFA</td>
+              <td>${new Date(paie.datePaiement).toLocaleDateString('fr-FR')}</td>
+              <td><span class="badge badge-green">PAYÉ</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="viewPaie(${paie.id})">📄</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading paie list:', error);
+    }
+  }
+
+  async function loadComptabiliteList() {
+    try {
+      const data = await fetchAPI('/comptabilite/ecritures');
+      if (data && data.content) {
+        const tbody = document.getElementById('ecritures-tbody');
+        if (tbody) {
+          tbody.innerHTML = data.content.map(ecriture => `
+            <tr>
+              <td>${new Date(ecriture.dateEcriture).toLocaleDateString('fr-FR')}</td>
+              <td><span class="badge badge-${ecriture.typeEcriture === 'DEBIT' ? 'red' : 'green'}">${ecriture.typeEcriture}</span></td>
+              <td>${ecriture.categorie}</td>
+              <td>${ecriture.debit ? formatNumber(ecriture.debit) + ' FCFA' : '-'}</td>
+              <td>${ecriture.credit ? formatNumber(ecriture.credit) + ' FCFA' : '-'}</td>
+              <td>${ecriture.description || '-'}</td>
+            </tr>
+          `).join('');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading comptabilite list:', error);
+    }
+  }
+
+  async function loadBilletList() {
+    try {
+      const data = await fetchAPI('/billets');
+      if (data && data.content) {
+        const tbody = document.getElementById('billets-tbody');
+        if (tbody) {
+          tbody.innerHTML = data.content.map(billet => `
+            <tr>
+              <td>${billet.numeroBillet || '-'}</td>
+              <td>${billet.passagerNom || '-'}</td>
+              <td>${billet.dateVoyage ? new Date(billet.dateVoyage).toLocaleDateString('fr-FR') : '-'}</td>
+              <td>${billet.numeroSiege || '-'}</td>
+              <td>${formatFcfa(billet.prixPaye || 0)}</td>
+              <td><span class="badge badge-green">Validé</span></td>
+            </tr>
+          `).join('');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading billet list:', error);
+    }
   }
 </script>
 </body>

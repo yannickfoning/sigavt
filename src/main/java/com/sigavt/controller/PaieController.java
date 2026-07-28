@@ -15,9 +15,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/paie")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "${app.cors.allowed-origins}")
 public class PaieController {
 
     private final PaieService paieService;
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','GERANT','COMPTABLE')")
+    public ResponseEntity<List<BulletinPaie>> listerTous() {
+        return ResponseEntity.ok(paieService.listerParPeriode(""));
+    }
 
     @PostMapping("/bulletins")
     @PreAuthorize("hasAnyRole('ADMIN','GERANT','COMPTABLE')")

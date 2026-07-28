@@ -16,13 +16,13 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/sigavt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Africa/Douala&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true
-    username: root
-    password: ""
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -42,9 +42,9 @@ spring:
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8080}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8081}
   jwt:
-    secret: ${JWT_SECRET:aG9zdC1zZWNyZXQtc2lnYXZ0LXByb2R1Y3Rpb24tMjAyNS1zdHJvbmctcmFuZG9tLWtleS0yNTYtYml0cy1mb3Itand0LXRva2VuLXNpZ25pbmc=}
+    secret: ${JWT_SECRET:hpQfezCGirbfSSNizTdFQ13elnQ8ZCbMVO9so5uNl9xbLaYzbsMg6Pfz4U6d530ViF7A5lZmRchoA3Mm}
     expiration-ms: 86400000
   data:
     seed-on-startup: false

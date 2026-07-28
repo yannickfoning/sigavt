@@ -26,4 +26,13 @@ public class ColisRequest {
     private boolean assure;
     @NotBlank private String modePaiement;
     private Long voyageId; // Optional: assign to specific voyage
+    
+    // Assouplir la validation du téléphone pour accepter les formats avec espaces
+    public void setExpediteurTelephone(String expediteurTelephone) {
+        this.expediteurTelephone = expediteurTelephone != null ? expediteurTelephone.replaceAll("\\s", "") : null;
+    }
+    
+    public void setDestinataireTelephone(String destinataireTelephone) {
+        this.destinataireTelephone = destinataireTelephone != null ? destinataireTelephone.replaceAll("\\s", "") : null;
+    }
 }
