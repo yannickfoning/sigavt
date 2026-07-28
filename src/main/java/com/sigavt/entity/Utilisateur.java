@@ -1,5 +1,6 @@
 package com.sigavt.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class Utilisateur {
     private String email;
 
     @Column(name = "mot_de_passe", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String motDePasse;
 
     @Column(length = 30)

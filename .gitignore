@@ -21,5 +21,33 @@ logs/
 target/
 !.mvn/wrapper/maven-wrapper.jar
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Maven distribution
+apache-maven-*/
+*.zip
+maven.zip
+
+# Base de données
+*.db
+*.mv.db
+*.trace.db
+sigavt.db
+sigavt.mv.db
+sigavt.trace.db
+
 # OS
 Thumbs.db
+
+# Scripts et outils (organisés dans scripts/)
+# Les fichiers à la racine sont ignorés sauf .env.example
+*.py
+*.ps1
+*.sql
+!annuler_voyages_test.sql
+!verifier_infra.py
+scripts/

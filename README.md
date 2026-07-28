@@ -178,7 +178,7 @@ Le secret JWT est obligatoire en production. Sans cette variable, l'application 
 ### Colis
 - `GET /api/colis` - Liste des colis
 - `POST /api/colis` - Créer un colis
-- `GET /api/colis/{numeroTracking}` - Suivre un colis
+- `GET /api/colis/tracking/{numero}` - Suivre un colis
 
 ### Paie
 - `GET /api/paie` - Liste des bulletins
@@ -187,8 +187,11 @@ Le secret JWT est obligatoire en production. Sans cette variable, l'application 
 - `POST /api/paie/bulletins/{id}/payer` - Marquer comme payé
 
 ### Utilisateurs
-- `GET /api/utilisateurs` - Liste des utilisateurs
-- `POST /api/utilisateurs` - Créer un utilisateur
+- `GET /api/utilisateurs` - Liste des utilisateurs (pagination)
+- `GET /api/utilisateurs/{id}` - Détails d'un utilisateur
+- `GET /api/utilisateurs/agence/{agenceId}` - Utilisateurs par agence
+- `POST /api/auth/inscription` - Inscription publique
+- `POST /api/auth/utilisateurs` - Créer utilisateur (admin)
 
 ## 🐛 Dépannage
 
