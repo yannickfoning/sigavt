@@ -14,22 +14,6 @@ spring:
   profiles:
     active: mysql
 
-  datasource:
-    url: jdbc:mysql://localhost:3306/sigavt?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Africa/Douala&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
-    open-in-view: false
-    show-sql: true
-
   jackson:
     time-zone: Africa/Douala
     date-format: yyyy-MM-dd
