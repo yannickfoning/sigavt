@@ -47,7 +47,14 @@ public class AuthServiceImpl implements AuthService {
             Utilisateur u = utilisateurRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new RessourceIntrouvableException("Utilisateur introuvable"));
 
-            String token = jwtUtil.genererToken(u.getEmail(), role);
+            String token;
+            try {
+                token = jwtUtil.genererToken(u.getEmail(), role);
+            } catch (io.jsonwebtoken.security.WeakKeyException e) {
+                throw new IllegalStateException(
+                        "JWT_SECRET invalide : la clé doit faire au moins 32 octets une fois décodée du Base64. " +
+                        "Générez-en une nouvelle avec: openssl rand -base64 64", e);
+            }
 
             return LoginResponse.builder()
                     .token(token)

@@ -55,6 +55,7 @@ services:
       DB_USER: ${DB_USER:-sigavt_user}
       DB_PASSWORD: ${DB_PASSWORD:-sigavt_pass_2025}
       JWT_SECRET: ${JWT_SECRET:-CHANGER_CE_SECRET_EN_PROD_32_CHARS_MIN}
+      SERVER_PORT: 8080
       TZ: Africa/Douala
       JAVA_OPTS: >-
         -Xms256m -Xmx512m

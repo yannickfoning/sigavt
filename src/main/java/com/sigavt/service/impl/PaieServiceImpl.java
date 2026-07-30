@@ -23,14 +23,14 @@ import java.util.List;
 /**
  * Calcul de paie adapte au contexte camerounais.
  * Les taux CNPS et le bareme IRPP sont maintenant configurables via ConfigurationMetier.
- * Valeurs par defaut : CNPS salarie 4,2%, CNPS employeur 11,2%
+ * Valeurs par defaut : CNPS salarie 4.2%, CNPS employeur 11.2% (stockes comme pourcentages)
  */
 @Service
 @RequiredArgsConstructor
 public class PaieServiceImpl implements PaieService {
 
-    private static final BigDecimal TAUX_CNPS_SALARIE_DEFAUT = BigDecimal.valueOf(0.042);
-    private static final BigDecimal TAUX_CNPS_EMPLOYEUR_DEFAUT = BigDecimal.valueOf(0.112);
+    private static final BigDecimal TAUX_CNPS_SALARIE_DEFAUT = BigDecimal.valueOf(4.2);
+    private static final BigDecimal TAUX_CNPS_EMPLOYEUR_DEFAUT = BigDecimal.valueOf(11.2);
 
     private final BulletinPaieRepository bulletinPaieRepository;
     private final PersonnelRepository personnelRepository;

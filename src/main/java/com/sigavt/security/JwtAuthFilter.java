@@ -39,7 +39,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         "/error",
         "/favicon.ico",
         "/actuator/health",
-        "/actuator/info"
+        "/actuator/info",
+        "/api/auth/login",
+        "/api/auth/inscription",
+        "/api/auth/refresh"
     );
 
     private static final List<String> PUBLIC_PREFIXES = List.of(
@@ -51,7 +54,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         "/img/",
         "/fonts/",
         "/webjars/",
-        "/api/auth/",
         "/api/colis/tracking/",
         "/swagger-ui/",
         "/api-docs/"

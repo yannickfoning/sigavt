@@ -65,7 +65,7 @@ const SigavtApi = {
   },
 
   async suivreColis(numeroTracking) {
-    const res = await fetch(`${API_BASE_URL}/colis/suivi/${numeroTracking}`);
+    const res = await fetch(`${API_BASE_URL}/colis/tracking/${numeroTracking}`);
     if (!res.ok) throw new Error("Colis introuvable");
     return res.json();
   },

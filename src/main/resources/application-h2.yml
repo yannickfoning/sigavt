@@ -22,4 +22,7 @@ spring:
 
 app:
   data:
-    seed-on-startup: false
+    seed-on-startup: true
+
+# WARNING: H2 profile is for local development only
+# NEVER use in production - use mysql profile instead

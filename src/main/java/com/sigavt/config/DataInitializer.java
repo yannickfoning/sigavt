@@ -6,16 +6,16 @@ import com.sigavt.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
+@Profile({"h2", "dev", "test"}) // Uniquement développement/test, JAMAIS production
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
