@@ -43,11 +43,11 @@
             <scope>runtime</scope>
         </dependency>
         
-        <!-- H2 Database (file-based for persistence) -->
+        <!-- H2 Database (test only) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <!-- Flyway migrations -->

@@ -83,8 +83,6 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.GET, "/api/colis/tracking/**").permitAll()
                 // Swagger
                 .antMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
-                // H2 Console (dev only)
-                .antMatchers("/h2-console/**").permitAll()
                 // Toutes les autres requêtes → JWT requis
                 .anyRequest().authenticated()
             )
