@@ -14,8 +14,39 @@ Plateforme de gestion complète pour agences de voyage terrestre au Cameroun.
 
 - Java 17 ou supérieur
 - Maven 3.6+
-- MySQL 8
+- MySQL 8 (pour la production)
 - Node.js 18+ (pour les outils de développement)
+
+## 🎯 Développement sans MySQL (H2)
+
+Pour le développement rapide sans installer MySQL, vous pouvez utiliser la base de données H2 intégrée.
+
+### Configuration H2
+
+Le fichier `application-h2.yml` configure automatiquement :
+- Base de données H2 en mode fichier (compatibilité MySQL)
+- Console H2 accessible sur `/h2-console`
+- Flyway désactivé (DDL auto-update activé)
+- Seed data désactivé par défaut
+
+### Démarrage avec H2
+
+```bash
+# Activer le profil H2
+mvn spring-boot:run -Dspring-boot.run.profiles=h2
+```
+
+Ou modifiez `application.yml` pour définir `spring.profiles.active: h2`
+
+### Accès à la console H2
+
+Une fois l'application démarrée :
+1. Ouvrez `http://localhost:8081/h2-console`
+2. JDBC URL: `jdbc:h2:file:./sigavt`
+3. User: `sa`
+4. Password: (laisser vide)
+
+⚠️ **Note**: H2 est destiné au développement uniquement. N'utilisez pas H2 en production.
 
 ## 🔧 Installation
 
@@ -135,7 +166,49 @@ Le secret JWT est obligatoire en production. Sans cette variable, l'application 
 - **Courriers**: Gestion de la correspondance
 - **Paramètres**: Configuration de l'agence
 
-## 🔌 API Endpoints
+## � Structure du projet
+
+```
+sigavt/
+├── src/
+│   ├── main/
+│   │   ├── java/com/sigavt/       # Code source Java
+│   │   │   ├── controller/        # Contrôleurs REST
+│   │   │   ├── service/           # Logique métier
+│   │   │   ├── repository/        # Accès données (JPA)
+│   │   │   ├── security/          # Sécurité JWT
+│   │   │   └── model/             # Entités JPA
+│   │   └── resources/
+│   │       ├── application.yml    # Configuration principale
+│   │       ├── application-h2.yml # Configuration H2 (dev)
+│   │       └── db/migration/      # Scripts Flyway
+│   └── test/                      # Tests unitaires
+├── scripts/                       # Scripts utilitaires et tests
+│   ├── test_*.py                  # Tests API Python
+│   ├── test_*.ps1                 # Tests API PowerShell
+│   ├── simulation_*.py            # Simulations
+│   ├── cleanup_*.py                # Nettoyage données
+│   ├── audit_*.py                 # Audit système
+│   ├── donnees_*.sql              # Données de test
+│   └── *.png                      # Captures d'écran
+├── archive_rapports/               # Rapports archivés
+├── pom.xml                        # Configuration Maven
+├── docker-compose.yml              # Docker Compose
+└── README.md                      # Documentation
+```
+
+### Dossier scripts/
+
+Le dossier `scripts/` contient tous les utilitaires de développement et de test :
+
+- **Tests API**: `test_api.py`, `test_api_complet.py`, `test_boutons.py`
+- **Simulations**: `simulation_complete.py`, `simulation_api.ps1`
+- **Nettoyage**: `cleanup_data.py`, `cleanup_database.ps1`
+- **Audit**: `audit_api_endpoints.py`, `audit_complet_v2.py`
+- **Données de test**: `donnees_test.sql`, `donnees_test_h2.sql`
+- **Rapports**: `ECARTS_SCHEMA.md`, `RAPPORT_*.md`
+
+## �🔌 API Endpoints
 
 ### Authentification
 - `POST /api/auth/login` - Connexion
@@ -209,10 +282,32 @@ Le secret JWT est obligatoire en production. Sans cette variable, l'application 
 
 ## 📝 Scripts utilitaires
 
-- `donnees_amour_mezam.py` - Insertion de données de test
+Tous les scripts utilitaires sont organisés dans le dossier `scripts/` :
+
+### Tests
+- `test_api.py` - Tests de base de l'API
+- `test_api_complet.py` - Tests complets
+- `test_boutons.py` - Tests interface boutons
+- `test_connexion.py` - Tests authentification
+- `test_export.py` - Tests export données
+
+### Simulations
+- `simulation_complete.py` - Simulation complète du système
+- `simulation_api.ps1` - Simulation API PowerShell
+
+### Nettoyage et maintenance
 - `cleanup_data.py` - Nettoyage des données incohérentes
+- `cleanup_database.ps1` - Nettoyage base de données
+- `verifier_corrections.py` - Vérification des corrections
+
+### Audit
 - `audit_api_endpoints.py` - Audit des endpoints API
-- `dump_agences.py` - Sauvegarde de la base de données
+- `audit_complet_v2.py` - Audit complet système
+
+### Données de test
+- `donnees_test.sql` - Données de test MySQL
+- `donnees_test_h2.sql` - Données de test H2
+- `donnees_test_postgresql.sql` - Données de test PostgreSQL
 
 ## 📄 Licence
 
